@@ -6,6 +6,39 @@
  * @subpackage Rewrite
  */
 
+/***
+http://code.tutsplus.com/articles/the-rewrite-api-the-basics--wp-25474
+
+正常只能这样访问
+http://example.com/?p=95
+function custom_rewrite_basic() {
+	add_rewrite_rule('^leaf/([0-9]+)/?', 'index.php?page_id=$matches[1]', 'top');
+}
+add_action('init', 'custom_rewrite_basic');
+那现在rewrite后可以这样访问了
+http://example.com/leaf/95
+
+
+http://example.com/index.php?page_id=12&food=milkshake&variety=strawberry
+这种url其实很不友好, 如何去掉query_string中的key, 变成以下
+http://example.com/nutrition/milkshakes/strawberry/
+rewirte就是起这个作用,其实就是换url
+
+像index?food=aaa&variety=bbb这种url中food是不能被识别的? 
+为了能能解析它,得使用add_rewrite_tag()
+function custom_rewrite_tag() {
+	add_rewrite_tag('%food%', '([^&]+)');
+	add_rewrite_tag('%variety%', '([^&]+)');
+}
+add_action('init', 'custom_rewrite_tag', 10, 0);
+这样以后可以使用$wp_query->query_vars['food'];了
+
+add_rewrite_rule()有时与add_rewrite_tag()一起配套使用
+function custom_rewrite_rule() {
+	add_rewrite_rule('^nutrition/([^/]*)/([^/]*)/?','index.php?page_id=12&food=$matches[1]&variety=$matches[2]','top');
+}
+add_action('init', 'custom_rewrite_rule', 10, 0);
+*/
 /**
  * Endpoint Mask for default, which is nothing.
  *
@@ -134,6 +167,9 @@ define( 'EP_ALL', EP_PERMALINK | EP_ATTACHMENT | EP_ROOT | EP_COMMENTS | EP_SEAR
  * @param string       $after Optional. Priority of the new rule. Accepts 'top'
  *                            or 'bottom'. Default 'bottom'.
  */
+ /***
+ $after: bottom表示规则插入在尾部, top表示在其它规则之前使用, 优先级高
+ */
 function add_rewrite_rule( $regex, $query, $after = 'bottom' ) {
 	global $wp_rewrite;
 
@@ -155,6 +191,11 @@ function add_rewrite_rule( $regex, $query, $after = 'bottom' ) {
  * @param string $tag   Name of the new rewrite tag.
  * @param string $regex Regular expression to substitute the tag for in rewrite rules.
  * @param string $query Optional. String to append to the rewritten query. Must end in '='. Default empty.
+ */
+ /*** 用于识别url中的变量 
+
+$this->add_rewrite_tag( '%pagename%', '(.?.+?)', 'pagename=' );
+
  */
 function add_rewrite_tag( $tag, $regex, $query = '' ) {
 	// validate the tag's name

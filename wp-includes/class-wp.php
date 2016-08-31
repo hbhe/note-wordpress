@@ -222,6 +222,7 @@ class WP {
 		// Process PATH_INFO, REQUEST_URI, and 404 for permalinks.
 
 		// Fetch the rewrite rules.
+		/*** 获取rewrite规则 */
 		$rewrite = $wp_rewrite->wp_rewrite_rules();
 
 		if ( ! empty($rewrite) ) {

@@ -39,9 +39,12 @@ object caching system是option操作要依赖的组件
  如果使用wp-content/object-cache.php(如memcache 持久caching )代替了wordpress自带的caching, 那么在B页面中调用时依然从
  cache中取
 
-
+get_option( 'rewrite_rules');
 get_option( 'template'); // 获取当前主题的父模板所在目录 
 get_option( 'stylesheet'); // 获取当前主题的子模板所在目录
+
+对于多站点, 每个站点都有一张表如wp_options, wp_2_options, ...
+get_blog_option()就是先切换表,再调用get_option()
 */
 
 function get_option( $option, $default = false ) {

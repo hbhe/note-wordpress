@@ -8,6 +8,7 @@
  
 /*
 显示左侧主菜单及上部menu bar ，帮助、选项 、站内信
+先显示左侧菜单，再显示上部admin bar, 
 */
 
 @header('Content-Type: ' . get_option('html_type') . '; charset=' . get_option('blog_charset'));
@@ -222,7 +223,9 @@ if ( current_user_can( 'customize' ) ) {
  *
  * @since 3.0.0
  */
-/* 显示wpadminbar 上方管理者profile bar , wp_admin_bar_render() */ 
+/* 显示wpadminbar 上方管理者profile bar , wp_admin_bar_render() 
+remove_action( 'in_admin_header', 'wp_admin_bar_render', 0 ); 可隐掉上方的admin bar
+*/ 
 do_action( 'in_admin_header' );
 ?>
 

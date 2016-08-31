@@ -163,9 +163,10 @@ else
 	$taxnow = '';
 
 if ( WP_NETWORK_ADMIN )
+	// 超级用户的左侧菜单数据与普通管理员的不一样
 	require(ABSPATH . 'wp-admin/network/menu.php');
 elseif ( WP_USER_ADMIN )
-	// 顶部user profile menu?
+	// 顶部user profile menu? 不像，好象也是左侧菜单
 	require(ABSPATH . 'wp-admin/user/menu.php');
 else
 	// 准备左侧主菜单数据结构, 暂不echo

@@ -70,7 +70,7 @@ function _wp_expand_nav_menu_post_data() {
 	if ( ! is_null( $data ) && $data ) {
 		foreach ( $data as $post_input_data ) {
 			// For input names that are arrays (e.g. `menu-item-db-id[3][4][5]`),
-			// derive the array path keys via regex and set the value in $_POST.
+			// derive the array path?keys via regex and set the value in $_POST.
 			preg_match( '#([^\[]*)(\[(.+)\])?#', $post_input_data->name, $matches );
 
 			$array_bits = array( $matches[1] );
@@ -155,6 +155,7 @@ endif;
 _wp_expand_nav_menu_post_data();
 
 switch ( $action ) {
+	/*** 增加一个菜单项 */
 	case 'add-menu-item':
 		check_admin_referer( 'add-menu_item', 'menu-settings-column-nonce' );
 		if ( isset( $_REQUEST['nav-menu-locations'] ) )
@@ -380,6 +381,7 @@ switch ( $action ) {
 			$messages[] = '<div id="message" class="updated notice is-dismissible"><p>' . __( 'Selected menus have been successfully deleted.' ) . '</p></div>';
 		break;
 
+	/*** 保存菜单 */
 	case 'update':
 		check_admin_referer( 'update-nav_menu', 'update-nav-menu-nonce' );
 

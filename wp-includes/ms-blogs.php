@@ -613,7 +613,7 @@ function update_blog_option( $id, $option, $value, $deprecated = null ) {
  * @return true Always returns True.
  */
  /*** 
- �л�վ��ʱ, Ҫ����ǰ׺
+ 切换站点时, 要换表前缀
  */
 function switch_to_blog( $new_blog, $deprecated = null ) {
 	global $wpdb;

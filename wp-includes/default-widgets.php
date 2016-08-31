@@ -6,6 +6,7 @@
  * @subpackage Widgets
  * @since 2.8.0
  */
+/*** 一些widget的实现,  注册是在wp_widgets_init()函数中*/
 
 /** WP_Widget_Pages class */
 require_once( ABSPATH . WPINC . '/widgets/class-wp-widget-pages.php' );

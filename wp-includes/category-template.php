@@ -1175,6 +1175,16 @@ function term_description( $term = 0, $taxonomy = 'post_tag' ) {
  * @return array|false|WP_Error Array of term objects on success, false if there are no terms
  *                              or the post does not exist, WP_Error on failure.
  */
+ /***
+wp_set_post_terms(),  get_the_terms(), get_terms()的区别: 
+get_the_terms( 1, 'category' )  //得到文章(post_id=1)的所属分类
+get_the_terms( 1, 'post_tag' )  //得到文章(post_id=1)的所属标签
+$format = get_the_terms( $post->ID, 'post_format' );  //得到文章(post_id=1)的所属形式
+
+wp_set_post_terms() 与get_the_terms() 是一对操作, 都是对某个post操作
+get_terms(['taxonomy' => 'category']); 	// 得到全部分类名, 与post无关
+
+ */
 function get_the_terms( $post, $taxonomy ) {
 	if ( ! $post = get_post( $post ) )
 		return false;

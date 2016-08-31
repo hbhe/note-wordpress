@@ -16,6 +16,10 @@
  * @since 2.9.0
  */
  /* 
+wp_posts表中可以装任何东西, 默认的有post, page, nav_menu_item(菜单项), attachment(图片), revision(版本记录), 需要有个标志字段post_type区别它们
+比如取出了一堆posts, 如果不分类的话,  很难进行管理, 所谓分类,可理解成集合
+
+
 post_type与taxonomy的区别?
 比如一个系统有产品, 订单, 用户这几种对象, 如果都想保存在一wp_posts表中, 就得有个字段来区别这些记录, 此字段就是post_type
 如果有很多产品, 不加分类就很难管理, 于是进一步将分类分门别类,如A类产品, B类产品..., 这就是taxonomy
@@ -31,6 +35,9 @@ create_initial_taxonomies()
 post_type: post, page, revision, audio, vedio, attachment, nav_menu_item, ...
 post_staus: publish, future, draft, auto-draft, pending, private, trash, inherit (8种)
 当然可以扩展它们
+
+wp_posts表中post_parent字段作用? revision记录中此字段表时是哪个post的版本, page记录中此字段表示其父页面是哪个,
+attachment记录中此字段表示此图片被哪个post所用?
  */
 function create_initial_post_types() {
 	/*** 这种post_type与哪几种分类(taxonomy)挂勾, 或者说post输入时要哪种分类, 不要哪种分类是如何决定的? 
@@ -46,7 +53,7 @@ function create_initial_post_types() {
 		'_edit_link' => 'post.php?post=%d', /* internal use only. don't use this when registering your own post type. */
 		'capability_type' => 'post',
 		'map_meta_cap' => true,
-		'menu_position' => 5,
+		'menu_position' => 5,	/*** 定义$menu[5] = ... */
 		'hierarchical' => false,
 		'rewrite' => false,
 		'query_var' => false,
@@ -74,7 +81,10 @@ function create_initial_post_types() {
 		2. 通过 编程, 在post输入框中增加metabox, 你只需输入价格100,  注意字段前最好加个'_'(如get_post_meta( $post->ID, '_my_price_key', true )), 表示此字段在custom_filed栏目中隐藏
 		(隐藏后用户就没有办法直接从custom栏目中改变,只能通过metabox改变)
 		*/
-		/*** 可供输入的项 */
+		/*** 
+		可供输入的项 
+		'editor': 表示可输入content
+		*/
 		'supports' => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'trackbacks', 'custom-fields', 'comments', 'revisions', 'post-formats' ), /*** 除了page-attributes */
 	) );
 
@@ -922,6 +932,7 @@ function get_post_type_object( $post_type ) {
  *                               must match; 'not' means no elements may match. Default 'and'.
  * @return array A list of post type names or objects.
  */
+ /*** 清出所有已注册的post_type */
 function get_post_types( $args = array(), $output = 'names', $operator = 'and' ) {
 	global $wp_post_types;
 
@@ -1051,6 +1062,14 @@ function get_post_types( $args = array(), $output = 'names', $operator = 'and' )
 supports : 所支持feature
 capability_type: 单复数
 capabilities: 一组权限名(一般为空就行了, 正常的读写删权限名会默认产生的)
+public: 是否在前后台出现
+show_ui :是否在后台出现
+publicly_queryable: 是否在前台可查
+show_in_admin_bar: 是否能作为菜单项被扔到菜单集合中
+exclude_from_search: search时是否过滤掉此类型的文章
+
+通过register_post_type()定义一种分类后, 在后台就相应地增加了对此分类的增删改操作
+增加哪些字段, label是什么,哪些meta数据,  这些细节都在register_post_type()中定义的
 */
 function register_post_type( $post_type, $args = array() ) {
 	global $wp_post_types, $wp_rewrite, $wp;
@@ -1203,6 +1222,7 @@ function register_post_type( $post_type, $args = array() ) {
 				$args->rewrite['ep_mask'] = EP_PERMALINK;
 		}
 
+		/*** 也要登记在url参数中, 它的key是什么样的? */
 		if ( $args->hierarchical )
 			add_rewrite_tag( "%$post_type%", '(.+?)', $args->query_var ? "{$args->query_var}=" : "post_type=$post_type&pagename=" );
 		else
@@ -1944,7 +1964,10 @@ function delete_post_meta( $post_id, $meta_key, $meta_value = '' ) {
  * @return mixed Will be an array if $single is false. Will be value of meta data
  *               field if $single is true.
  */
- /*** 如$product_color = get_post_meta( 1031, 'color', true ); 
+ /*** 
+ 得到一个post的某个key的值,如key不指定,表示返回所有meta数据(key:value)
+ 如$product_color = get_post_meta( 1031, 'color', true ); 
+
  post常用的meta key有:
 _wp_trash_meta_status
 _wp_attachment_backup_sizes
@@ -1956,6 +1979,7 @@ _edit_last
 _wp_attached_file    // 文件名
 _wp_attachment_metadata   // 文件的其它属性
  */
+
 function get_post_meta( $post_id, $key = '', $single = false ) {
 	return get_metadata('post', $post_id, $key, $single);
 }
@@ -2650,6 +2674,7 @@ function wp_delete_post( $postid = 0, $force_delete = false ) {
 	$parent_data = array( 'post_parent' => $post->post_parent );
 	$parent_where = array( 'post_parent' => $postid );
 
+	/*** 如果删除的post是父亲，儿子如何处理? */
 	if ( is_post_type_hierarchical( $post->post_type ) ) {
 		// Point children of this page to its parent, also clean the cache of affected children.
 		$children_query = $wpdb->prepare( "SELECT * FROM $wpdb->posts WHERE post_parent = %d AND post_type = %s", $postid, $post->post_type );
@@ -3821,6 +3846,7 @@ function check_and_publish_future_post( $post_id ) {
  * @param int    $post_parent Post parent ID.
  * @return string Unique slug for the post, based on $post_name (with a -1, -2, etc. suffix)
  */
+ /*** slug与post_id一样重要，必须保证唯一性，slug是url中用的,post_id是系统内部用的 */
 function wp_unique_post_slug( $slug, $post_ID, $post_status, $post_type, $post_parent ) {
 	if ( in_array( $post_status, array( 'draft', 'pending', 'auto-draft' ) ) || ( 'inherit' == $post_status && 'revision' == $post_type ) )
 		return $slug;
@@ -4020,6 +4046,14 @@ function wp_set_post_tags( $post_id = 0, $tags = '', $append = false ) {
  *                               replace the terms with the new terms. Default false.
  * @return array|false|WP_Error Array of term taxonomy IDs of affected terms. WP_Error or false on failure.
  */
+ /***
+ 设置post的taxonomy, 如
+wp_set_post_terms( $post->ID, 'video', 'post_format' );
+wp_set_post_terms( $post->ID, 'new-tag', 'post_tag' );
+wp_set_post_terms( $post->ID, 'new-category', 'category' );
+
+wp_set_post_terms() 与get_the_terms()
+ */ 
 function wp_set_post_terms( $post_id = 0, $tags = '', $taxonomy = 'post_tag', $append = false ) {
 	$post_id = (int) $post_id;
 

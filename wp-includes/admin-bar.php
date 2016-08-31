@@ -7,7 +7,8 @@
  * @since 3.1.0
  */
  /*
-管理后台上方工具条
+管理后台上方工具条是一个WP_Admin_Bar对象,
+里面装了很多菜单(或称node)，及子菜单, 见add_menus()
  */
  
 /**
@@ -663,6 +664,7 @@ function wp_admin_bar_new_content_menu( $wp_admin_bar ) {
 
 	$title = '<span class="ab-icon"></span><span class="ab-label">' . _x( 'New', 'admin bar menu group label' ) . '</span>';
 
+	/*** 父菜单 */
 	$wp_admin_bar->add_menu( array(
 		'id'    => 'new-content',
 		'title' => $title,
@@ -672,6 +674,7 @@ function wp_admin_bar_new_content_menu( $wp_admin_bar ) {
 	foreach ( $actions as $link => $action ) {
 		list( $title, $id ) = $action;
 
+		/*** 子菜单 */
 		$wp_admin_bar->add_menu( array(
 			'parent'    => 'new-content',
 			'id'        => $id,
@@ -688,6 +691,7 @@ function wp_admin_bar_new_content_menu( $wp_admin_bar ) {
  *
  * @param WP_Admin_Bar $wp_admin_bar
  */
+ /*** admin bar中增加comments这个node(或称menu) */
 function wp_admin_bar_comments_menu( $wp_admin_bar ) {
 	if ( !current_user_can('edit_posts') )
 		return;
@@ -885,6 +889,10 @@ function _admin_bar_bump_cb() { ?>
  *
  * @param bool $show Whether to allow the admin bar to show.
  */
+ /***
+管理用户在浏览网站时，顶部的admin bar有时很烦人, 此句可隐掉它, 但是后台的admin bar总是有的 
+show_admin_bar(false); 
+*/
 function show_admin_bar( $show ) {
 	global $show_admin_bar;
 	$show_admin_bar = (bool) $show;
@@ -912,6 +920,7 @@ function is_admin_bar_showing() {
 	}
 
 	// Integrated into the admin.
+	/*** 如果注掉, 后台顶部的admin bar也会消失 */
 	if ( is_admin() )
 		return true;
 

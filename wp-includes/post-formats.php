@@ -14,6 +14,7 @@
  * @param int|object|null $post Post ID or post object. Optional, default is the current post from the loop.
  * @return string|false The format if successful. False otherwise.
  */
+ /*** 得到文章的post_format */
 function get_post_format( $post = null ) {
 	if ( ! $post = get_post( $post ) )
 		return false;
@@ -28,6 +29,7 @@ function get_post_format( $post = null ) {
 
 	$format = reset( $_format );
 
+	/*** 数据库中存的是post-format-video, 返回时只要'video' */
 	return str_replace('post-format-', '', $format->slug );
 }
 

@@ -298,6 +298,8 @@ foreach ( wp_get_active_and_valid_plugins() as $plugin ) {
 }
 unset( $plugin );
 
+//show_admin_bar(false);
+
 // Load pluggable functions.
 /*** pluggable.php放在插件之后加载, 意味着在插件中可以先定义一些pluggable.php中的函数,以改变worpress的行为 */
 require( ABSPATH . WPINC . '/pluggable.php' );

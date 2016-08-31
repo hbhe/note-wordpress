@@ -1,5 +1,8 @@
 <?php
 
+/***
+如果是多站点, 在子站点上注册时，页面总是跳到主站点上去注册, 有没有办法就是子站点上注册
+*/
 /** Sets up the WordPress Environment. */
 require( dirname(__FILE__) . '/wp-load.php' );
 
@@ -34,6 +37,7 @@ if ( !is_multisite() ) {
 }
 
 if ( !is_main_site() ) {
+	/*** 如果不是主站点, 就转到主站点上注册, why? */
 	wp_redirect( network_site_url( 'wp-signup.php' ) );
 	die();
 }

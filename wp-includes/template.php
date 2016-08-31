@@ -22,6 +22,9 @@
  */
  
  /*
+所有cms都会预定义一组变量名(如p, page_id,...), 它们可以放在query参数中,
+cms会根据query中的参数拉出不同的模板, 然后显示
+ 
  根据请求执行相应的php模板文件, 如
  搜索-> search.php
  error -> 404.php

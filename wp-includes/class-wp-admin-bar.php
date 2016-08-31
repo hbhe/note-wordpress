@@ -570,6 +570,7 @@ class WP_Admin_Bar {
 	/**
 	 * @access public
 	 */
+	 /*** admin bar中预定义的几个node(menu), 有comments, new-content, my-account-with-avatar  */
 	public function add_menus() {
 		// User related, aligned right.
 		add_action( 'admin_bar_menu', 'wp_admin_bar_my_account_menu', 0 );
@@ -577,16 +578,29 @@ class WP_Admin_Bar {
 		add_action( 'admin_bar_menu', 'wp_admin_bar_my_account_item', 7 );
 
 		// Site related.
+		/*** toggle图标, 宽屏时不显示 */
 		add_action( 'admin_bar_menu', 'wp_admin_bar_sidebar_toggle', 0 );
+
+		/*** wordpress logo 下的菜单, about, ... , 'id'    => 'wp-logo', */
 		add_action( 'admin_bar_menu', 'wp_admin_bar_wp_menu', 10 );
+
+		/***  钥匙图标, 我的站点,'id'    => 'my-sites',*/
 		add_action( 'admin_bar_menu', 'wp_admin_bar_my_sites_menu', 20 );
+
+		/*** 小屋图标, 本站菜单及'查看站点', '编辑站点' */
 		add_action( 'admin_bar_menu', 'wp_admin_bar_site_menu', 30 );
+
 		add_action( 'admin_bar_menu', 'wp_admin_bar_customize_menu', 40 );
+
+		/***  刷新图标, 更新提示 */
 		add_action( 'admin_bar_menu', 'wp_admin_bar_updates_menu', 50 );
 
 		// Content related.
 		if ( ! is_network_admin() && ! is_user_admin() ) {
+			/*** admin bar中的评论comments 菜单*/
 			add_action( 'admin_bar_menu', 'wp_admin_bar_comments_menu', 60 );
+			
+			/*** admin bar中的'建新'菜单 */
 			add_action( 'admin_bar_menu', 'wp_admin_bar_new_content_menu', 70 );
 		}
 		add_action( 'admin_bar_menu', 'wp_admin_bar_edit_menu', 80 );

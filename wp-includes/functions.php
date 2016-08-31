@@ -3417,6 +3417,7 @@ function wp_is_numeric_array( $data ) {
  *                              Default false.
  * @return array A list of objects or object fields.
  */
+ /*** 过滤数组, 可选择返回哪些字段? */
 function wp_filter_object_list( $list, $args = array(), $operator = 'and', $field = false ) {
 	if ( ! is_array( $list ) )
 		return array();
@@ -3443,6 +3444,7 @@ function wp_filter_object_list( $list, $args = array(), $operator = 'and', $fiel
  *                         match. Default 'AND'.
  * @return array Array of found values.
  */
+ /*** 对数组进行过滤? */
 function wp_list_filter( $list, $args = array(), $operator = 'AND' ) {
 	if ( ! is_array( $list ) )
 		return array();

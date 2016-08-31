@@ -81,6 +81,10 @@ function create_initial_taxonomies() {
 		'_builtin' => true,
 	) );
 
+	/***  
+	菜单集合名'11111'与'行业新闻'一样,保存在wp_terms表中, 只不过它属于nav_menu这种taxonomy而不是category或post_tag
+	而nav_menu_item是保存在wp_posts及wp_postmeta中
+	*/
 	register_taxonomy( 'nav_menu', 'nav_menu_item', array(
 		'public' => false,
 		'hierarchical' => false,
@@ -90,7 +94,7 @@ function create_initial_taxonomies() {
 		),
 		'query_var' => false,
 		'rewrite' => false,
-		'show_ui' => false,
+		'show_ui' => false, /*** 不显示在后台管理界面上 */
 		'_builtin' => true,
 		'show_in_nav_menus' => false,
 	) );
@@ -125,6 +129,7 @@ function create_initial_taxonomies() {
 		'_builtin' => true,
 	) );
 
+	/*** post_format与category一样属于taxonomy, 只应用于post这种post_type */
 	register_taxonomy( 'post_format', 'post', array(
 		'public' => true,
 		'hierarchical' => false,
@@ -1194,6 +1199,17 @@ function get_term_to_edit( $id, $taxonomy ) {
  *                          be parsed as a taxonomy or array of taxonomies.
  * @return array|int|WP_Error List of WP_Term instances and their children. Will return WP_Error, if any of $taxonomies
  *                            do not exist.
+ */
+ /***
+wp_set_post_terms(),  get_the_terms(), get_terms()的区别:
+get_the_terms( 1, 'category' )  //得到文章(post_id=1)的所属分类
+get_the_terms( 1, 'post_tag' )  //得到文章(post_id=1)的所属标签
+$format = get_the_terms( $post->ID, 'post_format' );  //得到文章(post_id=1)的所属形式
+
+wp_set_post_terms() 与get_the_terms() 是一对操作, 都是对某个post操作
+get_terms(['taxonomy' => 'category']); 	// 得到全部分类名, 与post无关,如 
+get_terms(array( 'taxonomy' => 'category' ) ); 	//得到全部分类名
+get_terms(array( 'taxonomy' => 'post_tag' ) ); 	//得到全部标签
  */
 function get_terms( $args = array(), $deprecated = '' ) {
 	global $wpdb;

@@ -298,6 +298,15 @@ class wpdb {
 	 * @see wpdb::tables()
 	 * @var array
 	 */
+	 /*** 
+	 wp_site: 存放的是网络记录?
+	 wp_sitemeta:
+	 wp_blogs: 记录所有站点的情况, 每个站点一条记录
+	 wp_signups:
+	 wp_sitecategories:
+	 wp_registration_log:
+	 wp_blog_versions:
+	 */
 	var $ms_global_tables = array( 'blogs', 'signups', 'site', 'sitemeta',
 		'sitecategories', 'registration_log', 'blog_versions' );
 

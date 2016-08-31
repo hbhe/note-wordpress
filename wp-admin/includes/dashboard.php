@@ -22,17 +22,20 @@
 
 function remove_dashboard_widgets() {
 	global $wp_meta_boxes;
-	unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_plugins']);
-	unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_recent_comments']);
-	unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_incoming_links']);
+	unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_activity']);
 	unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_right_now']);
-	unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_primary']);
-	unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_secondary']);
 	unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_quick_press']);
-	unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_recent_drafts']);
+	unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_primary']);
+
+	//unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_incoming_links']);
+	//unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_plugins']);
+	//unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_recent_drafts']);
+	//unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_secondary']); 
+	//unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_recent_comments']);		
 }
 add_action('wp_dashboard_setup', 'remove_dashboard_widgets' );
 */
+
 function wp_dashboard_setup() {
 	global $wp_registered_widgets, $wp_registered_widget_controls, $wp_dashboard_control_callbacks;
 	$wp_dashboard_control_callbacks = array();
@@ -60,17 +63,20 @@ function wp_dashboard_setup() {
 		wp_add_dashboard_widget( 'network_dashboard_right_now', __( 'Right Now' ), 'wp_network_dashboard_right_now' );
 
 	// Activity Widget
+	/*** 活动 */
 	if ( is_blog_admin() ) {
 		wp_add_dashboard_widget( 'dashboard_activity', __( 'Activity' ), 'wp_dashboard_site_activity' );
 	}
 
 	// QuickPress Widget
+	/*** 快速草稿 */
 	if ( is_blog_admin() && current_user_can( get_post_type_object( 'post' )->cap->create_posts ) ) {
 		$quick_draft_title = sprintf( '<span class="hide-if-no-js">%1$s</span> <span class="hide-if-js">%2$s</span>', __( 'Quick Draft' ), __( 'Drafts' ) );
 		wp_add_dashboard_widget( 'dashboard_quick_press', $quick_draft_title, 'wp_dashboard_quick_press' );
 	}
 
 	// WordPress News
+	/*** 新闻 */
 	wp_add_dashboard_widget( 'dashboard_primary', __( 'WordPress News' ), 'wp_dashboard_primary' );
 
 	if ( is_network_admin() ) {
@@ -981,6 +987,7 @@ function wp_dashboard_cached_rss_widget( $widget_id, $callback, $check_urls = ar
 	$loading = '<p class="widget-loading hide-if-no-js">' . __( 'Loading&#8230;' ) . '</p><p class="hide-if-js">' . __( 'This widget requires JavaScript.' ) . '</p>';
 	$doing_ajax = ( defined('DOING_AJAX') && DOING_AJAX );
 
+	/*** 实际传进来的$check_urls至少有2个url, 不可能为空吧?  */
 	if ( empty($check_urls) ) {
 		$widgets = get_option( 'dashboard_widget_options' );
 		if ( empty($widgets[$widget_id]['url']) && ! $doing_ajax ) {
@@ -1006,6 +1013,9 @@ function wp_dashboard_cached_rss_widget( $widget_id, $callback, $check_urls = ar
 		$args = array_slice( func_get_args(), 3 );
 		array_unshift( $args, $widget_id, $check_urls );
 		ob_start();
+		/*** 
+		调用wp_dashboard_primary_output(), 在里面会取每个url的内容
+		*/
 		call_user_func_array( $callback, $args );
 		set_transient( $cache_key, ob_get_flush(), 12 * HOUR_IN_SECONDS ); // Default lifetime in cache of 12 hours (same as the feeds)
 	}
@@ -1176,6 +1186,7 @@ function wp_dashboard_primary() {
 		);
 	}
 
+	/*** 新闻来源于3个url,  (news, planet, plugins), 这里可以加入自已的url */
 	wp_dashboard_cached_rss_widget( 'dashboard_primary', 'wp_dashboard_primary_output', $feeds );
 }
 
@@ -1187,11 +1198,15 @@ function wp_dashboard_primary() {
  * @param string $widget_id Widget ID.
  * @param array  $feeds     Array of RSS feeds.
  */
+ /***
+ 对于$feeds中的每个url, 取出其内容
+ */
 function wp_dashboard_primary_output( $widget_id, $feeds ) {
 	foreach ( $feeds as $type => $args ) {
 		$args['type'] = $type;
 		echo '<div class="rss-widget">';
 		if ( $type === 'plugins' ) {
+			/*** 插件的展示与新闻不一样 */
 			wp_dashboard_plugins_output( $args['url'], $args );
 		} else {
 			wp_widget_rss_output( $args['url'], $args );

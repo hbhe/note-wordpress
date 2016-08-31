@@ -6,9 +6,10 @@
  * @subpackage Administration
  */
 /* 
+只是组织一下menu[]中的数据
 真正输出menu链接是在menu-header.php文件的_wp_menu_output()中 
- 输出menu链接, 点击menu后展示内容(即执行menu结构中的function)是在wp-admin/admin.php中进行的do_action( $page_hook )
- 输出menu链接本身与输出点击menu后的页面内容是2次请求, 虽然都定义在menu数据结构中
+输出menu链接, 点击menu后展示内容(即执行menu结构中的function)是在wp-admin/admin.php中进行的do_action( $page_hook )
+输出menu链接本身与输出点击menu后的页面内容是2次请求, 虽然都定义在menu数据结构中
 */
 
 if ( is_network_admin() ) {

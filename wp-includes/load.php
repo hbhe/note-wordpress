@@ -755,6 +755,7 @@ function is_network_admin() {
  *
  * @return bool True if inside WordPress user administration pages.
  */
+ /*** Ê²Ã´ÒâË¼? */
 function is_user_admin() {
 	if ( isset( $GLOBALS['current_screen'] ) )
 		return $GLOBALS['current_screen']->in_admin( 'user' );

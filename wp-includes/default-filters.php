@@ -323,8 +323,12 @@ add_action( 'admin_print_footer_scripts', '_wp_footer_scripts'                  
 add_action( 'admin_print_styles',         'print_emoji_styles'                             );
 add_action( 'admin_print_styles',         'print_admin_styles',                      20    );
 add_action( 'init',                       'smilies_init',                             5    );
+
+/*** 让别人决定是否要加载系统自带的widgets, 默认是要加载的, 什么时候可以不加载? */
 add_action( 'plugins_loaded',             'wp_maybe_load_widgets',                    0    );
+
 add_action( 'plugins_loaded',             'wp_maybe_load_embeds',                     0    );
+
 add_action( 'shutdown',                   'wp_ob_end_flush_all',                      1    );
 
 // Create a revision whenever a post is updated.
@@ -485,10 +489,15 @@ add_action( 'customize_controls_enqueue_scripts', 'wp_plupload_default_settings'
 add_filter( 'nav_menu_item_id', '_nav_menu_item_id_use_once', 10, 2 );
 
 // Widgets
+/*** 
+注册系统自带的一些小挂件, 注册后才能在后台向容器内拖放小挂件 , 
+如果前面没有include default-widgets.php这里就注册不会报错?
+*/
 add_action( 'init', 'wp_widgets_init', 1 );
 
 // Admin Bar
 // Don't remove. Wrong way to disable.
+/*** 挂这么多次_wp_admin_bar_init, 作用? */
 add_action( 'template_redirect', '_wp_admin_bar_init', 0 );
 add_action( 'admin_init', '_wp_admin_bar_init' );
 add_action( 'before_signup_header', '_wp_admin_bar_init' );

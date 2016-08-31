@@ -6,7 +6,9 @@
  * @subpackage Rewrite
  * @since 1.5.0
  */
-
+/***
+作用?
+*/
 /**
  * Core class used to implement a rewrite component API.
  *
@@ -891,6 +893,9 @@ class WP_Rewrite {
 	 *                                    Default true.
 	 * @return array Rewrite rule list.
 	 */
+	 /***  
+	 作用?
+	 */
 	public function generate_rewrite_rules($permalink_structure, $ep_mask = EP_NONE, $paged = true, $feed = true, $forcomments = false, $walk_dirs = true, $endpoints = true) {
 		// Build a regex to match the feed section of URLs, something like (feed|atom|rss|rss2)/?
 		$feedregex2 = '';
@@ -1267,6 +1272,9 @@ class WP_Rewrite {
 	 *
 	 * @return array An associate array of matches and queries.
 	 */
+	 /***
+	 构造rewrite规则?
+	 */
 	public function rewrite_rules() {
 		$rewrite = array();
 
@@ -1470,10 +1478,12 @@ class WP_Rewrite {
 	 *
 	 * @return array Rewrite rules.
 	 */
+	 /*** 读取db中的rewrite规则 */
 	public function wp_rewrite_rules() {
 		$this->rules = get_option('rewrite_rules');
 		if ( empty($this->rules) ) {
 			$this->matches = 'matches';
+			/*** 如果没有就生成? */
 			$this->rewrite_rules();
 			update_option('rewrite_rules', $this->rules);
 		}

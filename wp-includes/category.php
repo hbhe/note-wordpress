@@ -23,6 +23,9 @@
  * }
  * @return array List of categories.
  */
+/*** 
+得到所有为category的分类名
+*/
 function get_categories( $args = '' ) {
 	$defaults = array( 'taxonomy' => 'category' );
 	$args = wp_parse_args( $args, $defaults );

@@ -1442,7 +1442,7 @@ function wp_widget_rss_process( $widget_rss, $check_feed = true ) {
  *
  * @since 2.2.0
  */
- /*** 注册系统内部小挂件 */
+ /*** 注册系统内部小挂件, 注册后在后台就可以把容器里拖放了 */
 function wp_widgets_init() {
 	if ( !is_blog_installed() )
 		return;

@@ -1740,6 +1740,10 @@ function gallery_shortcode( $attr ) {
 	 *                    Defaults to false if the theme supports HTML5 galleries.
 	 *                    Otherwise, defaults to true.
 	 */
+	 /*** 
+	 如果支持html5, 就不用以下gallery_style , 反之就加上这段css?
+	 要清除默认的相册样式用add_filter( 'use_default_gallery_style', '__return_false' );
+	 */
 	if ( apply_filters( 'use_default_gallery_style', ! $html5 ) ) {
 		$gallery_style = "
 		<style type='text/css'>
