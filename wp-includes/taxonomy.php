@@ -22,6 +22,12 @@
  * @global WP_Rewrite $wp_rewrite The WordPress rewrite class.
  */
  /*
+post_type与taxonomy的区别?
+比如一个系统有产品, 订单, 用户这几种对象, 如果都想保存在一wp_posts表中, 就得有个字段来区别这些记录, 此字段就是post_type
+如果有很多产品, 不加分类就很难管理, 于是进一步将分类分门别类,如A类产品, B类产品..., 这就是taxonomy
+create_initial_post_types()
+create_initial_taxonomies()
+
 系统支持哪几种taxonomy是放在内存中的,不是在db中
  */
 function create_initial_taxonomies() {
@@ -60,6 +66,7 @@ function create_initial_taxonomies() {
 	因此按理应当是register_post_type()在前, register_taxonomy()在后
 
 	register_taxonomy( 'category', ['post', 'page'], ...)
+	register_taxonomy( 'category', 'post',...) // 定义了一种集合类型, 这种集合用于收集'post'这种内容, 这种集合支持层次关系
 	*/
 	register_taxonomy( 'category', 'post', array(
 		'hierarchical' => true,

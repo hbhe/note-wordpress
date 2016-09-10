@@ -683,6 +683,10 @@ function locale_stylesheet() {
  *
  * @param string $stylesheet Stylesheet name
  */
+ /***
+切换主题要做哪些事?
+
+ */
 function switch_theme( $stylesheet ) {
 	global $wp_theme_directories, $wp_customize, $sidebars_widgets;
 
@@ -707,10 +711,10 @@ function switch_theme( $stylesheet ) {
 	$new_theme = wp_get_theme( $stylesheet );
 	$template  = $new_theme->get_template();
 
-	/*** 获取父模板所在目录 */
+	/*** 使用新主题的父模板目录 */
 	update_option( 'template', $template );
 	
-	/*** 获取子模板所在目录 */
+	/*** 使用新主题的子模板目录*/
 	update_option( 'stylesheet', $stylesheet );
 
 	if ( count( $wp_theme_directories ) > 1 ) {
@@ -723,6 +727,7 @@ function switch_theme( $stylesheet ) {
 
 	$new_name  = $new_theme->get('Name');
 
+	/*** 当前主题名当然也要改过来 */
 	update_option( 'current_theme', $new_name );
 
 	// Migrate from the old mods_{name} option to theme_mods_{slug}.
@@ -883,8 +888,14 @@ function get_theme_mods() {
  * @return string
  */
  /*** 
- 什么作用? 
- 得到当前主题保存在db中的参数, 如get_theme_mod( 'color_scheme', 'default' ); 得到当前主题的color_scheme
+什么作用? 
+站点级的参数可通过get_option( $name )来获取
+每个站点可以有多套主题，每套主题都可能有自己的一套参数, 
+通过get_theme_mod( $name )可获得当前主题的某个参数值
+
+在设计主题时，就得考虑哪些参数宜放在主题参数中，哪些参数应当放在站点参数中
+ 
+得到当前主题保存在db中的参数, 如get_theme_mod( 'color_scheme', 'default' ); 得到当前主题的color_scheme
  */
 function get_theme_mod( $name, $default = false ) {
 	$mods = get_theme_mods();

@@ -12,8 +12,8 @@
 重要的wp_options表中的字段
 option_name					option_value autoload
 -------------------------------------------------------
-stylesheet 					2016child	yes
-template 	twentysixteen	yes
+stylesheet 					2016child				yes
+template 						twentysixteen			yes
 theme_mods_2016child 		a:2:{i:0;b:0;s:18:"nav_menu_locations";a:2:{s:7:"p...	yes
 theme_mods_twentysixteen 	a:3:{i:0;b:0;s:18:"nav_menu_locations";a:2:{s:7:"p...	yes
 theme_mods_twentyfifteen	a:3:{i:0;b:0;s:18:"nav_menu_locations";a:2:{s:7:"p...

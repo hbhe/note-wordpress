@@ -362,6 +362,7 @@ function apply_filters_ref_array($tag, $args) {
  * @param int      $priority           Optional. The priority of the function. Default 10.
  * @return bool    Whether the function existed before it was removed.
  */
+ /*** 假如add_filter()时priority是9999, remove_filter()必须指定参数9999, 才能remove掉 */
 function remove_filter( $tag, $function_to_remove, $priority = 10 ) {
 	$function_to_remove = _wp_filter_build_unique_id( $tag, $function_to_remove, $priority );
 

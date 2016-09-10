@@ -398,6 +398,9 @@ switch ( $action ) {
 		}
 
 		// Set menu locations.
+		/***
+		$menu_locations 形如['primary'=>1, 'social'=>3], 是菜单位置与整数的对应关系
+		*/
 		set_theme_mod( 'nav_menu_locations', $menu_locations );
 
 		// Add Menu.

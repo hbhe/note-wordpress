@@ -1810,8 +1810,6 @@ function _media_states( $post ) {
 	 *                            'Background Image', 'Site Icon', 'Logo'.
 	 */
 	$media_states = apply_filters( 'display_media_states', $media_states );
-var_dump($media_states);
-exit;
 	if ( ! empty( $media_states ) ) {
 		$state_count = count( $media_states );
 		$i = 0;

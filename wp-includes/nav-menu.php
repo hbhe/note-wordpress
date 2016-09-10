@@ -15,6 +15,10 @@
  * @param string $menu Menu ID, slug, or name - or the menu object.
  * @return object|false False if $menu param isn't supplied or term does not exist, menu object if successful.
  */
+ /***
+根据term_id或slug得到一个菜单,$menu参数可为整数即term_id, 也可为menu slug 
+即从wp_terms中取出一条记录
+ */
 function wp_get_nav_menu_object( $menu ) {
 	$menu_obj = false;
 
@@ -147,7 +151,14 @@ function get_registered_nav_menus() {
  * @since 3.0.0
  * @return array
  */
-
+/*
+返加菜单位置与菜单id(term_id)的对应关系
+array (
+	'primary' => int 3
+	'social' => int 0
+	'nav' => int 0
+)	
+*/
 function get_nav_menu_locations() {
 	$locations = get_theme_mod( 'nav_menu_locations' );
 	return ( is_array( $locations ) ) ? $locations : array();
@@ -216,6 +227,11 @@ function wp_create_nav_menu( $menu_name ) {
  * @param string $menu Menu ID, slug, or name.
  * @return bool|WP_Error True on success, false or WP_Error object on failure.
  */
+ /***
+ 删除某个菜单, 除了删除它自己(wp_terms中的记录)之外,
+ 还要删除它里面的菜单项(wp_posts中的记录),
+ 在菜单与位置的对应关系中, 还要删除相应的记录(在theme相关的参数中)
+ */
 function wp_delete_nav_menu( $menu ) {
 	$menu = wp_get_nav_menu_object( $menu );
 	if ( ! $menu )
@@ -234,6 +250,10 @@ function wp_delete_nav_menu( $menu ) {
 	$locations = get_nav_menu_locations();
 	foreach ( $locations as $location => $menu_id ) {
 		if ( $menu_id == $menu->term_id )
+			/*** 
+			也可以unset($locations[ $location ]) 吧? 
+			为0就表示解除了关系,
+			*/
 			$locations[ $location ] = 0;
 	}
 	set_theme_mod( 'nav_menu_locations', $locations );

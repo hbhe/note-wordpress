@@ -40,6 +40,7 @@ function get_query_template( $type, $templates = array() ) {
 	if ( empty( $templates ) )
 		$templates = array("{$type}.php");
 
+	/*** 从一堆文件中挑一个出来作为模板文件 */
 	$template = locate_template( $templates );
 
 	/**
@@ -56,6 +57,7 @@ function get_query_template( $type, $templates = array() ) {
 	 *
 	 * @param string $template Path to the template. See locate_template().
 	 */
+	 /*** 给别人一个改变挑好的文件的机会,如add_filter('single_template', 'xxx'); */
 	return apply_filters( "{$type}_template", $template );
 }
 
@@ -413,14 +415,20 @@ function get_search_template() {
  /*
  从一堆模板文件中, 挑出一个, 返回
  都是先尝试使用类型模板,如果类型模板不存在就用笼统模板
- 比如如果有single-audio.php就先用它, 没有就用single.php 
+ 比如如果有single-post.php就先用它, 没有就用single.php 
 */ 
 function get_single_template() {
 	$object = get_queried_object();
 
 	$templates = array();
 
-	/*** 这里只对post_type有考虑, 没对$post_format 进一步细分? */
+	/*** 这里只对post_type有考虑, 
+	不同的post_format其展示样式更有可能不一样, 为什么不考虑$post_format和$category?  
+	比如对于video的文章，我希望模板是single-video.php, 对于分类是news的文章我希望是single-news.php
+
+	不像post_type属于post的属性，post_format与category都于taxonomy, 会涉及到另外的表, 开销比较大, 显然不适合放在wp内核中
+	要想有这个feature，可以自己在主题的模板文件中加一句如get_template_part( 'content', get_post_format() );
+	*/
 	if ( ! empty( $object->post_type ) ) {
 		/*** 一般是先考虑slug(post_name), 然后id */
 		$templates[] = "single-{$object->post_type}-{$object->post_name}.php";

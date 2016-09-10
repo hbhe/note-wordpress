@@ -42,6 +42,8 @@ object caching system是option操作要依赖的组件
 get_option( 'rewrite_rules');
 get_option( 'template'); // 获取当前主题的父模板所在目录 
 get_option( 'stylesheet'); // 获取当前主题的子模板所在目录
+get_option( 'theme_mods_twentysixteen');  // twentysixteen主题相关参数?
+get_option('sidebars_widgets')   // 这个指的是什么?
 
 对于多站点, 每个站点都有一张表如wp_options, wp_2_options, ...
 get_blog_option()就是先切换表,再调用get_option()

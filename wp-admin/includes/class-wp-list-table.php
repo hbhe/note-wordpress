@@ -397,6 +397,7 @@ class WP_List_Table {
 			add_action( 'admin_footer', array( $this, '_js_vars' ) );
 		}
 
+		/*** 列表展示和方格展示 */
 		if ( empty( $this->modes ) ) {
 			$this->modes = array(
 				'list'    => __( 'List View' ),

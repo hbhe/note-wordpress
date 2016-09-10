@@ -132,6 +132,31 @@ function wp_print_scripts( $handles = false ) {
  *                         or after. Default 'after'.
  * @return bool True on success, false on failure.
  */
+ /***
+	$custom_css = "
+		.mycolor{
+		background: #ff0000;
+	}";
+	wp_add_inline_style( 'custom', $custom_css );
+
+	$my_js = "
+		echo 'abc';
+	";
+	wp_add_inline_script( 'jquery', "jQuery(document).ready(function(){ $my_js });" );		
+
+
+	wp_deregister_script( 'jquery' );
+	wp_deregister_script( 'jquery-core' );
+	wp_deregister_script( 'jquery-migrate' );
+
+	wp_register_script( 'jquery', false, array( 'jquery-core', 'jquery-migrate' ), '1.12.4' );
+	wp_register_script( 'jquery-core',  get_template_directory_uri() . '/assets/global/plugins/jquery.min.js', array(), '1.12.4');
+	wp_register_script( 'jquery-migrate', get_template_directory_uri() . '/assets/global/plugins/jquery-migrate.min.js', array(), '1.4.1' );
+	
+	wp_enqueue_script( 'jquery' );
+	
+ */
+ /*** 将js代码放在$handle所对应代码的后面 */
 function wp_add_inline_script( $handle, $data, $position = 'after' ) {
 	_wp_scripts_maybe_doing_it_wrong( __FUNCTION__ );
 

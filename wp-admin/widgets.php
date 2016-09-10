@@ -80,6 +80,11 @@ if ( ! current_theme_supports( 'widgets' ) ) {
 }
 
 // These are the widgets grouped by sidebar
+/*** 每个sidebar都有对应的widgets, 所有sidebar的信息都存放在get_option('sidebars_widgets')中
+如果registered_sidebar($sidebar_id)就表示$sidebar_id被使用了，否则就是暂时没用的
+
+这里先取出所有sidebar与widgets的对应关系
+*/
 $sidebars_widgets = wp_get_sidebars_widgets();
 
 if ( empty( $sidebars_widgets ) )
@@ -89,6 +94,7 @@ foreach ( $sidebars_widgets as $sidebar_id => $widgets ) {
 	if ( 'wp_inactive_widgets' == $sidebar_id )
 		continue;
 
+	/*** 过滤掉那些没被register_sidebar()的 */
 	if ( ! is_registered_sidebar( $sidebar_id ) ) {
 		if ( ! empty( $widgets ) ) { // register the inactive_widgets area as sidebar
 			register_sidebar(array(
@@ -106,6 +112,8 @@ foreach ( $sidebars_widgets as $sidebar_id => $widgets ) {
 		}
 	}
 }
+/*** 最后就得到了注册的sidebar和widgets的对应关系,即$sidebars_widgets */
+
 
 // register the inactive_widgets area as sidebar
 register_sidebar(array(

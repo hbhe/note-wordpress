@@ -258,7 +258,7 @@ class Walker_Nav_Menu extends Walker {
  * @return object|false|void Menu output if $echo is false, false if there are no items or no menu was found.
  */
  /***
- 显示菜单及子菜单
+根据$args传入的参数(一般是位置信息), 取出某个菜单名, 然后显示 该菜单内所有菜单项(及子菜单项)
  */
 function wp_nav_menu( $args = array() ) {
 	static $menu_id_slugs = array();
@@ -309,10 +309,16 @@ function wp_nav_menu( $args = array() ) {
 	$menu = wp_get_nav_menu_object( $args->menu );
 
 	// Get the nav menu based on the theme_location
+	/*** 
+	如果指定了'位置'参数, 取它对应的menu , $locations[ $args->theme_location ]是菜单id，即term_id
+	*/
 	if ( ! $menu && $args->theme_location && ( $locations = get_nav_menu_locations() ) && isset( $locations[ $args->theme_location ] ) )
 		$menu = wp_get_nav_menu_object( $locations[ $args->theme_location ] );
-
+		
 	// get the first menu that has items if we still can't find a menu
+	/***
+	如果没有指定位置参数, 那就随便取一个有菜单项的菜单
+	*/
 	if ( ! $menu && !$args->theme_location ) {
 		$menus = wp_get_nav_menus();
 		foreach ( $menus as $menu_maybe ) {
@@ -329,6 +335,7 @@ function wp_nav_menu( $args = array() ) {
 
 	// If the menu exists, get its items.
 	if ( $menu && ! is_wp_error($menu) && !isset($menu_items) )
+		/***  终于取到菜单了，再取出里面的菜单项 */
 		$menu_items = wp_get_nav_menu_items( $menu->term_id, array( 'update_post_term_cache' => false ) );
 
 	/*
@@ -341,11 +348,16 @@ function wp_nav_menu( $args = array() ) {
 	 */
 	if ( ( !$menu || is_wp_error($menu) || ( isset($menu_items) && empty($menu_items) && !$args->theme_location ) )
 		&& isset( $args->fallback_cb ) && $args->fallback_cb && is_callable( $args->fallback_cb ) )
+			/***  
+			通过前面种种努力都没有得到menu或者menu=0, 
+			就调用fallback_cb(默认是wp_page_menu), 即使用页面目录作为菜单
+			*/
 			return call_user_func( $args->fallback_cb, (array) $args );
 
 	if ( ! $menu || is_wp_error( $menu ) )
 		return false;
 
+	/***  到这里就表示取到了菜单及其菜单项 */
 	$nav_menu = $items = '';
 
 	$show_container = false;

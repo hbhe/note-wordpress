@@ -21,6 +21,11 @@
  */
  
 /* 
+我们约定一个菜单(或者说是菜单集合)与菜单项的概念:
+菜单是一个集合的名字,代表的是一个集合, 里面包含一组菜单项, 是wp_terms中的一条记录
+菜单项是wp_posts中的一条记录
+
+
 真正输出menu链接是在menu-header.php文件的_wp_menu_output()中 
 输出menu链接, 点击menu后展示内容(即执行menu结构中的function)是在wp-admin/admin.php中进行的do_action( $page_hook )
 输出menu链接本身与输出点击menu后的页面内容是2次请求, 虽然都定义在menu数据结构中
@@ -77,6 +82,13 @@ UPDATE `wp_options` SET `option_value` = '21' WHERE `option_name` = 'post_count'
 UPDATE `wp_term_taxonomy` SET `count` = 1 WHERE `term_taxonomy_id` = 59
 
 可见集合名'11111'与'行业新闻'一样,存在wp_meta中, 只不过它属于nav_menu这种taxonomy而不是category或post_tag
+
+
+菜单'位置'是主题作者定义的, 菜单和里面的菜单项是网站所有者在后台事先录入的
+所以要让菜单显示在主题上,就得将菜单与'位置'挂勾，并保存在主题相关的参数的中。
+在管理后台给主题位置 已指派的菜单后点'保存更改'时
+会执行set_theme_mod( 'nav_menu_locations', $menu_locations ); 它就是用来保存'位置'与菜单的对应关系的
+
 */
 
 $menu[2] = array( __('Dashboard'), 'read', 'index.php', '', 'menu-top menu-top-first menu-icon-dashboard', 'menu-dashboard', 'dashicons-dashboard' );

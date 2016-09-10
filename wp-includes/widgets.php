@@ -17,7 +17,12 @@
  * @subpackage Widgets
  * @since 2.2.0
  */
+/***
+在小工具中将挂件往容器中拖时, db发生的操作
+UPDATE `wp_options` SET `option_value` = 'a:3:{i:5;a:2:{s:5:\"title\";s:8:\"Products\";s:15:\"number_products\";i:3;}i:7;a:2:{s:5:\"title\";s:8:\"Products\";s:15:\"number_products\";i:3;}s:12:\"_multiwidget\";i:1;}' WHERE `option_name` = 'widget_hs_widget'
+UPDATE `wp_options` SET `option_value` = 'a:4:{s:19:\"wp_inactive_widgets\";a:6:{i:0;s:17:\"recent-comments-2\";i:1;s:11:\"hs_widget-5\";i:2;s:10:\"nav_menu-2\";i:3;s:7:\"pages-3\";i:4;s:8:\"search-3\";i:5;s:12:\"categories-3\";}s:19:\"main_sidebar_wstech\";a:6:{i:0;s:8:\"search-2\";i:1;s:14:\"recent-posts-2\";i:2;s:10:\"archives-2\";i:3;s:12:\"categories-2\";i:4;s:6:\"meta-2\";i:5;s:7:\"pages-2\";}s:9:\"sidebar-1\";a:2:{i:0;s:11:\"hs_widget-7\";i:1;s:12:\"categories-4\";}s:13:\"array_version\";i:3;}' WHERE `option_name` = 'sidebars_widgets'
 
+*/
 //
 // Global Variables
 //
@@ -106,6 +111,10 @@ $GLOBALS['_wp_deprecated_widgets_callbacks'] = array(
  * @global WP_Widget_Factory $wp_widget_factory
  *
  * @param string $widget_class The name of a class that extends WP_Widget
+ */
+ /*** register_widget与wp_register_sidebar_widget()的区别?  
+ wp_register_sidebar_widget()只要一个函数就可写一个widget, 
+ 而register_widget()要定义一个类?
  */
 function register_widget($widget_class) {
 	global $wp_widget_factory;
@@ -888,6 +897,12 @@ function is_active_sidebar( $index ) {
  *
  * @param bool $deprecated Not used (argument deprecated).
  * @return array Upgraded list of widgets to version 3 array format when called from the admin.
+ */
+ /***
+widgets应当是某个主题下的东西, 不应通过get_option('sidebars_widgets')来存取吧?
+也不能说是主题下的, 在插件内定义的widget, 如果换个主题就没了,这也说不过去.
+
+将所有的sidebar和其对应的widgets
  */
 function wp_get_sidebars_widgets( $deprecated = true ) {
 	if ( $deprecated !== true )

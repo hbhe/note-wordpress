@@ -59,19 +59,21 @@ endif;
  搜索-> search.php
  error -> 404.php
  文章归档-> archive.php
+index.php是找不到相应的模板文件之后, 不得已最后的选择, 并不是代表首页, home.php才是首页模板文件
+front-page.php与home.php的区别?
  */
 if ( defined('WP_USE_THEMES') && WP_USE_THEMES ) :
 	$template = false;
 	if     ( is_embed()          && $template = get_embed_template()          ) :
 	elseif ( is_404()            && $template = get_404_template()            ) :
 	elseif ( is_search()         && $template = get_search_template()         ) :
-	elseif ( is_front_page()     && $template = get_front_page_template()     ) :
+	elseif ( is_front_page()     && $template = get_front_page_template()     ) :		/*** 取front-page.php */
 	/*
 	前面执行parse_query()时根据请求时$_GET中的所带参数, 判断这个请求是home页还是别的页面
 	如果是首页, 到相应theme目录下取home.php(或index.php)这个view模板文件,得到文件名
 	如果$_GET中有'cat' , is_category()为真, 取theme目录下的category.php这个view文件
 	*/
-	elseif ( is_home()           && $template = get_home_template()           ) :
+	elseif ( is_home()           && $template = get_home_template()           ) :   /*** 取home.php */
 	elseif ( is_post_type_archive() && $template = get_post_type_archive_template() ) :
 	elseif ( is_tax()            && $template = get_taxonomy_template()       ) :
 	elseif ( is_attachment()     && $template = get_attachment_template()     ) :
