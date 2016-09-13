@@ -17,11 +17,9 @@
  * @subpackage Widgets
  * @since 2.2.0
  */
+ 
 /***
-在小工具中将挂件往容器中拖时, db发生的操作
-UPDATE `wp_options` SET `option_value` = 'a:3:{i:5;a:2:{s:5:\"title\";s:8:\"Products\";s:15:\"number_products\";i:3;}i:7;a:2:{s:5:\"title\";s:8:\"Products\";s:15:\"number_products\";i:3;}s:12:\"_multiwidget\";i:1;}' WHERE `option_name` = 'widget_hs_widget'
-UPDATE `wp_options` SET `option_value` = 'a:4:{s:19:\"wp_inactive_widgets\";a:6:{i:0;s:17:\"recent-comments-2\";i:1;s:11:\"hs_widget-5\";i:2;s:10:\"nav_menu-2\";i:3;s:7:\"pages-3\";i:4;s:8:\"search-3\";i:5;s:12:\"categories-3\";}s:19:\"main_sidebar_wstech\";a:6:{i:0;s:8:\"search-2\";i:1;s:14:\"recent-posts-2\";i:2;s:10:\"archives-2\";i:3;s:12:\"categories-2\";i:4;s:6:\"meta-2\";i:5;s:7:\"pages-2\";}s:9:\"sidebar-1\";a:2:{i:0;s:11:\"hs_widget-7\";i:1;s:12:\"categories-4\";}s:13:\"array_version\";i:3;}' WHERE `option_name` = 'sidebars_widgets'
-
+wp_widgets_init() 会注册系统内建小工具
 */
 //
 // Global Variables
@@ -902,8 +900,34 @@ function is_active_sidebar( $index ) {
 widgets应当是某个主题下的东西, 不应通过get_option('sidebars_widgets')来存取吧?
 也不能说是主题下的, 在插件内定义的widget, 如果换个主题就没了,这也说不过去.
 
-将所有的sidebar和其对应的widgets
- */
+取出所有侧边栏容器及容器内的widget, 形如
+(
+        [wp_inactive_widgets] => Array
+            (
+                [0] => categories-4
+                [1] => hs_widget-7
+                [2] => hs_widget-5
+                [3] => nav_menu-2
+                [4] => pages-3
+                [5] => categories-3
+            )
+
+	 //my_sitesidebar这个侧边栏内装的widget实例,widget_searchbox-2表示第2号widget_searchbox挂件
+        [widget_my_sitesidebar] => Array
+            (
+                [0] => widget_searchbox-2
+                [1] => meta-2
+                [2] => recent-posts-2
+                [3] => categories-2
+                [4] => hs_widget-8
+                [5] => widget_ads-5
+                [6] => rss-2
+            )
+
+       ...
+)
+
+*/
 function wp_get_sidebars_widgets( $deprecated = true ) {
 	if ( $deprecated !== true )
 		_deprecated_argument( __FUNCTION__, '2.8.1' );
@@ -1130,12 +1154,21 @@ function _wp_sidebars_changed() {
  *                                   of 'customize' defers updates for the Customizer.
  * @return array|void
  */
+/***
+根据
+$wp_registered_sidebars, 	使用中的容器
+$sidebars_widgets, 		db中存放的所有容器及其挂件的对应关系
+$wp_registered_widgets,	使用中的挂件
+
+计算出未被使用的容器、未被使用的持件?
+*/
 function retrieve_widgets( $theme_changed = false ) {
 	global $wp_registered_sidebars, $sidebars_widgets, $wp_registered_widgets;
 
 	$registered_sidebar_keys = array_keys( $wp_registered_sidebars );
 	$orphaned = 0;
 
+	/*** 何意? */
 	$old_sidebars_widgets = get_theme_mod( 'sidebars_widgets' );
 	if ( is_array( $old_sidebars_widgets ) ) {
 		// time() that sidebars were stored is in $old_sidebars_widgets['time']

@@ -326,6 +326,11 @@ function update_option( $option, $value, $autoload = null ) {
 		return add_option( $option, $value, '', $autoload );
 	}
 
+// hbhe for test
+if ( is_array( $value ) || is_object( $value ) ) {
+	error_log(print_r([$option, $value], true));
+}
+
 	$serialized_value = maybe_serialize( $value );
 
 	/**

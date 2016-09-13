@@ -296,6 +296,7 @@ function wp_debug_mode() {
 	if ( WP_DEBUG ) {
 		error_reporting( E_ALL );
 
+		/*** WP_DEBUG_DISPLAY用来控制屏显, ini_set( 'display_errors', 1 ) 表示要屏显错误,ini_set( 'display_errors', 0 )表示不屏显*/
 		if ( WP_DEBUG_DISPLAY )
 			ini_set( 'display_errors', 1 );
 		elseif ( null !== WP_DEBUG_DISPLAY )

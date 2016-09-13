@@ -896,6 +896,8 @@ function get_theme_mods() {
 在设计主题时，就得考虑哪些参数宜放在主题参数中，哪些参数应当放在站点参数中
  
 得到当前主题保存在db中的参数, 如get_theme_mod( 'color_scheme', 'default' ); 得到当前主题的color_scheme
+
+get_theme_mod( 'sidebars_widgets' ) 这个参数什么用?
  */
 function get_theme_mod( $name, $default = false ) {
 	$mods = get_theme_mods();

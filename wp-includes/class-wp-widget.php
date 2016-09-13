@@ -7,6 +7,22 @@
  * @since 4.4.0
  */
 
+/***
+一个挂件(或称小工具), 理想情况应当有4个控制函数: 
+
+1. 前台显示
+    前台页面(有可能有form)的显示, widget()做这个事, 它负责挂件的html显示
+    
+2. 前台处理
+    对前台页面中可能出现的form数据的处理, 以完成与用户的交互, 哪个函数做这个事???
+    
+3. 配置显示
+    后台配置form的显示, form()做这个事
+    
+4. 配置处理
+    对后台配置form提交数据进行处理, update()做这个事
+    
+*/
 /**
  * Core base class extended to register widgets.
  *
@@ -15,6 +31,10 @@
  *
  * @since 2.8.0
  * @since 4.4.0 Moved to its own file from wp-includes/widgets.php
+ */
+ /***
+此类不是管理单个的widget对象，它是管理一组对象, 每个对象使用number进行编号
+
  */
 class WP_Widget {
 
@@ -60,6 +80,11 @@ class WP_Widget {
 	 * @since 2.8.0
 	 * @access public
 	 * @var bool|int
+	 */
+	 /*** 
+	 当前挂件序号，很重要
+	 要显示或处理某个挂件, 一定要先用_set()设置好序号，
+	 不然那么多个实例，谁知道你想对哪个实例操作
 	 */
 	public $number = false;
 
@@ -153,10 +178,14 @@ class WP_Widget {
 	 * @param array  $control_options Optional. Widget control options. See wp_register_widget_control() for
 	 *                                information on accepted arguments. Default empty array.
 	 */
+	 /*** $id_base必须是全wp唯一 */
 	public function __construct( $id_base, $name, $widget_options = array(), $control_options = array() ) {
 		$this->id_base = empty($id_base) ? preg_replace( '/(wp_)?widget_/', '', strtolower(get_class($this)) ) : strtolower($id_base);
 		$this->name = $name;
+		
+		/***在wp_options表中的key形如widget_my_widget */
 		$this->option_name = 'widget_' . $this->id_base;
+		
 		$this->widget_options = wp_parse_args( $widget_options, array( 'classname' => $this->option_name, 'customize_selective_refresh' => false ) );
 		$this->control_options = wp_parse_args( $control_options, array( 'id_base' => $this->id_base ) );
 	}
@@ -238,6 +267,7 @@ class WP_Widget {
 		if ( is_array( $settings ) ) {
 			foreach ( array_keys( $settings ) as $number ) {
 				if ( is_numeric( $number ) ) {
+					/*** 给每一号挂件都装上勾子 */
 					$this->_set( $number );
 					$this->_register_one( $number );
 					$empty = false;
@@ -339,13 +369,17 @@ class WP_Widget {
 	 *     @type int $number Number increment used for multiples of the same widget.
 	 * }
 	 */
+	 /*** 显示某号挂件 */
 	public function display_callback( $args, $widget_args = 1 ) {
 		if ( is_numeric( $widget_args ) ) {
 			$widget_args = array( 'number' => $widget_args );
 		}
 
 		$widget_args = wp_parse_args( $widget_args, array( 'number' => -1 ) );
+		/*** 对第几号挂件进行显示 */
 		$this->_set( $widget_args['number'] );
+
+		/*** 取出所有这种挂件 */
 		$instances = $this->get_settings();
 
 		if ( array_key_exists( $this->number, $instances ) ) {
@@ -373,6 +407,7 @@ class WP_Widget {
 				wp_suspend_cache_addition( true );
 			}
 
+			/*** 调用具体挂件的显示 */
 			$this->widget( $args, $instance );
 
 			if ( $this->is_preview() ) {
@@ -542,9 +577,18 @@ class WP_Widget {
 	 * @param integer $number Optional. The unique order number of this widget instance
 	 *                        compared to other instances of the same class. Default -1.
 	 */
+	 /*** 
+	 给某号挂件装上对应的处理函数
+	 
+	 */
 	public function _register_one( $number = -1 ) {
+		// 前台显示
 		wp_register_sidebar_widget(	$this->id, $this->name,	$this->_get_display_callback(), $this->widget_options, array( 'number' => $number ) );
+		
+		// 配置处理
 		_register_widget_update_callback( $this->id_base, $this->_get_update_callback(), $this->control_options, array( 'number' => -1 ) );
+		
+		// 配置显示
 		_register_widget_form_callback(	$this->id, $this->name,	$this->_get_form_callback(), $this->control_options, array( 'number' => $number ) );
 	}
 
@@ -556,6 +600,7 @@ class WP_Widget {
 	 *
 	 * @param array $settings Multi-dimensional array of widget instance settings.
 	 */
+	 /*** 存一组widget的参数到option_name */
 	public function save_settings( $settings ) {
 		$settings['_multiwidget'] = 1;
 		update_option( $this->option_name, $settings );
@@ -568,6 +613,34 @@ class WP_Widget {
 	 * @access public
 	 *
 	 * @return array Multi-dimensional array of widget instance settings.
+	 */
+	 /***
+	获取所有此类widget对象所设置的参数
+	返回结果形如
+	Array
+	(
+	    [5] => Array
+	        (
+	            [title] => Products
+	            [number_products] => 3
+	        )
+
+	    [7] => Array
+	        (
+	            [title] => Products
+	            [number_products] => 1
+	        )
+
+		// 8表示number, 即第8号该类挂件
+	    [8] => Array
+	        (
+	            [title] => Products
+	            [number_products] => 99
+	        )
+
+	    [_multiwidget] => 1
+	)
+	
 	 */
 	public function get_settings() {
 

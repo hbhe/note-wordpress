@@ -6,6 +6,96 @@
  * @subpackage Administration
  */
 
+/***
+
+画面分3块: 可用挂件区、容器区、垃圾箱(不可用小工具区)
+
+有时候在容器中加入了一个小工具，并且很辛苦地配置了参数，当暂时不想用时，可以将它拖到垃圾箱
+可以把这个垃圾箱看成是一个特殊的容器，只不过它不会在主题中显示，
+在垃圾箱与普通的右侧栏容器之间拖动挂件时，挂件的参数不会丢失
+
+
+根据3种集合
+$wp_registered_sidebars, 	正在使用中的容器
+$sidebars_widgets, 		db中存放的所有容器及其挂件的对应关系
+$wp_registered_widgets,	正在使用中的挂件
+清出那些在本主题中未使用的容器和未使用的小工具
+
+因为一个挂件可以被多次拖放到一个容器中，所以被拖放的是挂件的实例，而不是挂件，某种挂件可以有很多个实例
+
+将HS_Widget类小挂件往容器s中拖放时, 系统要做
+1. new一个挂件类的实例如w7 = new HS_Widget(),   每个实例的number不一样,自增性的, 如7
+2. 在容器中记录一下这个实例，表明它用了某某挂件的某个实例。即在容器数组中添加此实例名, hs_widget-7
+3. 在此挂件的实例列表中增加一下这个实例。即在hs_widget中添加此实例的数据
+
+db发生的操作
+UPDATE `wp_options` SET `option_value` = 'a:3:{i:5;a:2:{s:5:\"title\";s:8:\"Products\";s:15:\"number_products\";i:3;}i:7;a:2:{s:5:\"title\";s:8:\"Products\";s:15:\"number_products\";i:3;}s:12:\"_multiwidget\";i:1;}' WHERE `option_name` = 'widget_hs_widget'
+hs_widget类的所有实例列表
+(
+    [5] => Array
+        (
+            [title] => Products
+            [number_products] => 3
+        )
+
+    // 第7号hs_widget对象的参数，7:表示实例的number, 
+    [7] => Array
+        (
+            [title] => Products
+            [number_products] => 1
+        )
+    [_multiwidget] => 1
+)
+
+
+UPDATE `wp_options` SET `option_value` = 'a:4:{s:19:\"wp_inactive_widgets\";a:6:{i:0;s:17:\"recent-comments-2\";i:1;s:11:\"hs_widget-5\";i:2;s:10:\"nav_menu-2\";i:3;s:7:\"pages-3\";i:4;s:8:\"search-3\";i:5;s:12:\"categories-3\";}s:19:\"main_sidebar_wstech\";a:6:{i:0;s:8:\"search-2\";i:1;s:14:\"recent-posts-2\";i:2;s:10:\"archives-2\";i:3;s:12:\"categories-2\";i:4;s:6:\"meta-2\";i:5;s:7:\"pages-2\";}s:9:\"sidebar-1\";a:2:{i:0;s:11:\"hs_widget-7\";i:1;s:12:\"categories-4\";}s:13:\"array_version\";i:3;}' WHERE `option_name` = 'sidebars_widgets'
+表wp_options中'sidebars_widgets'参数对应的值形如
+(
+	// wp_inactive_widgets表示是不可用小工具区，即垃圾箱
+    [wp_inactive_widgets] => Array
+        (
+            [0] => categories-4
+            [1] => hs_widget-7		// 第7号hs_widget对象
+            [2] => hs_widget-5		// 第5号, 可见此容器中装了2个hs_widget对象
+            [3] => nav_menu-2
+            [4] => pages-3
+            [5] => categories-3
+        )
+
+    [widget_sitesidebar] => Array
+        (
+            [0] => widget_searchbox-2
+            [1] => meta-2
+            [2] => recent-posts-2
+            [3] => categories-2
+            [4] => hs_widget-7
+            [5] => rss-2
+        )
+
+    [widget_sidebar] => Array
+        (
+            [0] => widget_ads-2
+        )
+
+    [widget_othersidebar] => Array
+        (
+        )
+
+    [widget_postsidebar] => Array
+        (
+            [0] => widget_ads-4
+        )
+
+    [widget_pagesidebar] => Array
+        (
+        )
+
+    [array_version] => 3
+)
+
+
+*/
+
 /** WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
 
@@ -80,10 +170,13 @@ if ( ! current_theme_supports( 'widgets' ) ) {
 }
 
 // These are the widgets grouped by sidebar
-/*** 每个sidebar都有对应的widgets, 所有sidebar的信息都存放在get_option('sidebars_widgets')中
+/*** 
+每个sidebar都对应一些widgets, 这种对应关系存放在get_option('sidebars_widgets')中
 如果registered_sidebar($sidebar_id)就表示$sidebar_id被使用了，否则就是暂时没用的
+*/
 
-这里先取出所有sidebar与widgets的对应关系
+/***
+取出所有sidebar与widgets的对应关系
 */
 $sidebars_widgets = wp_get_sidebars_widgets();
 
@@ -94,9 +187,9 @@ foreach ( $sidebars_widgets as $sidebar_id => $widgets ) {
 	if ( 'wp_inactive_widgets' == $sidebar_id )
 		continue;
 
-	/*** 过滤掉那些没被register_sidebar()的 */
 	if ( ! is_registered_sidebar( $sidebar_id ) ) {
 		if ( ! empty( $widgets ) ) { // register the inactive_widgets area as sidebar
+			/*** 未在主题中使用但肚子中有挂件的容器，注册一下，假装使用? */
 			register_sidebar(array(
 				'name' => __( 'Inactive Sidebar (not used)' ),
 				'id' => $sidebar_id,
@@ -116,6 +209,7 @@ foreach ( $sidebars_widgets as $sidebar_id => $widgets ) {
 
 
 // register the inactive_widgets area as sidebar
+/*** 未使用的挂件，放在一个容器里进行展示? */
 register_sidebar(array(
 	'name' => __('Inactive Widgets'),
 	'id' => 'wp_inactive_widgets',
@@ -127,6 +221,16 @@ register_sidebar(array(
 	'after_title' => '',
 ));
 
+//error_log(print_r([$_GET, $_POST], true));
+
+/***
+根据
+$wp_registered_sidebars, 	使用中的容器
+$sidebars_widgets, 		db中存放的所有容器及其挂件的对应关系
+$wp_registered_widgets,	使用中的挂件
+
+计算出未被使用的容器、未被使用的持件
+*/
 retrieve_widgets();
 
 // We're saving a widget without js
@@ -398,7 +502,7 @@ do_action( 'widgets_admin_page' ); ?>
 				<p class="description"><?php _e('To activate a widget drag it to a sidebar or click on it. To deactivate a widget and delete its settings, drag it back.'); ?></p>
 			</div>
 			<div id="widget-list">
-				<?php wp_list_widgets(); ?>
+				<?php wp_list_widgets(); /*** 显示那些使用中的(即注册过的)可被拖放的小工具 */?>
 			</div>
 			<br class='clear' />
 		</div>
@@ -418,7 +522,7 @@ foreach ( $wp_registered_sidebars as $sidebar => $registered_sidebar ) {
 		?>
 		<div class="<?php echo esc_attr( $wrap_class ); ?>">
 			<div class="widget-holder inactive">
-				<?php wp_list_widget_controls( $registered_sidebar['id'], $registered_sidebar['name'] ); ?>
+				<?php wp_list_widget_controls( $registered_sidebar['id'], $registered_sidebar['name'] ); /*** 显示未使用的小挂件 */ ?>
 
 				<?php if ( $is_inactive_widgets ) { ?>
 				<div class="remove-inactive-widgets">
@@ -471,7 +575,7 @@ if ( $sidebars_count > 1 ) {
 <div id="widgets-right" class="wp-clearfix<?php echo $single_sidebar_class; ?>">
 <div class="sidebars-column-1">
 <?php
-
+/*** 逐个显示容器 */
 foreach ( $theme_sidebars as $sidebar => $registered_sidebar ) {
 	$wrap_class = 'widgets-holder-wrap';
 	if ( !empty( $registered_sidebar['class'] ) )
@@ -488,7 +592,7 @@ foreach ( $theme_sidebars as $sidebar => $registered_sidebar ) {
 
 	?>
 	<div class="<?php echo esc_attr( $wrap_class ); ?>">
-		<?php wp_list_widget_controls( $sidebar, $registered_sidebar['name'] ); // Show the control forms for each of the widgets in this sidebar ?>
+		<?php wp_list_widget_controls( $sidebar, $registered_sidebar['name'] ); /*** 显示某容器内的所有的小挂件 */ // Show the control forms for each of the widgets in this sidebar ?>
 	</div>
 	<?php
 

@@ -67,7 +67,7 @@ if( !wp_next_scheduled( 'my_hook' ) ) {		// 一定要检查, 如果未登记过才登记, 以免
  */
  /***
  10秒钟后执行一次挂在勾子'my_hook'上的所有函数 
- wp_schedule_event( time()+10, 'my_hook' );
+ wp_schedule_single_event( time()+10, 'my_hook' );
  */
 function wp_schedule_single_event( $timestamp, $hook, $args = array()) {
 	// Make sure timestamp is a positive integer
