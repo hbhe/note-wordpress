@@ -4882,7 +4882,7 @@ class WP_Query {
 		$page: 当前看的是第几页内容 
 		$pages: 存放每页的内容
 		$multipage: 是否有多页
-		$more: ??? 什么作用?
+		$more: ??? 什么作用? $more是单页面标志,即是否是single,page之类的单页面
 		$numpages: 贴子共分几页
 		*/	
 		global $id, $authordata, $currentday, $currentmonth, $page, $pages, $multipage, $more, $numpages;
@@ -4911,7 +4911,7 @@ class WP_Query {
 		 * Force full post content when viewing the permalink for the $post,
 		 * or when on an RSS feed. Otherwise respect the 'more' tag.
 		 */
-		 /* ???? */
+		 /* $more是单页面标志,即是否是single,page之类的单页面 */
 		if ( $post->ID === get_queried_object_id() && ( $this->is_page() || $this->is_single() ) ) {
 			$more = 1;
 		} elseif ( $this->is_feed() ) {

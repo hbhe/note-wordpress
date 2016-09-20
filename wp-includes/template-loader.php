@@ -78,7 +78,42 @@ if ( defined('WP_USE_THEMES') && WP_USE_THEMES ) :
 	elseif ( is_tax()            && $template = get_taxonomy_template()       ) :
 	elseif ( is_attachment()     && $template = get_attachment_template()     ) :
 		remove_filter('the_content', 'prepend_attachment');
+
+	/***
+	比如想不同category的文章都有自己不同的显示模板文件,  因为一个post可以对应多个category,所以有优先级的问题
+
+	方法1:直接在模板文件中写,如
+	if (in_category('portfolio')) {
+		include(TEMPLATEPATH.'/single_portfolio.php');
+	} elseif (in_category('news')) {
+		include(TEMPLATEPATH.'/single_news.php');		
+	} else {
+		include(TEMPLATEPATH.'/single_default.php');
+	}
+
+
+	方法2: 通过勾子
+	add_filter('single_template', 'single_template_terms');
+	function single_template_terms($template) {
+		foreach( (array) wp_get_object_terms(get_the_ID(), get_taxonomies(array('public' => true, '_builtin' => false))) as $term ) {
+			if ( file_exists(TEMPLATEPATH . "/single-{$term->slug}.php") )
+				return TEMPLATEPATH . "/single-{$term->slug}.php";
+		}
+		return $template;
+	}
+
+	或者简单根据'category'
+	function single_template_terms($template) {
+		foreach( (array) get_the_category() as $cat ) {		
+			if ( file_exists(TEMPLATEPATH . "/single-{$cat->slug}.php") )
+				return TEMPLATEPATH . "/single-{$cat->slug}.php";
+		}
+		return $template;
+	}
+	*/		
 	elseif ( is_single()         && $template = get_single_template()         /* 显示某个贴子 */ ) :
+
+	
 	elseif ( is_page()           && $template = get_page_template()           /* 显示某个page */) :
 	elseif ( is_singular()       && $template = get_singular_template()       ) :
 	elseif ( is_category()       && $template = get_category_template()       ) :
@@ -88,7 +123,7 @@ if ( defined('WP_USE_THEMES') && WP_USE_THEMES ) :
 	elseif ( is_archive()        && $template = get_archive_template()        ) :
 	elseif ( is_paged()          && $template = get_paged_template()          ) :
 	else :
-		$template = get_index_template();			/* 其它情况显示index页 */
+		$template = get_index_template();	/* 其它情况显示index页 , 要是有个is_xx()或者置个标志就好了*/
 	endif;
 	
 	/*
@@ -98,8 +133,6 @@ if ( defined('WP_USE_THEMES') && WP_USE_THEMES ) :
 	$template = D:\htdocs\note-wordpress/wp-content/themes/twentysixteen/page.php
 	archive.php, ...
 	*/	
-	// debug 显示到底是哪个文件
-	error_log($template);
 	
 	/**
 	 * Filter the path of the current template before including it.

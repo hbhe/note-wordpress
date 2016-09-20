@@ -341,6 +341,7 @@ class WP_Scripts extends WP_Dependencies {
 			$src = add_query_arg( 'ver', $ver, $src );
 
 		/** This filter is documented in wp-includes/class.wp-scripts.php */
+		/*** 本来要引用一个aaa.js, 给个机会你可以把它改成引用bbb.js ? */
 		$src = esc_url( apply_filters( 'script_loader_src', $src, $handle ) );
 
 		if ( ! $src )

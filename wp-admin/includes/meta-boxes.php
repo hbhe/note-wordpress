@@ -805,7 +805,7 @@ function post_revisions_meta_box( $post ) {
  
  /* 
 页面属性metabox
- 显示页面属性中的2个输入项 
+显示页面属性中的3个输入项 : 父页面, 页面模板(如果有的话), 显示序号
  */
 function page_attributes_meta_box($post) {
 	$post_type_object = get_post_type_object($post->post_type);
@@ -840,6 +840,8 @@ function page_attributes_meta_box($post) {
 <?php
 		} // end empty pages check
 	} // end hierarchical check.
+
+	/*** 搜索主题目录下所有php文件,如果存在页面模板文件 */
 	if ( 'page' == $post->post_type && 0 != count( get_page_templates( $post ) ) && get_option( 'page_for_posts' ) != $post->ID ) {
 		$template = !empty($post->page_template) ? $post->page_template : false;
 		?>
@@ -869,7 +871,7 @@ function page_attributes_meta_box($post) {
 $default_title = apply_filters( 'default_page_template_title',  __( 'Default Template' ), 'meta-box' );
 ?>
 <option value="default"><?php echo esc_html( $default_title ); ?></option>
-<?php page_template_dropdown($template); ?>
+<?php page_template_dropdown($template); /* 显示可供选择的页面模板 */ ?>
 </select>
 <?php
 	} ?>

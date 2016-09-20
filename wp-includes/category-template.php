@@ -76,6 +76,7 @@ function get_category_parents( $id, $link = false, $separator = '/', $nicename =
  * @param int $id Optional, default to current post ID. The post ID.
  * @return array Array of objects, one for each category assigned to the post.
  */
+ /*** ´ËpostÊôÓÚÄÄĞ©category */
 function get_the_category( $id = false ) {
 	$categories = get_the_terms( $id, 'category' );
 	if ( ! $categories || is_wp_error( $categories ) )

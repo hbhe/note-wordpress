@@ -47,6 +47,11 @@ get_option('sidebars_widgets')   // 这个指的是什么?
 
 对于多站点, 每个站点都有一张表如wp_options, wp_2_options, ...
 get_blog_option()就是先切换表,再调用get_option()
+
+函数支持这3个勾子前缀
+option_
+pre_option_
+default_option_
 */
 
 function get_option( $option, $default = false ) {
@@ -71,6 +76,10 @@ function get_option( $option, $default = false ) {
 	 *                               Default false to skip it.
 	 * @param string     $option     Option name.
 	 */
+	 /*** 
+	 在从db中取aaa参数之前，先看一下是否可以从函数中取(绑在'pre_option_aaa'上的函数)
+	 这个在参数保存之前的预览时有用
+	 */
 	$pre = apply_filters( 'pre_option_' . $option, false, $option );
 	if ( false !== $pre )
 		return $pre;
@@ -80,6 +89,9 @@ function get_option( $option, $default = false ) {
 
 	if ( ! wp_installing() ) {
 		// prevent non-existent options from triggering multiple queries
+		/*** notoptions是一个内存变量, 每次db中读不到某option时, 
+		就把此option收集到notoptions集合中,免得多次读取db中不存在的记录 
+		*/
 		$notoptions = wp_cache_get( 'notoptions', 'options' );
 		if ( isset( $notoptions[ $option ] ) ) {
 			/**
@@ -94,14 +106,17 @@ function get_option( $option, $default = false ) {
 			 *                        in the database.
 			 * @param string $option  Option name.
 			 */
+			 /*** 返回$default, 但是让别人有机会修改$default */
 			return apply_filters( 'default_option_' . $option, $default, $option );
 		}
 
 		$alloptions = wp_load_alloptions();
 
+		/*** 先查是否在autoload 变量中*/
 		if ( isset( $alloptions[$option] ) ) {
 			$value = $alloptions[$option];
 		} else {
+			/*** 如果不是autoload变量, 再从cache内单取它, 取不到再从db中取 */		
 			$value = wp_cache_get( $option, 'options' );
 
 			if ( false === $value ) {
@@ -115,6 +130,7 @@ function get_option( $option, $default = false ) {
 					if ( ! is_array( $notoptions ) ) {
 						 $notoptions = array();
 					}
+					/*** 在cache中做下标志表示db中无此option, 免得下次又读db */
 					$notoptions[$option] = true;
 					wp_cache_set( 'notoptions', $notoptions, 'options' );
 
@@ -124,6 +140,7 @@ function get_option( $option, $default = false ) {
 			}
 		}
 	} else {
+		/*** 安装时不考虑cache */
 		$suppress = $wpdb->suppress_errors();
 		$row = $wpdb->get_row( $wpdb->prepare( "SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", $option ) );
 		$wpdb->suppress_errors( $suppress );
@@ -155,6 +172,7 @@ function get_option( $option, $default = false ) {
 	 *                       unserialized prior to being returned.
 	 * @param string $option Option name.
 	 */
+	 /*** 返回db中的option, 但是让别人有机会修正一下 */
 	return apply_filters( 'option_' . $option, maybe_unserialize( $value ), $option );
 }
 
@@ -192,6 +210,11 @@ function form_option( $option ) {
  * @global wpdb $wpdb WordPress database abstraction object.
  *
  * @return array List of all options.
+ */
+ /***
+一次性读出所有autoload参数,驻留内存
+有些参数是需要时才读到内存，有些是必须要用的参数即autoload, 这样区别就是为了避免
+内存开销过大
  */
 function wp_load_alloptions() {
 	global $wpdb;
@@ -325,11 +348,6 @@ function update_option( $option, $value, $autoload = null ) {
 
 		return add_option( $option, $value, '', $autoload );
 	}
-
-// hbhe for test
-if ( is_array( $value ) || is_object( $value ) ) {
-	error_log(print_r([$option, $value], true));
-}
 
 	$serialized_value = maybe_serialize( $value );
 

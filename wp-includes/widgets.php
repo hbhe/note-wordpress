@@ -860,6 +860,7 @@ function is_dynamic_sidebar() {
  * @param string|int $index Sidebar name, id or number to check.
  * @return bool true if the sidebar is in use, false otherwise.
  */
+ /*** 不是注册 一个容器就显示(即为active)，必须是肚子里有小挂件的容器才需要显示的 */
 function is_active_sidebar( $index ) {
 	$index = ( is_int($index) ) ? "sidebar-$index" : sanitize_title($index);
 	$sidebars_widgets = wp_get_sidebars_widgets();

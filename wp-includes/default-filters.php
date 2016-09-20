@@ -382,6 +382,10 @@ add_action( 'init', '_show_post_preview' );
 add_action( 'wp_head', 'wp_post_preview_js', 1 );
 
 // Timezone
+/*** 
+在get_option('gmt_offset') 时会先执行wp_timezone_override_offset() ? 
+pre_option_ , default_option_, option_ 这种前缀比较特殊?
+*/
 add_filter( 'pre_option_gmt_offset','wp_timezone_override_offset' );
 
 // Admin Color Schemes

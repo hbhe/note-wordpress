@@ -1074,6 +1074,7 @@ function wp_print_footer_scripts() {
  *
  * @since 2.8.0
  */
+ /*** 此时url参数分析已经OK，所以可以使用条件tag, 如is_home(), is_tax(), ... */
 function wp_enqueue_scripts() {
 	/**
 	 * Fires when scripts and styles are enqueued.

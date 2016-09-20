@@ -4328,6 +4328,7 @@ function wp_basename( $path, $suffix = '' ) {
  * @param string $text The text to be modified.
  * @return string The modified text.
  */
+ /*** 将Wordpress替换成WordPress */
 function capital_P_dangit( $text ) {
 	// Simple replacement for titles
 	$current_filter = current_filter();

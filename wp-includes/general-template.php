@@ -28,6 +28,7 @@ get_sidebar(),
  */
  /*
 执行本函数,并执行绑定在'get_header'点上的所有其它函数
+等同于get_template_part( 'header', $name)吧?
  */
 function get_header( $name = null ) {
 	/**
@@ -157,7 +158,7 @@ function get_sidebar( $name = null ) {
  * @param string $slug The slug name for the generic template.
  * @param string $name The name of the specialised template.
  */
- // 加载一个模板,如get_template_part( 'template-parts/content','page');
+ /*** 加载一个模板,如get_template_part( 'template-parts/content','page'); */
 function get_template_part( $slug, $name = null ) {
 	/**
 	 * Fires before the specified template part file is loaded.

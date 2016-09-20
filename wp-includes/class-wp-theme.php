@@ -122,6 +122,7 @@ final class WP_Theme implements ArrayAccess {
 	 * @access private
 	 * @var string
 	 */
+	 /*** 子主题所在目录 */
 	private $stylesheet;
 
 	/**
@@ -133,6 +134,7 @@ final class WP_Theme implements ArrayAccess {
 	 * @access private
 	 * @var string
 	 */
+	 /*** 父主题所在目录 */
 	private $template;
 
 	/**
@@ -141,6 +143,7 @@ final class WP_Theme implements ArrayAccess {
 	 * @access private
 	 * @var WP_Theme
 	 */
+	 /*** 父主题名字? */
 	private $parent;
 
 	/**
@@ -176,6 +179,7 @@ final class WP_Theme implements ArrayAccess {
 	 * @access private
 	 * @var bool
 	 */
+	 /*** 主题中有扫描目录的行为(scandir)，所以cache很重要 */
 	private static $persistently_cache;
 
 	/**
@@ -982,6 +986,12 @@ final class WP_Theme implements ArrayAccess {
 	 * @return array Array of files, keyed by the path to the file relative to the theme's directory, with the values
 	 * 	             being absolute paths.
 	 */
+	 /***
+	 返回当前主题目录下的文件
+	add_action('shutdown', function($arg) {
+		$arr = wp_get_theme()->get_files( ['php','css'], 1);
+	});
+	 */
 	public function get_files( $type = null, $depth = 0, $search_parent = false ) {
 		$files = (array) self::scandir( $this->get_stylesheet_directory(), $type, $depth );
 
@@ -1001,7 +1011,8 @@ final class WP_Theme implements ArrayAccess {
 	 * @return array Array of page templates, keyed by filename, with the value of the translated header name.
 	 */
 	 /***  
-	 扫描所有文件, 得到所有页面模板类的文件
+	 扫描当前主题和父主题(如果有的话)中的所有文件, 得到所有页面模板类的文件,模板文件中
+	必须有一行'Template Name:', 如
 	Template Name: My 2016 Page Template
 	*/
 	public function get_page_templates( $post = null ) {
@@ -1031,6 +1042,7 @@ final class WP_Theme implements ArrayAccess {
 			}
 		}
 
+		/*** 还要包括上父主题中的页面模板文件 */
 		if ( $this->parent() )
 			$page_templates += $this->parent()->get_page_templates( $post );
 
@@ -1045,6 +1057,7 @@ final class WP_Theme implements ArrayAccess {
 		 * @param WP_Theme     $this           The theme object.
 		 * @param WP_Post|null $post           The post being edited, provided for context, or null.
 		 */
+		 /*** $post只是上下文参数, 供要用勾子的人使用 */
 		return (array) apply_filters( 'theme_page_templates', $page_templates, $this, $post );
 	}
 
@@ -1067,6 +1080,9 @@ final class WP_Theme implements ArrayAccess {
 	 * @return array|false Array of files, keyed by the path to the file relative to the `$path` directory prepended
 	 *                     with `$relative_path`, with the values being absolute paths. False otherwise.
 	 */
+	 /***
+	返回目录$path下的所有文件名, $depth: 0 表示当前目录, 1表示当前和一层子目录下
+	*/
 	private static function scandir( $path, $extensions = null, $depth = 0, $relative_path = '' ) {
 		if ( ! is_dir( $path ) )
 			return false;

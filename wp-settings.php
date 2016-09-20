@@ -93,8 +93,33 @@ require( ABSPATH . WPINC . '/compat.php' );
 require( ABSPATH . WPINC . '/functions.php' );
 require( ABSPATH . WPINC . '/class-wp.php' );
 require( ABSPATH . WPINC . '/class-wp-error.php' );
+
 /*** 引用hook机制, 从此就可以使用add_action,... */
 require( ABSPATH . WPINC . '/plugin.php' );
+
+
+// 我放在这里的测试代码BEGIN 
+// 打印所有数据库操作
+add_action('shutdown', function($arg) {
+	global $wpdb;
+	//error_log(print_r( $wpdb->queries, true ) ); 
+});	
+
+// 到底当前请求最后使用的是哪个模板文件
+add_filter( 'template_include', function($template) {
+	error_log( 'my template=' . $template );
+	return $template;
+}, 9999);
+
+add_action('update_option', function($option, $old_value, $value) {
+	//if ( is_array( $value ) || is_object( $value ) ) 
+	if (in_array( $option, ['sidebars_widgets'] ) )
+	{	
+		//error_log(print_r( [$option, $old_value, $value], true ) ); 
+	}
+}, 10, 3);	
+// END
+
 require( ABSPATH . WPINC . '/pomo/mo.php' );
 
 // Include the wpdb class and, if present, a db.php database drop-in.

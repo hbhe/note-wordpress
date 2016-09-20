@@ -286,7 +286,9 @@ $strip_teaser: 是否不显示more前面的内容即teaser
 但这因为有摘要这个字段,实在没必要这么玩
 */ 
 function get_the_content( $more_link_text = null, $strip_teaser = false ) {
-	/* global $more 作用? */
+	/* global $more 作用? 
+	单页面标志$more, $single 
+	*/
 	global $page, $more, $preview, $pages, $multipage;
 
 	$post = get_post();
@@ -330,6 +332,7 @@ function get_the_content( $more_link_text = null, $strip_teaser = false ) {
 
 	if ( count( $content ) > 1 ) {
 		if ( $more ) {
+			/*** 如果是single或page之类的单页面，就显示全部内容 */
 			$output .= '<span id="more-' . $post->ID . '"></span>' . $content[1];
 		} else {
 			if ( ! empty( $more_link_text ) )
@@ -342,6 +345,7 @@ function get_the_content( $more_link_text = null, $strip_teaser = false ) {
 				 * @param string $more_link_element Read More link element.
 				 * @param string $more_link_text    Read More text.
 				 */
+				 /*** 只显示more前面的内容+ more链接 */
 				$output .= apply_filters( 'the_content_more_link', ' <a href="' . get_permalink() . "#more-{$post->ID}\" class=\"more-link\">$more_link_text</a>", $more_link_text );
 			$output = force_balance_tags( $output );
 		}
@@ -868,6 +872,7 @@ function post_password_required( $post = null ) {
  */
  /* 如果贴子内容分为多页, 显示1,2,3,...式页面链接 */
 function wp_link_pages( $args = '' ) {
+	/*** $more是单页面标志,相当于$single */
 	global $page, $numpages, $multipage, $more;
 
 	$defaults = array(
@@ -1660,10 +1665,10 @@ function is_page_template( $template = '' ) {
  * @return string|false Page template filename. Returns an empty string when the default page template
  * 	is in use. Returns false if the post is not a page.
  */
- /*** 看看 */
+ /*** 返回模板文件名, 形如about.php */
 function get_page_template_slug( $post_id = null ) {
 	$post = get_post( $post_id );
-	/*** 只有post_type为page的才有这个特点 */		
+	/*** 只有post_type为page的才有这个特点,为什么post没有? */		
 	if ( ! $post || 'page' != $post->post_type )
 		return false;
 	$template = get_post_meta( $post->ID, '_wp_page_template', true );

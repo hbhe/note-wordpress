@@ -57,7 +57,7 @@ function get_query_template( $type, $templates = array() ) {
 	 *
 	 * @param string $template Path to the template. See locate_template().
 	 */
-	 /*** 给别人一个改变挑好的文件的机会,如add_filter('single_template', 'xxx'); */
+	 /*** 定位之后，也给别人一个改变模板文件的机会,如add_filter('single_template', 'xxx'); */
 	return apply_filters( "{$type}_template", $template );
 }
 
@@ -340,11 +340,15 @@ function get_front_page_template() {
  /***
  每个page都可以被指定使用一种页面模板, 这个设置放在wp_postmeta表中, _wp_page_template = 'my-template-page'
  在后台新建或编辑页面时指定
+ 
+ 为什么post不支持页面模板?
  */
 function get_page_template() {
 	$id = get_queried_object_id();
+
 	/*** 优先考虑这个页面是否被指定过一个页面模板 */
 	$template = get_page_template_slug();
+
 	$pagename = get_query_var('pagename');
 
 	if ( ! $pagename && $id ) {
@@ -357,9 +361,11 @@ function get_page_template() {
 	$templates = array();
 	if ( $template && 0 === validate_file( $template ) )
 		$templates[] = $template;
+		
 	if ( $pagename )
 		/*** 一般是先考虑slug, 然后id */	
 		$templates[] = "page-$pagename.php";
+		
 	if ( $id )
 		$templates[] = "page-$id.php";
 	$templates[] = 'page.php';
@@ -426,11 +432,14 @@ function get_single_template() {
 	不同的post_format其展示样式更有可能不一样, 为什么不考虑$post_format和$category?  
 	比如对于video的文章，我希望模板是single-video.php, 对于分类是news的文章我希望是single-news.php
 
-	不像post_type属于post的属性，post_format与category都于taxonomy, 会涉及到另外的表, 开销比较大, 显然不适合放在wp内核中
+	因为,不像post_type属于post的属性，post_format与category都于taxonomy, 会涉及到另外的表, 开销比较大, 显然不适合放在wp内核中
 	要想有这个feature，可以自己在主题的模板文件中加一句如get_template_part( 'content', get_post_format() );
+
+	所以在定位模板时，都是根据所取对象的内在属性来实现模板fallback机制, 这是最简单也是没有额外开销的方法，
+	如果要single-category, single-postformat,那就跨表了(因为category, postformt不属于post表的属性)，那就得自己在模板文件中用条件tag自己实现
 	*/
 	if ( ! empty( $object->post_type ) ) {
-		/*** 一般是先考虑slug(post_name), 然后id */
+		/*** 一般是先考虑slug(post_name), 然后id, single时不支持id? */
 		$templates[] = "single-{$object->post_type}-{$object->post_name}.php";
 		$templates[] = "single-{$object->post_type}.php";
 	}

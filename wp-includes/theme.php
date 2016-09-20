@@ -450,6 +450,7 @@ function search_theme_directories( $force = false ) {
 	 * @param bool   $cache_expiration Whether to get the cache of the theme directories. Default false.
 	 * @param string $cache_directory  Directory to be searched for the cache.
 	 */
+	 /*** 主题也可以用cache ? */
 	if ( $cache_expiration = apply_filters( 'wp_cache_themes_persistently', false, 'search_theme_directories' ) ) {
 		$cached_roots = get_site_transient( 'theme_roots' );
 		if ( is_array( $cached_roots ) ) {

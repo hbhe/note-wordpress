@@ -199,6 +199,7 @@ function has_shortcode( $content, $tag ) {
  * @param bool $ignore_html When true, shortcodes inside HTML elements will be skipped.
  * @return string Content with shortcodes filtered out.
  */
+ /*** ½«$contentÖĞµÄshortcodeÕ¹¿ªºó²¢·µ»ØĞÂÄÚÈİÄ*/
 function do_shortcode( $content, $ignore_html = false ) {
 	global $shortcode_tags;
 

@@ -277,7 +277,7 @@ foreach ( get_object_taxonomies( $post ) as $tax_name ) {
 }
 
 if ( post_type_supports($post_type, 'page-attributes') )
-	/* page_attributes_meta_box() callback函数用来显示页面属性中的2个输入项 */
+	/* page_attributes_meta_box() callback函数用来显示页面属性中的3个输入项 : 父页面, 页面模板(如果有的话), 显示序号 */
 	add_meta_box('pageparentdiv', 'page' == $post_type ? __('Page Attributes') : __('Attributes'), 'page_attributes_meta_box', null, 'side', 'core');
 
 if ( $thumbnail_support && current_user_can( 'upload_files' ) )

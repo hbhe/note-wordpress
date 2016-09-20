@@ -2950,6 +2950,7 @@ function get_shortcut_link() {
  *                             'http', 'https', 'relative', 'rest', or null. Default null.
  * @return string Home url link with optional path appended.
  */
+ /*** 形如http://127.0.0.1/note-wordpress */
 function home_url( $path = '', $scheme = null ) {
 	return get_home_url( null, $path, $scheme );
 }
