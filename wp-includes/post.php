@@ -1223,7 +1223,7 @@ function register_post_type( $post_type, $args = array() ) {
 		}
 
 		/*** 也要登记在url参数中, 它的key是什么样的? */
-		if ( $args->hierarchical )
+		if ( $args->hierarchical ) // 有层次关系的就是page, 否则是post?
 			add_rewrite_tag( "%$post_type%", '(.+?)', $args->query_var ? "{$args->query_var}=" : "post_type=$post_type&pagename=" );
 		else
 			add_rewrite_tag( "%$post_type%", '([^/]+)', $args->query_var ? "{$args->query_var}=" : "post_type=$post_type&name=" );

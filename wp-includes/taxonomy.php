@@ -45,9 +45,12 @@ function create_initial_taxonomies() {
 		 * @param string $context Context of the rewrite base. Default 'type'.
 		 */
 		$post_format_base = apply_filters( 'post_format_rewrite_base', 'type' );
+		/**  这里定义了category等的rewrite规则,  很重要! */
 		$rewrite = array(
 			'category' => array(
 				'hierarchical' => true,
+				/** 默认美化链接是/category/cat1/cat11/..., 
+				但是可以通过后台管理界面设置category_base的值, 将美化链接改成/hello/cat1/cat11/... */
 				'slug' => get_option('category_base') ? get_option('category_base') : 'category',
 				'with_front' => ! get_option('category_base') || $wp_rewrite->using_index_permalinks(),
 				'ep_mask' => EP_CATEGORIES,
@@ -71,7 +74,7 @@ function create_initial_taxonomies() {
 	register_taxonomy( 'category', 'post', array(
 		'hierarchical' => true,
 		'query_var' => 'category_name',
-		'rewrite' => $rewrite['category'],
+		'rewrite' => $rewrite['category'],  /*** 注意这个参数, 它会产生rewrite rule, 在做pretty url时用*/
 		'public' => true,
 		'show_ui' => true,
 		'show_admin_column' => true,
@@ -461,7 +464,25 @@ function register_taxonomy( $taxonomy, $object_type, $args = array() ) {
 		else
 			$tag = '([^/]+)';
 
+            /***  
+                这是add_rewrite_tag()的动态用法, 
+                当$taxonomy为category时, add_rewrite_tag( "%category%", $tag, $args['query_var'] ? "{$args['query_var']}=" : "taxonomy=category&term=" );                
+                    一般展成add_rewrite_tag( "%category%", $tag, "category_name=");
+                                          add_rewrite_tag( "%category%", $tag, "taxonomy=category&term=");                    
+                当$taxonomy为post_tag时, add_rewrite_tag( "%post_tag%", $tag, $args['query_var'] ? "{$args['query_var']}=" : "taxonomy=post_tag&term=" );     
+
+                当使用%category%时，表示解析出来的值会被传到category_name变量中, 如category_name=news-it               
+            */
+
+            /** 定义%$taxonomy%模板变量 */
 		add_rewrite_tag( "%$taxonomy%", $tag, $args['query_var'] ? "{$args['query_var']}=" : "taxonomy=$taxonomy&term=" );
+
+		/** 因为前面定义了%$taxonomy%这个模板变量，所以permalinks中才能"{$args['rewrite']['slug']}/%$taxonomy%" 这么用 
+		$args['rewrite']['slug']}/%$taxonomy%相当于在后台管理界面为固定链接输入的%pagename%/%date%之类的作用
+		$args['rewrite']['slug']}/%$taxonomy%会被保存到$wp_rewrite->extra_permastructs中,以后在rewrite_rules()时会收集此值,产生rules,将rules保存至db
+
+		可见url中支持的是category的slug(即别名)
+		*/
 		add_permastruct( $taxonomy, "{$args['rewrite']['slug']}/%$taxonomy%", $args['rewrite'] );
 	}
 
@@ -4558,6 +4579,11 @@ function wp_term_is_shared( $term_id ) {
  * @param string            $taxonomy Optional. Taxonomy. Default empty.
  * @return string|WP_Error HTML link to taxonomy term archive on success, WP_Error if term does not exist.
  */
+ /** 
+ 根据category id 返回其链接 
+ 根据permalink-struct 制导生成美化url, 而根据rewrite rule来反解美化url
+ 难道不能根据rewrite rule制导生成美化url?  
+ */
 function get_term_link( $term, $taxonomy = '' ) {
 	global $wp_rewrite;
 
@@ -4577,12 +4603,17 @@ function get_term_link( $term, $taxonomy = '' ) {
 
 	$taxonomy = $term->taxonomy;
 
+        /** 取出固定链接串, 
+        因为如果是pretty url模式, 产生url时要检查对应的rewrite ?
+        不对, 产生美化url时并未利用rewrite,而是利用的permalink(即固定链接结构串)
+        */
 	$termlink = $wp_rewrite->get_extra_permastruct($taxonomy);
 
 	$slug = $term->slug;
 	$t = get_taxonomy($taxonomy);
 
 	if ( empty($termlink) ) {
+	    /** 为空表示固定链接为朴素式, 直接输出原始的url */
 		if ( 'category' == $taxonomy )
 			$termlink = '?cat=' . $term->term_id;
 		elseif ( $t->query_var )
@@ -4591,6 +4622,10 @@ function get_term_link( $term, $taxonomy = '' ) {
 			$termlink = "?taxonomy=$taxonomy&term=$slug";
 		$termlink = home_url($termlink);
 	} else {
+	        /**
+	        通过修改rewrite['hierarchical']参数, 支持路径式和直接式
+	        cat-a, cat-a1, cat-a11, 其美化后为/category/cat-a/cat-a1/cat-a11
+	        */
 		if ( $t->rewrite['hierarchical'] ) {
 			$hierarchical_slugs = array();
 			$ancestors = get_ancestors( $term->term_id, $taxonomy, 'taxonomy' );
@@ -4600,8 +4635,12 @@ function get_term_link( $term, $taxonomy = '' ) {
 			}
 			$hierarchical_slugs = array_reverse($hierarchical_slugs);
 			$hierarchical_slugs[] = $slug;
+			/**  category的默认permalink是category/%$taxonomy% (register_taxonomy()时指定的)
+			现在替换掉其中的%$taxonomy%, 就得到了美化url 
+			*/
 			$termlink = str_replace("%$taxonomy%", implode('/', $hierarchical_slugs), $termlink);
 		} else {
+		        /** 如果不要路径式, 直接为/category/cat-a11 */ 
 			$termlink = str_replace("%$taxonomy%", $slug, $termlink);
 		}
 		$termlink = home_url( user_trailingslashit($termlink, 'category') );

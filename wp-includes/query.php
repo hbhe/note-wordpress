@@ -1618,6 +1618,12 @@ class WP_Query {
 	w: week number, 一年中的第x周
 	offset: 分页用的
 	posts_per_page:分页用的
+
+
+	 parse_request()与parse_query()区别? 
+        parse_request()是对url进行parse, 主要是main()调用,其它地方一般不用
+	 parse_query()是对数组加工的, 供它人调用?
+	
 	 */
 	public function parse_query( $query =  '' ) {
 		if ( ! empty( $query ) ) {

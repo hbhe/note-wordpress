@@ -189,7 +189,13 @@ function wp_default_scripts( &$scripts ) {
 	$scripts->add( 'jquery-ui-core', "/wp-includes/js/jquery/ui/core$dev_suffix.js", array('jquery'), '1.11.4', 1 );
 	$scripts->add( 'jquery-effects-core', "/wp-includes/js/jquery/ui/effect$dev_suffix.js", array('jquery'), '1.11.4', 1 );
 
-	/*** 预定义了一堆jquery组件, 以后可以直接用, 用法? */
+	/*** 预定义了一堆jquery组件, 以后可以直接用, 用法? 	
+        wp_register_script('my_amazing_script', plugins_url('amazing_script.js', __FILE__), array('jquery'),'1.1', true);  // 因为前面预定义了jquery, 所以可以直接定义一个依赖于jquery的amazing_script.js
+        wp_enqueue_script('my_amazing_script');
+        wp_register_script('xxx', plugins_url('xxx.js', __FILE__), array('my_amazing_script'), '1.1', true); 
+        wp_enqueue_script('xxx');
+        wp_enqueue_script( 'custom_js', plugins_url( 'js/custom.js', __FILE__ ), array('jquery-core'), $my_js_ver ); // 不注册, 直接定义一个基于预定义的jquery-core, 
+	*/
 	$scripts->add( 'jquery-effects-blind', "/wp-includes/js/jquery/ui/effect-blind$dev_suffix.js", array('jquery-effects-core'), '1.11.4', 1 );
 	$scripts->add( 'jquery-effects-bounce', "/wp-includes/js/jquery/ui/effect-bounce$dev_suffix.js", array('jquery-effects-core'), '1.11.4', 1 );
 	$scripts->add( 'jquery-effects-clip', "/wp-includes/js/jquery/ui/effect-clip$dev_suffix.js", array('jquery-effects-core'), '1.11.4', 1 );

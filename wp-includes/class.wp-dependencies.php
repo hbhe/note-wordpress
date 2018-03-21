@@ -16,8 +16,9 @@
  * @uses _WP_Dependency
  */
  /***
- 依赖关系基类, WP_Styles继承于此类
+js,css文件之间有先后顺序关系, 在页面中加载时也需要有顺序, 所以必须用依赖包管理器, 这与yii中一样
 
+用于管理依赖关系的基类, WP_Styles继承于此类
 如何在指定位置(如header中,footer中)加载myjs.js, 或者jquery-ui-datepicker
 
  */

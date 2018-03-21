@@ -169,6 +169,14 @@ define( 'EP_ALL', EP_PERMALINK | EP_ATTACHMENT | EP_ROOT | EP_COMMENTS | EP_SEAR
  */
  /***
  $after: bottom表示规则插入在尾部, top表示在其它规则之前使用, 优先级高
+在定义rule时,一般是a/(...)/b/(...)/
+如果定义a/(...)/(...)/b/...  这种有二意性，无法解析出a的值是(...)还是(...)/(...)
+
+add_rewrite_rule('category/(.+?)/page/?([0-9]{1,})/(.+?)/?$', 'index.php?category_name=$matches[1]&paged=$matches[2]&' .YIXUE_SUBCAT. '=$matches[3]', 'top');
+add_rewrite_rule('category/(.+?)/page/?([0-9]{1,})/?$', 'index.php?category_name=$matches[1]&paged=$matches[2]', 'top');
+add_rewrite_rule('category/(.+?)/(.+?)/page/?([0-9]{1,})/?$', 'index.php?category_name=$matches[1]&' .YIXUE_SUBCAT. '=$matches[2]&paged=$matches[3]', 'top');   // 这个有二意性
+add_rewrite_rule('category/(.+?)/(.+?)/?$', 'index.php?category_name=$matches[1]&' .YIXUE_SUBCAT. '=$matches[2]', 'top');
+ 
  */
 function add_rewrite_rule( $regex, $query, $after = 'bottom' ) {
 	global $wp_rewrite;
@@ -195,7 +203,7 @@ function add_rewrite_rule( $regex, $query, $after = 'bottom' ) {
  /*** 用于识别url中的变量 
 
 $this->add_rewrite_tag( '%pagename%', '(.?.+?)', 'pagename=' );
-
+$this->add_rewrite_tag( '%xxx%', '(.?.+?)' );  // 如果不指定query, 就取xxx=
  */
 function add_rewrite_tag( $tag, $regex, $query = '' ) {
 	// validate the tag's name

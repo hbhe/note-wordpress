@@ -179,12 +179,13 @@ function wp_favicon_request() {
 停止维护时删掉这个.maintenance文件
  */
 function wp_maintenance() {
+        // 前后台都停摆
 	if ( ! file_exists( ABSPATH . '.maintenance' ) || wp_installing() )
 		return;
 
 	global $upgrading;
 
-	include( ABSPATH . '.maintenance' );
+	include( ABSPATH . '.maintenance' ); // .maintenance应当是一个php文件!
 	// If the $upgrading timestamp is older than 10 minutes, don't die.
 	/* 预计升级时间10分钟, 如时间超过10分钟表示网站正常(升级结束)了 */
 	if ( ( time() - $upgrading ) >= 600 )

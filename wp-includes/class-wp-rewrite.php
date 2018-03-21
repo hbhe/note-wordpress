@@ -7,7 +7,8 @@
  * @since 1.5.0
  */
 /***
-作用?
+作用? 
+用于美化url、反解url
 */
 /**
  * Core class used to implement a rewrite component API.
@@ -24,6 +25,103 @@
  *
  * @since 1.5.0
  */
+/**
+常见rules
+$this->rules
+[
+    ^wp-json/?$ = "index.php?rest_route=/"
+    ^wp-json/(.*)? = "index.php?rest_route=/$matches[1]"
+    ^index.php/wp-json/?$ = "index.php?rest_route=/"
+    ^index.php/wp-json/(.*)? = "index.php?rest_route=/$matches[1]"
+    
+    category/(.+?)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?category_name=$matches[1]&feed=$matches[2]"
+    category/(.+?)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?category_name=$matches[1]&feed=$matches[2]"
+    category/(.+?)/embed/?$ = "index.php?category_name=$matches[1]&embed=true"
+    category/(.+?)/page/?([0-9]{1,})/?$ = "index.php?category_name=$matches[1]&paged=$matches[2]"   // 比如url中是page=9,但解析后query_vars['paged']=9中
+    // 这里可以看出category/xxx 实际上是取slug为category_name的, 这个是怎么来源的?
+    // 对category, tag这种taxomony的rewrite则是来源于register_taxonomy(), create_initial_taxonomies()中的定义
+    category/(.+?)/?$ = "index.php?category_name=$matches[1]" 
+    
+    tag/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?tag=$matches[1]&feed=$matches[2]"
+    tag/([^/]+)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?tag=$matches[1]&feed=$matches[2]"
+    tag/([^/]+)/embed/?$ = "index.php?tag=$matches[1]&embed=true"
+    tag/([^/]+)/page/?([0-9]{1,})/?$ = "index.php?tag=$matches[1]&paged=$matches[2]"
+    tag/([^/]+)/?$ = "index.php?tag=$matches[1]"
+    type/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?post_format=$matches[1]&feed=$matches[2]"
+    type/([^/]+)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?post_format=$matches[1]&feed=$matches[2]"
+    type/([^/]+)/embed/?$ = "index.php?post_format=$matches[1]&embed=true"
+    type/([^/]+)/page/?([0-9]{1,})/?$ = "index.php?post_format=$matches[1]&paged=$matches[2]"
+    type/([^/]+)/?$ = "index.php?post_format=$matches[1]"
+    .*wp-(atom|rdf|rss|rss2|feed|commentsrss2)\.php$ = "index.php?feed=old"
+    .*wp-app\.php(/.*)?$ = "index.php?error=403"
+    .*wp-register.php$ = "index.php?register=true"
+    feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?&feed=$matches[1]"
+    (feed|rdf|rss|rss2|atom)/?$ = "index.php?&feed=$matches[1]"
+    embed/?$ = "index.php?&embed=true"
+    page/?([0-9]{1,})/?$ = "index.php?&paged=$matches[1]"
+    comments/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?&feed=$matches[1]&withcomments=1"
+    comments/(feed|rdf|rss|rss2|atom)/?$ = "index.php?&feed=$matches[1]&withcomments=1"
+    comments/embed/?$ = "index.php?&embed=true"
+    search/(.+)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?s=$matches[1]&feed=$matches[2]"
+    search/(.+)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?s=$matches[1]&feed=$matches[2]"
+    search/(.+)/embed/?$ = "index.php?s=$matches[1]&embed=true"
+    search/(.+)/page/?([0-9]{1,})/?$ = "index.php?s=$matches[1]&paged=$matches[2]"
+    search/(.+)/?$ = "index.php?s=$matches[1]"
+    author/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?author_name=$matches[1]&feed=$matches[2]"
+    author/([^/]+)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?author_name=$matches[1]&feed=$matches[2]"
+    author/([^/]+)/embed/?$ = "index.php?author_name=$matches[1]&embed=true"
+    author/([^/]+)/page/?([0-9]{1,})/?$ = "index.php?author_name=$matches[1]&paged=$matches[2]"
+    author/([^/]+)/?$ = "index.php?author_name=$matches[1]"
+    ([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&feed=$matches[4]"
+    ([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/(feed|rdf|rss|rss2|atom)/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&feed=$matches[4]"
+    ([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/embed/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&embed=true"
+    ([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/page/?([0-9]{1,})/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&paged=$matches[4]"
+    ([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]"
+    ([0-9]{4})/([0-9]{1,2})/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]&feed=$matches[3]"
+    ([0-9]{4})/([0-9]{1,2})/(feed|rdf|rss|rss2|atom)/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]&feed=$matches[3]"
+    ([0-9]{4})/([0-9]{1,2})/embed/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]&embed=true"
+    ([0-9]{4})/([0-9]{1,2})/page/?([0-9]{1,})/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]&paged=$matches[3]"
+    ([0-9]{4})/([0-9]{1,2})/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]"
+    ([0-9]{4})/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?year=$matches[1]&feed=$matches[2]"
+    ([0-9]{4})/(feed|rdf|rss|rss2|atom)/?$ = "index.php?year=$matches[1]&feed=$matches[2]"
+    ([0-9]{4})/embed/?$ = "index.php?year=$matches[1]&embed=true"
+    ([0-9]{4})/page/?([0-9]{1,})/?$ = "index.php?year=$matches[1]&paged=$matches[2]"
+    ([0-9]{4})/?$ = "index.php?year=$matches[1]"
+    .?.+?/attachment/([^/]+)/?$ = "index.php?attachment=$matches[1]"
+    .?.+?/attachment/([^/]+)/trackback/?$ = "index.php?attachment=$matches[1]&tb=1"
+    .?.+?/attachment/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?attachment=$matches[1]&feed=$matches[2]"
+    .?.+?/attachment/([^/]+)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?attachment=$matches[1]&feed=$matches[2]"
+    .?.+?/attachment/([^/]+)/comment-page-([0-9]{1,})/?$ = "index.php?attachment=$matches[1]&cpage=$matches[2]"
+    .?.+?/attachment/([^/]+)/embed/?$ = "index.php?attachment=$matches[1]&embed=true"
+    (.?.+?)/embed/?$ = "index.php?pagename=$matches[1]&embed=true"
+    (.?.+?)/trackback/?$ = "index.php?pagename=$matches[1]&tb=1"
+    (.?.+?)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?pagename=$matches[1]&feed=$matches[2]"
+    (.?.+?)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?pagename=$matches[1]&feed=$matches[2]"
+    (.?.+?)/page/?([0-9]{1,})/?$ = "index.php?pagename=$matches[1]&paged=$matches[2]"
+    (.?.+?)/comment-page-([0-9]{1,})/?$ = "index.php?pagename=$matches[1]&cpage=$matches[2]"
+    (.?.+?)(?:/([0-9]+))?/?$ = "index.php?pagename=$matches[1]&page=$matches[2]"
+    [^/]+/attachment/([^/]+)/?$ = "index.php?attachment=$matches[1]"
+    [^/]+/attachment/([^/]+)/trackback/?$ = "index.php?attachment=$matches[1]&tb=1"
+    [^/]+/attachment/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?attachment=$matches[1]&feed=$matches[2]"
+    [^/]+/attachment/([^/]+)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?attachment=$matches[1]&feed=$matches[2]"
+    [^/]+/attachment/([^/]+)/comment-page-([0-9]{1,})/?$ = "index.php?attachment=$matches[1]&cpage=$matches[2]"
+    [^/]+/attachment/([^/]+)/embed/?$ = "index.php?attachment=$matches[1]&embed=true"
+    ([^/]+)/embed/?$ = "index.php?name=$matches[1]&embed=true"
+    ([^/]+)/trackback/?$ = "index.php?name=$matches[1]&tb=1"
+    ([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?name=$matches[1]&feed=$matches[2]"
+    ([^/]+)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?name=$matches[1]&feed=$matches[2]"
+    ([^/]+)/page/?([0-9]{1,})/?$ = "index.php?name=$matches[1]&paged=$matches[2]"
+    ([^/]+)/comment-page-([0-9]{1,})/?$ = "index.php?name=$matches[1]&cpage=$matches[2]"
+    ([^/]+)(?:/([0-9]+))?/?$ = "index.php?name=$matches[1]&page=$matches[2]"
+    [^/]+/([^/]+)/?$ = "index.php?attachment=$matches[1]"
+    [^/]+/([^/]+)/trackback/?$ = "index.php?attachment=$matches[1]&tb=1"
+    [^/]+/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?attachment=$matches[1]&feed=$matches[2]"
+    [^/]+/([^/]+)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?attachment=$matches[1]&feed=$matches[2]"
+    [^/]+/([^/]+)/comment-page-([0-9]{1,})/?$ = "index.php?attachment=$matches[1]&cpage=$matches[2]"
+    [^/]+/([^/]+)/embed/?$ = "index.php?attachment=$matches[1]&embed=true"
+]
+*/		
+ 
 class WP_Rewrite {
 	/**
 	 * Permalink structure for posts.
@@ -31,6 +129,7 @@ class WP_Rewrite {
 	 * @since 1.5.0
 	 * @var string
 	 */
+	 /* post的固定链接结构(为空表示是朴素模式, 否则是美化模式) , init()时会从db中取出其值*/
 	public $permalink_structure;
 
 	/**
@@ -74,6 +173,12 @@ class WP_Rewrite {
 	 * @since 1.5.0
 	 * @access private
 	 * @var string
+	 */
+	 /*** 
+	 除了post, 
+	 page页面也有固定链接结构, 当美化模板开启后才有效，默认为%pagename%, 但是可以在代码中修改
+	 比如要在页面后添加html后缀,方法如下
+	 $wp_rewrite->page_structure = $wp_rewrite->page_structure . '.html';
 	 */
 	var $page_structure;
 
@@ -303,6 +408,14 @@ class WP_Rewrite {
 	 * @access private
 	 * @var array
 	 */
+	 /** 这是预定义的rewrite rule token 模板变量 , 调用add_rewrite_tag()其实就是往这三个数组内append内容
+	 
+        add_rewrite_tag( '%pagename%', '(.?.+?)', 'pagename=' );
+        add_rewrite_tag( "%$post_type%", '([^/]+)', $args->query_var ? "{$args->query_var}=" : "post_type=$post_type&name=" );
+        add_rewrite_tag( "%$post_type%", '(.+?)', $args->query_var ? "{$args->query_var}=" : "post_type=$post_type&pagename=" );
+        add_rewrite_tag( "%$taxonomy%", $tag, $args['query_var'] ? "{$args['query_var']}=" : "taxonomy=$taxonomy&term=" );
+        %category%是在哪定义的?
+	 */
 	var $rewritecode = array(
 		'%year%',
 		'%monthnum%',
@@ -310,10 +423,10 @@ class WP_Rewrite {
 		'%hour%',
 		'%minute%',
 		'%second%',
-		'%postname%',
+		'%postname%',  // title? 还是slug?
 		'%post_id%',
-		'%author%',
-		'%pagename%',
+		'%author%',       // author name
+		'%pagename%',   // page 的slug?
 		'%search%'
 	);
 
@@ -325,6 +438,7 @@ class WP_Rewrite {
 	 * @access private
 	 * @var array
 	 */
+	 /** 这是上面模板变量对应的正则 */
 	var $rewritereplace = array(
 		'([0-9]{4})',
 		'([0-9]{1,2})',
@@ -346,6 +460,7 @@ class WP_Rewrite {
 	 * @access private
 	 * @var array
 	 */
+	 /** 这是上面模板变量对应的解析, 解析出来的变量以year=1900的形式放在url 参数中 */
 	var $queryreplace = array(
 		'year=',
 		'monthnum=',
@@ -748,6 +863,9 @@ class WP_Rewrite {
 	 *
 	 * @return string|false False if not found. Permalink structure string.
 	 */
+	 /***  
+	 获取page的固定链接结构
+	 */
 	public function get_page_permastruct() {
 		if ( isset($this->page_structure) )
 			return $this->page_structure;
@@ -894,6 +1012,12 @@ class WP_Rewrite {
 	 * @return array Rewrite rule list.
 	 */
 	 /***  
+	 根据$permalink_structure,生成一组rules
+	 返回一个[ 
+	    match1 => query1,
+	    match2 => query2,
+	    ...
+	 ]   数组
 	 作用?
 	 */
 	public function generate_rewrite_rules($permalink_structure, $ep_mask = EP_NONE, $paged = true, $feed = true, $forcomments = false, $walk_dirs = true, $endpoints = true) {
@@ -932,6 +1056,7 @@ class WP_Rewrite {
 		$front = substr($permalink_structure, 0, strpos($permalink_structure, '%'));
 
 		// Build an array of the tags (note that said array ends up being in $tokens[0]).
+		/** 取出固定链接中的所有token，即以%包围的模板变量 */
 		preg_match_all('/%.+?%/', $permalink_structure, $tokens);
 
 		$num_tokens = count($tokens[0]);
@@ -952,6 +1077,10 @@ class WP_Rewrite {
 			else
 				$queries[$i] = '';
 
+                    /** rewrite rule中支持token模板变量, 这里要把模板变量替换成正则变达式?
+                    将rewrite rule中的模板变量%xxx%全部消掉，替换成正常的
+                    %xxx%与正则变达式的关系是由add_rewrite_tag()注册时加入的
+                    */
 			$query_token = str_replace($this->rewritecode, $this->queryreplace, $tokens[0][$i]) . $this->preg_index($i+1);
 			$queries[$i] .= $query_token;
 		}
@@ -966,6 +1095,7 @@ class WP_Rewrite {
 		 * so for example, a $structure of /%year%/%monthnum%/%postname% would create
 		 * rewrite rules for /%year%/, /%year%/%monthnum%/ and /%year%/%monthnum%/%postname%
 		 */
+		 /** 逐个token进行处理? */
 		$structure = trim($structure, '/');
 		$dirs = $walk_dirs ? explode('/', $structure) : array( $structure );
 		$num_dirs = count($dirs);
@@ -1273,7 +1403,8 @@ class WP_Rewrite {
 	 * @return array An associate array of matches and queries.
 	 */
 	 /***
-	 构造rewrite规则?
+	 根据db中的permalink_structure和内存变量wp->extra_permastructs(存放category匹配串的)，生成一组rewrite rules
+	 对category, tag这种taxomony的rewrite rule 起源于register_taxonomy(), create_initial_taxonomies()中的定义
 	 */
 	public function rewrite_rules() {
 		$rewrite = array();
@@ -1302,6 +1433,8 @@ class WP_Rewrite {
 		$registration_pages['.*wp-register.php$'] = $this->index . '?register=true';
 
 		// Post rewrite rules.
+		/*** 以下有生成post, page, date, comments_rewrite,... , 规则 的，category的rule在哪里生成呢? 
+		*/
 		$post_rewrite = $this->generate_rewrite_rules( $this->permalink_structure, EP_PERMALINK );
 
 		/**
@@ -1388,6 +1521,7 @@ class WP_Rewrite {
 		$author_rewrite = apply_filters( 'author_rewrite_rules', $author_rewrite );
 
 		// Pages rewrite rules.
+		 /** 产生页面rewrite rule*/		
 		$page_rewrite = $this->page_rewrite_rules();
 
 		/**
@@ -1400,6 +1534,11 @@ class WP_Rewrite {
 		$page_rewrite = apply_filters( 'page_rewrite_rules', $page_rewrite );
 
 		// Extra permastructs.
+		/** 
+		category的rule在这里生成呢! 
+		Extra permastructs表示内存中的固定链接, 像category这种的固定链接并不是放在db中，而是放在全局变量中,
+		即在register_taxonomy()中add_permastruct()时会准备好$this->extra_permastructs 
+		*/
 		foreach ( $this->extra_permastructs as $permastructname => $struct ) {
 			if ( is_array( $struct ) ) {
 				if ( count( $struct ) == 2 )
@@ -1480,10 +1619,109 @@ class WP_Rewrite {
 	 */
 	 /*** 读取db中的rewrite规则 */
 	public function wp_rewrite_rules() {
-		$this->rules = get_option('rewrite_rules');
+		$this->rules = get_option('rewrite_rules'); 
+            /**
+            $this->rules
+            [
+                ^wp-json/?$ = "index.php?rest_route=/"
+                ^wp-json/(.*)? = "index.php?rest_route=/$matches[1]"
+                ^index.php/wp-json/?$ = "index.php?rest_route=/"
+                ^index.php/wp-json/(.*)? = "index.php?rest_route=/$matches[1]"
+                
+                category/(.+?)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?category_name=$matches[1]&feed=$matches[2]"
+                category/(.+?)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?category_name=$matches[1]&feed=$matches[2]"
+                category/(.+?)/embed/?$ = "index.php?category_name=$matches[1]&embed=true"
+                category/(.+?)/page/?([0-9]{1,})/?$ = "index.php?category_name=$matches[1]&paged=$matches[2]"   // 比如url中是page=9,但解析后query_vars['paged']=9中
+                // 这里可以看出category/xxx 实际上是取slug为category_name的, 这个是怎么来源的?
+                // 对category, tag这种taxomony的rewrite则是来源于register_taxonomy(), create_initial_taxonomies()中的定义
+                category/(.+?)/?$ = "index.php?category_name=$matches[1]" 
+                
+                tag/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?tag=$matches[1]&feed=$matches[2]"
+                tag/([^/]+)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?tag=$matches[1]&feed=$matches[2]"
+                tag/([^/]+)/embed/?$ = "index.php?tag=$matches[1]&embed=true"
+                tag/([^/]+)/page/?([0-9]{1,})/?$ = "index.php?tag=$matches[1]&paged=$matches[2]"
+                tag/([^/]+)/?$ = "index.php?tag=$matches[1]"
+                type/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?post_format=$matches[1]&feed=$matches[2]"
+                type/([^/]+)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?post_format=$matches[1]&feed=$matches[2]"
+                type/([^/]+)/embed/?$ = "index.php?post_format=$matches[1]&embed=true"
+                type/([^/]+)/page/?([0-9]{1,})/?$ = "index.php?post_format=$matches[1]&paged=$matches[2]"
+                type/([^/]+)/?$ = "index.php?post_format=$matches[1]"
+                .*wp-(atom|rdf|rss|rss2|feed|commentsrss2)\.php$ = "index.php?feed=old"
+                .*wp-app\.php(/.*)?$ = "index.php?error=403"
+                .*wp-register.php$ = "index.php?register=true"
+                feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?&feed=$matches[1]"
+                (feed|rdf|rss|rss2|atom)/?$ = "index.php?&feed=$matches[1]"
+                embed/?$ = "index.php?&embed=true"
+                page/?([0-9]{1,})/?$ = "index.php?&paged=$matches[1]"
+                comments/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?&feed=$matches[1]&withcomments=1"
+                comments/(feed|rdf|rss|rss2|atom)/?$ = "index.php?&feed=$matches[1]&withcomments=1"
+                comments/embed/?$ = "index.php?&embed=true"
+                search/(.+)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?s=$matches[1]&feed=$matches[2]"
+                search/(.+)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?s=$matches[1]&feed=$matches[2]"
+                search/(.+)/embed/?$ = "index.php?s=$matches[1]&embed=true"
+                search/(.+)/page/?([0-9]{1,})/?$ = "index.php?s=$matches[1]&paged=$matches[2]"
+                search/(.+)/?$ = "index.php?s=$matches[1]"
+                author/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?author_name=$matches[1]&feed=$matches[2]"
+                author/([^/]+)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?author_name=$matches[1]&feed=$matches[2]"
+                author/([^/]+)/embed/?$ = "index.php?author_name=$matches[1]&embed=true"
+                author/([^/]+)/page/?([0-9]{1,})/?$ = "index.php?author_name=$matches[1]&paged=$matches[2]"
+                author/([^/]+)/?$ = "index.php?author_name=$matches[1]"
+                ([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&feed=$matches[4]"
+                ([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/(feed|rdf|rss|rss2|atom)/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&feed=$matches[4]"
+                ([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/embed/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&embed=true"
+                ([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/page/?([0-9]{1,})/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]&paged=$matches[4]"
+                ([0-9]{4})/([0-9]{1,2})/([0-9]{1,2})/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]&day=$matches[3]"
+                ([0-9]{4})/([0-9]{1,2})/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]&feed=$matches[3]"
+                ([0-9]{4})/([0-9]{1,2})/(feed|rdf|rss|rss2|atom)/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]&feed=$matches[3]"
+                ([0-9]{4})/([0-9]{1,2})/embed/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]&embed=true"
+                ([0-9]{4})/([0-9]{1,2})/page/?([0-9]{1,})/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]&paged=$matches[3]"
+                ([0-9]{4})/([0-9]{1,2})/?$ = "index.php?year=$matches[1]&monthnum=$matches[2]"
+                ([0-9]{4})/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?year=$matches[1]&feed=$matches[2]"
+                ([0-9]{4})/(feed|rdf|rss|rss2|atom)/?$ = "index.php?year=$matches[1]&feed=$matches[2]"
+                ([0-9]{4})/embed/?$ = "index.php?year=$matches[1]&embed=true"
+                ([0-9]{4})/page/?([0-9]{1,})/?$ = "index.php?year=$matches[1]&paged=$matches[2]"
+                ([0-9]{4})/?$ = "index.php?year=$matches[1]"
+                .?.+?/attachment/([^/]+)/?$ = "index.php?attachment=$matches[1]"
+                .?.+?/attachment/([^/]+)/trackback/?$ = "index.php?attachment=$matches[1]&tb=1"
+                .?.+?/attachment/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?attachment=$matches[1]&feed=$matches[2]"
+                .?.+?/attachment/([^/]+)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?attachment=$matches[1]&feed=$matches[2]"
+                .?.+?/attachment/([^/]+)/comment-page-([0-9]{1,})/?$ = "index.php?attachment=$matches[1]&cpage=$matches[2]"
+                .?.+?/attachment/([^/]+)/embed/?$ = "index.php?attachment=$matches[1]&embed=true"
+                (.?.+?)/embed/?$ = "index.php?pagename=$matches[1]&embed=true"
+                (.?.+?)/trackback/?$ = "index.php?pagename=$matches[1]&tb=1"
+                (.?.+?)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?pagename=$matches[1]&feed=$matches[2]"
+                (.?.+?)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?pagename=$matches[1]&feed=$matches[2]"
+                (.?.+?)/page/?([0-9]{1,})/?$ = "index.php?pagename=$matches[1]&paged=$matches[2]"
+                (.?.+?)/comment-page-([0-9]{1,})/?$ = "index.php?pagename=$matches[1]&cpage=$matches[2]"
+                (.?.+?)(?:/([0-9]+))?/?$ = "index.php?pagename=$matches[1]&page=$matches[2]"
+                [^/]+/attachment/([^/]+)/?$ = "index.php?attachment=$matches[1]"
+                [^/]+/attachment/([^/]+)/trackback/?$ = "index.php?attachment=$matches[1]&tb=1"
+                [^/]+/attachment/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?attachment=$matches[1]&feed=$matches[2]"
+                [^/]+/attachment/([^/]+)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?attachment=$matches[1]&feed=$matches[2]"
+                [^/]+/attachment/([^/]+)/comment-page-([0-9]{1,})/?$ = "index.php?attachment=$matches[1]&cpage=$matches[2]"
+                [^/]+/attachment/([^/]+)/embed/?$ = "index.php?attachment=$matches[1]&embed=true"
+                ([^/]+)/embed/?$ = "index.php?name=$matches[1]&embed=true"
+                ([^/]+)/trackback/?$ = "index.php?name=$matches[1]&tb=1"
+                ([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?name=$matches[1]&feed=$matches[2]"
+                ([^/]+)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?name=$matches[1]&feed=$matches[2]"
+                ([^/]+)/page/?([0-9]{1,})/?$ = "index.php?name=$matches[1]&paged=$matches[2]"
+                ([^/]+)/comment-page-([0-9]{1,})/?$ = "index.php?name=$matches[1]&cpage=$matches[2]"
+                ([^/]+)(?:/([0-9]+))?/?$ = "index.php?name=$matches[1]&page=$matches[2]"
+                [^/]+/([^/]+)/?$ = "index.php?attachment=$matches[1]"
+                [^/]+/([^/]+)/trackback/?$ = "index.php?attachment=$matches[1]&tb=1"
+                [^/]+/([^/]+)/feed/(feed|rdf|rss|rss2|atom)/?$ = "index.php?attachment=$matches[1]&feed=$matches[2]"
+                [^/]+/([^/]+)/(feed|rdf|rss|rss2|atom)/?$ = "index.php?attachment=$matches[1]&feed=$matches[2]"
+                [^/]+/([^/]+)/comment-page-([0-9]{1,})/?$ = "index.php?attachment=$matches[1]&cpage=$matches[2]"
+                [^/]+/([^/]+)/embed/?$ = "index.php?attachment=$matches[1]&embed=true"
+            ]
+            */		
 		if ( empty($this->rules) ) {
 			$this->matches = 'matches';
-			/*** 如果没有就生成? */
+			/*** 
+			根据db中的permalink-structure和内存变量$wp->extra_permastructs(存放category的)，生成rules, 再存到db中
+                    在后台界面设置固定链接(permalink), 选朴素时db中的值为空, 
+                    选其它时db中的值为/%postname%/等时, 表示打开美化开关
+			*/
 			$this->rewrite_rules();
 			update_option('rewrite_rules', $this->rules);
 		}
@@ -1505,6 +1743,7 @@ class WP_Rewrite {
 	 *
 	 * @return string
 	 */
+	 /*** 生成.htaccess中用到的规则, for apache */
 	public function mod_rewrite_rules() {
 		if ( ! $this->using_permalinks() )
 			return '';
@@ -1752,6 +1991,11 @@ class WP_Rewrite {
 	 *     @type bool $endpoints   Whether endpoints should be applied to the generated rules. Default true.
 	 * }
 	 */
+	 /*** 扩展固定链接, 何用? 
+	 用于存放category这种的permalinks
+	 extra_permastructs + db中的permalinks --> rewrite rules
+	 既可以通过add_permastruct(), 也可以通过管理界面操作db中的permalinks, 还可以直接add_rewrite_rule()，它们的目的都是增加rewrite rules
+	 */
 	public function add_permastruct( $name, $struct, $args = array() ) {
 		// Backwards compatibility for the old parameters: $with_front and $ep_mask.
 		if ( ! is_array( $args ) )
@@ -1777,7 +2021,10 @@ class WP_Rewrite {
 			$struct = $this->root . $struct;
 		$args['struct'] = $struct;
 
-		$this->extra_permastructs[ $name ] = $args;
+            /*** 
+            对于post之类的固定链接是保存在db中，
+            对于像category的taxonomy的固定链接是通过注册保存在内存 $this->extra_permastructs[ $name ]中*/
+	    $this->extra_permastructs[ $name ] = $args;
 	}
 
 	/**
@@ -1804,6 +2051,10 @@ class WP_Rewrite {
 	 * @staticvar bool $do_hard_later
 	 *
 	 * @param bool $hard Whether to update .htaccess (hard flush) or just update rewrite_rules option (soft flush). Default is true (hard).
+	 */
+	 /** 
+	 清掉db中的rewrite_rules, 根据db中的permalink重新生成一次
+	 如果是apache, .htacess可写的话，重新生成.htacess
 	 */
 	public function flush_rules( $hard = true ) {
 		static $do_hard_later = null;
@@ -1853,7 +2104,7 @@ class WP_Rewrite {
 	 */
 	public function init() {
 		$this->extra_rules = $this->non_wp_rules = $this->endpoints = array();
-		$this->permalink_structure = get_option('permalink_structure');
+		$this->permalink_structure = get_option('permalink_structure'); // 如/%year%/%monthnum%/%day%/%postname%/
 		$this->front = substr($this->permalink_structure, 0, strpos($this->permalink_structure, '%'));
 		$this->root = '';
 
@@ -1869,6 +2120,7 @@ class WP_Rewrite {
 		$this->use_trailing_slashes = ( '/' == substr($this->permalink_structure, -1, 1) );
 
 		// Enable generic rules for pages if permalink structure doesn't begin with a wildcard.
+		/***  use_verbose_page_rules 是什么意思, 好象没什么用? */
 		if ( preg_match("/^[^%]*%(?:postname|category|tag|author)%/", $this->permalink_structure) )
 			 $this->use_verbose_page_rules = true;
 		else

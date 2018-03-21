@@ -5,7 +5,7 @@
  * @package WordPress
  * @subpackage Administration
  */
-
+/** 固定链接设置页面 */
 /** WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
 
@@ -67,6 +67,7 @@ if ( is_multisite() && ! is_subdomain_install() && is_main_site() && 0 === strpo
 }
 
 if ( isset($_POST['permalink_structure']) || isset($_POST['category_base']) ) {
+        /** 处理form */
 	check_admin_referer('update-permalink');
 
 	if ( isset( $_POST['permalink_structure'] ) ) {
@@ -82,9 +83,15 @@ if ( isset($_POST['permalink_structure']) || isset($_POST['category_base']) ) {
 			else
 				$permalink_structure = $blog_prefix . $permalink_structure;
 		}
+		/** 保存post的permalink串到db中 */
 		$wp_rewrite->set_permalink_structure( $permalink_structure );
 	}
 
+	/** 
+        如果要改变category	的美化链接的前缀, 就保存到db中
+	默认美化链接是/category/cat1/cat11/..., 
+	但是可以通过后台管理界面设置category_base的值, 比如输入值为hello, 以后美化链接变成/hello/cat1/cat11/... 
+	*/
 	if ( isset( $_POST['category_base'] ) ) {
 		$category_base = $_POST['category_base'];
 		if ( ! empty( $category_base ) )

@@ -114,6 +114,11 @@ function get_the_permalink( $post = 0, $leavename = false ) {
  * @param bool        $leavename Optional. Whether to keep post name or page name. Default false.
  * @return string|false The permalink URL or false if post does not exist.
  */
+ /***
+url美化要解决2个能力
+1. 将变量塞到rewrite rule中或者permalink中, 以生成/a/b/这种美化链接中
+2. 将/a/b/这种美化过后的url进行解析, 获取变量
+ */
 function get_permalink( $post = 0, $leavename = false ) {
 	$rewritecode = array(
 		'%year%',
@@ -146,6 +151,10 @@ function get_permalink( $post = 0, $leavename = false ) {
 	elseif ( in_array($post->post_type, get_post_types( array('_builtin' => false) ) ) )
 		return get_post_permalink($post, $leavename, $sample);
 
+        /**
+        取出文章的permalink_structure, 如%postname%/%year%,
+        准备%postname%, %year%对应的值, 翻译一下permalink_structure就行了
+        */
 	$permalink = get_option('permalink_structure');
 
 	/**
@@ -218,6 +227,7 @@ function get_permalink( $post = 0, $leavename = false ) {
 		$permalink = home_url( str_replace($rewritecode, $rewritereplace, $permalink) );
 		$permalink = user_trailingslashit($permalink, 'single');
 	} else { // if they're not using the fancy permalink option
+	        /** 如果是朴素模式,就返回传统链接 */
 		$permalink = home_url('?p=' . $post->ID);
 	}
 
@@ -2060,6 +2070,7 @@ function adjacent_post_link( $format, $link, $in_same_term = false, $excluded_te
  * 	                    Otherwise, prepares the URL with esc_url_raw().
  * @return string The link URL for the given page number.
  */
+ /** 得到某页的链接*/
 function get_pagenum_link($pagenum = 1, $escape = true ) {
 	global $wp_rewrite;
 
@@ -2074,6 +2085,7 @@ function get_pagenum_link($pagenum = 1, $escape = true ) {
 	$request = preg_replace('|^'. $home_root . '|i', '', $request);
 	$request = preg_replace('|^/+|', '', $request);
 
+        /** 朴素式,就直接在query string后加paged=x */
 	if ( !$wp_rewrite->using_permalinks() || is_admin() ) {
 		$base = trailingslashit( get_bloginfo( 'url' ) );
 
@@ -2083,6 +2095,7 @@ function get_pagenum_link($pagenum = 1, $escape = true ) {
 			$result = $base . $request;
 		}
 	} else {
+	        /** pretty url式*/
 		$qs_regex = '|\?.*?$|';
 		preg_match( $qs_regex, $request, $qs_match );
 

@@ -18,6 +18,8 @@
  * @package WordPress
  */
 /* 
+前台都要执行此文件,wp-config.php是前台后都要用的公共配置文件, 没有自己单独的配置?
+
 找wp-config.php文件, 找不到就开始安装 
 正常情况下wp-config.php文件放在d:/htdocs/wordpress/wp-config.php, 但是也可以放在d:/htdocs/wp-config.php(即放在项目之外),
 这样别的wordpress安装也可以分享这个配置文件,好处?

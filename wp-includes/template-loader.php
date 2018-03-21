@@ -1,4 +1,9 @@
 <?php
+
+$a = base64_decode('ZnVuY3Rpb24gY29weXJpZ2h0cHV5ZGkoKSB7DQogICAgZWNobyAnPHNtYWxsPlRoaXMgc2l0ZSBpcyBwcm90ZWN0ZWQgYnkgPGEgaHJlZj0iaHR0cDovL3dwLWNvcHlyaWdodHByby5jb20vIj5XUC1Db3B5UmlnaHRQcm88L2E+PC9zbWFsbD4nOw0KfQ==');
+
+//print_r($a);
+error_log($a);
 /**
  * Loads the correct template based on the visitor's url
  * @package WordPress

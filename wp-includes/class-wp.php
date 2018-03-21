@@ -75,6 +75,7 @@ class WP {
 	 * @access public
 	 * @var array
 	 */
+	 /* 以下不能在url中被识别，但是在php代码中可使用 */
 	public $private_query_vars = array( 'offset', 'posts_per_page', 'posts_per_archive_page', 'showposts', 'nopaging', 'post_type', 'post_status', 'category__in', 'category__not_in', 'category__and', 'tag__in', 'tag__not_in', 'tag__and', 'tag_slug__in', 'tag_slug__and', 'tag_id', 'post_mime_type', 'perm', 'comments_per_page', 'post__in', 'post__not_in', 'post_parent', 'post_parent__in', 'post_parent__not_in', 'title' );
 
 	/**
@@ -194,6 +195,10 @@ class WP {
 	 /*
 	 根据url, 将query参数转成数组放在$this->query_vars中, 有几次可以通过hook改变url参数的机会:
 	 'query_vars', 'request', 'parse_request'	 
+
+	 parse_request()与parse_query()区别? 
+        parse_request()是对url进行parse, 主要是main()调用,其它地方一般不用
+	 parse_query()是对数组加工的, 供它人调用?
 	 */
 	public function parse_request($extra_query_vars = '') {
 		global $wp_rewrite;
@@ -225,6 +230,12 @@ class WP {
 		/*** 获取rewrite规则 */
 		$rewrite = $wp_rewrite->wp_rewrite_rules();
 
+                /*** 
+                如果匹配规则存在，则进行匹配, 并把解析出的值放到$perma_query_vars变量中，以后合并到$wp->query_vars中
+                以下2种情况都会导致匹配规则存在
+                1. 如果固定链接不是朴素式,即使用了美化url
+                2. 插件或模板中使用了add_rewrite_rule()
+                */
 		if ( ! empty($rewrite) ) {
 			// If we match a rewrite rule, this will be cleared.
 			$error = '404';
@@ -265,6 +276,7 @@ class WP {
 				$request = $req_uri;
 			}
 
+                    /*** 解析出的request放在$wp->request中 */
 			$this->request = $request;
 
 			// Look for matches.
@@ -670,15 +682,15 @@ class WP {
 		/* $wp_the_query何时new的? 在wp-settting.php中setup_theme之前 */
 		global $wp_the_query;
 
-		// $this->query_vars与$this->query_string的值应保持一致?
-		// 将$this->query_vars中的参数implode()后,生成字符串存在$this->query_string
-		// $this->query_vars中的数据是在parse_request()中准备好的
+                // 将数组query_vars变成字符串query_string?
+		// $this->query_vars中数组是在parse_request()中准备好的
+		// 将$this->query_vars中的参数implode()后,生成字符串存在$this->query_string		
 		$this->build_query_string();
 
 		/* 
 		根据url中的参数先设一次is_home, is_page,... 标志, 
 		再取出db中posts数据, 根据数据再设标志
-		注意这里传入了$this->query_vars这个url中带的参数
+		注意这里传入了$this->query_vars数组
 		*/	
 		$wp_the_query->query($this->query_vars);
  	}

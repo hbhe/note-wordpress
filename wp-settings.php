@@ -161,6 +161,7 @@ require_once( ABSPATH . WPINC . '/l10n.php' );
 wp_not_installed();
 
 // Load most of WordPress.
+// 没搞什么autoload机制，全include...
 require( ABSPATH . WPINC . '/class-wp-walker.php' );
 require( ABSPATH . WPINC . '/class-wp-ajax-response.php' );
 require( ABSPATH . WPINC . '/formatting.php' );
@@ -313,6 +314,7 @@ register_theme_directory( get_theme_root() );
 加载适用于本站的激活的插件, 这里是进入插件的唯一入口点?
 $plugin值形如D:\htdocs\note-wordpress/wp-content/plugins/hello.php 或D:\htdocs\note-wordpress/wp-content/plugins/akismet/akismet.php
 前后台都会运行到这里
+一个插件一般分为前台展示，后台展示, 这里只有一个入口, 怎么分前后台呢? 答案是在脚本里面自己去定义for frontend或者for background 的hook去
 
 在插件的直接执行代码(非回调函数中的代码)中, 尚不能使用当前插件的翻译词条, 因 为一般
 插件的翻译文件是在后面触发'plugins_loaded' 时才加载?
