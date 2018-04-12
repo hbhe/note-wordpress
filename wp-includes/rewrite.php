@@ -177,7 +177,7 @@ add_rewrite_rule('category/(.+?)/page/?([0-9]{1,})/?$', 'index.php?category_name
 add_rewrite_rule('category/(.+?)/(.+?)/page/?([0-9]{1,})/?$', 'index.php?category_name=$matches[1]&' .YIXUE_SUBCAT. '=$matches[2]&paged=$matches[3]', 'top');   // 这个有二意性
 add_rewrite_rule('category/(.+?)/(.+?)/?$', 'index.php?category_name=$matches[1]&' .YIXUE_SUBCAT. '=$matches[2]', 'top');
  
- */
+*/
 function add_rewrite_rule( $regex, $query, $after = 'bottom' ) {
 	global $wp_rewrite;
 

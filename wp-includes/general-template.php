@@ -158,7 +158,9 @@ function get_sidebar( $name = null ) {
  * @param string $slug The slug name for the generic template.
  * @param string $name The name of the specialised template.
  */
- /*** 加载一个模板,如get_template_part( 'template-parts/content','page'); */
+ /*** 加载一个模板,如get_template_part( 'template-parts/content','page'); 
+会找template-parts/content-page.php
+ */
 function get_template_part( $slug, $name = null ) {
 	/**
 	 * Fires before the specified template part file is loaded.

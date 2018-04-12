@@ -192,3 +192,7 @@ add_action( 'shutdown', function() {
 
 wp-admin/user/目录下的一堆文件起什么作用? 什么时候调用? WP_USER_ADMIN什么时候定义, 意思?
 
+WP前台页面，大体上做以下几件事: 
+1. 分析url参数 
+2. 根据参数执行一次db query, 
+3. 根据参数加载对应的模板

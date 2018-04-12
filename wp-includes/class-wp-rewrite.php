@@ -7,8 +7,13 @@
  * @since 1.5.0
  */
 /***
-作用? 
-用于美化url、反解url
+作用? 主要是用来解析美化过后的url、
+rewrite rule和permalink之间的关系?
+rewrite rule更底层些, 大多数rule是根据permalink自动生成的
+
+产生美化url时(参考函数get_category_link(), get_permalink(), ...), 并未直接利用rewrite rule, 而是利用的permalink(即固定链接结构串)，简单替换相应的模板变量就OK，
+解析美化url时, 是要用到rewrite rule的, 但rewrite rule中很多记录来源于permalink
+
 */
 /**
  * Core class used to implement a rewrite component API.
@@ -26,8 +31,7 @@
  * @since 1.5.0
  */
 /**
-常见rules
-$this->rules
+常见rules, $this->rules, 这是打印出来的一份常见的rewrite rules
 [
     ^wp-json/?$ = "index.php?rest_route=/"
     ^wp-json/(.*)? = "index.php?rest_route=/$matches[1]"
@@ -123,6 +127,10 @@ $this->rules
 */		
  
 class WP_Rewrite {
+        /***
+        post, author, category等所有的permalink都在此类的成员变量中
+        */
+        
 	/**
 	 * Permalink structure for posts.
 	 *
@@ -156,6 +164,7 @@ class WP_Rewrite {
 	 * @access private
 	 * @var string
 	 */
+	 /*** 查author的permalink时, 优先看author_structure, 如果无值再使用$author_base/%author%/  */
 	var $author_structure;
 
 	/**
@@ -352,6 +361,10 @@ class WP_Rewrite {
 	 * @access private
 	 * @var array
 	 */
+	 /**
+	 post之类的是从db中取出后放在permalink_structure变量中
+	 而category之类的permalink直接存在此处内存变量中
+	 */
 	var $extra_permastructs = array();
 
 	/**
@@ -423,7 +436,7 @@ class WP_Rewrite {
 		'%hour%',
 		'%minute%',
 		'%second%',
-		'%postname%',  // title? 还是slug?
+		'%postname%',  // title? 还是slug? 应当是slug
 		'%post_id%',
 		'%author%',       // author name
 		'%pagename%',   // page 的slug?
@@ -790,6 +803,7 @@ class WP_Rewrite {
 	 * @return string|false False if not found. Permalink structure string.
 	 */
 	public function get_extra_permastruct($name) {
+	        /*** 如果是朴素模式就谈不上permalink了, 直接返回 */
 		if ( empty($this->permalink_structure) )
 			return false;
 
@@ -1018,7 +1032,14 @@ class WP_Rewrite {
 	    match2 => query2,
 	    ...
 	 ]   数组
-	 作用?
+	 作用? 用来解析url中的参数
+
+	 比如有一个permalink是hello/%aaa%/%bbb%/, 仅凭这个串是没办法生成rule的, 
+	 还需要有%aaa%这个tag对应的正则(即通过add_rewrite_tag()增加的对%aaa%的定义)
+	 如先把上面的替换成hello/(+.)/(+.) 就成为rule的左半部分
+
+        比如category/%category%/如何生成下面的rewrite rule?
+        category/(.+?)/?$ = "index.php?category_name=$matches[1]" 	         
 	 */
 	public function generate_rewrite_rules($permalink_structure, $ep_mask = EP_NONE, $paged = true, $feed = true, $forcomments = false, $walk_dirs = true, $endpoints = true) {
 		// Build a regex to match the feed section of URLs, something like (feed|atom|rss|rss2)/?
@@ -2173,6 +2194,11 @@ class WP_Rewrite {
 	 *
 	 * @param string $category_base Category permalink structure base.
 	 */
+	/** 
+        如果要改变category	的美化链接的前缀, 就保存到db中
+	默认美化链接是/category/cat1/cat11/..., 
+	但是可以通过后台管理界面(options-permalink.php)设置category_base的值, 比如输入值为hello, 以后美化链接变成/hello/cat1/cat11/... 	
+	*/	 
 	public function set_category_base($category_base) {
 		if ( $category_base != get_option('category_base') ) {
 			update_option('category_base', $category_base);

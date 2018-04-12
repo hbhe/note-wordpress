@@ -16,6 +16,9 @@
  * @param int|object $category Category ID or object.
  * @return string Link on success, empty string if category does not exist.
  */
+ /**
+得到一个链接，点此链接会显示所有属于此类的东西(post, page, ....)
+ */
 function get_category_link( $category ) {
 	if ( ! is_object( $category ) )
 		$category = (int) $category;

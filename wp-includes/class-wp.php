@@ -44,15 +44,15 @@ class WP {
 	'monthnum'
 	'year'
 	'w': week
-	'category_name'
+	'category_name'    // 分类, 如it-news
 	'tag'
-	'cat'
+	'cat'                     // category id
 	'tag_id'
 	'author'
 	'author_name'
 	'feed'
 	'tb'
-	'paged'
+	'paged'                    // 好象= paged ?
 	'meta_key'
 	'meta_value'
 	'preview'
@@ -198,6 +198,8 @@ class WP {
 
 	 parse_request()与parse_query()区别? 
         parse_request()是对url进行parse, 主要是main()调用,其它地方一般不用
+        不是url中所有的参数都能进入到wp中, 只有那些在qublic_query_var中注册过的才可以
+        
 	 parse_query()是对数组加工的, 供它人调用?
 	 */
 	public function parse_request($extra_query_vars = '') {
@@ -289,11 +291,15 @@ class WP {
 					$matches = array('');
 				}
 			} else {
+			        /*** 逐条规则进行匹配 */
 				foreach ( (array) $rewrite as $match => $query ) {
 					// If the requesting file is the anchor of the match, prepend it to the path info.
 					if ( ! empty($req_uri) && strpos($match, $req_uri) === 0 && $req_uri != $request )
 						$request_match = $req_uri . '/' . $request;
 
+                                    /*** 
+                                    这里正则表达式是用#进行前后包裹的, 而不是平常用的/, 这样的好处是正则中/可以不用转义，但是正则中如果有# 则需要使用\#
+                                    */
 					if ( preg_match("#^$match#", $request_match, $matches) ||
 						preg_match("#^$match#", urldecode($request_match), $matches) ) {
 
@@ -357,7 +363,7 @@ class WP {
 		 *
 		 * @param array $public_query_vars The array of whitelisted query variables.
 		 */
-		 /*** 让别人有机会调整一下url中的参数 */		 
+		 /*** 让别人有机会增加可以支持的变量*/		 
 		$this->public_query_vars = apply_filters( 'query_vars', $this->public_query_vars );
 
 		foreach ( get_post_types( array(), 'objects' ) as $post_type => $t ) {
@@ -366,6 +372,7 @@ class WP {
 			}
 		}
 
+            /*** 将出现在public_query_vars中的那些变量收集起来, 不在其中的被丢弃 */
 		foreach ( $this->public_query_vars as $wpvar ) {
 			if ( isset( $this->extra_query_vars[$wpvar] ) )
 				$this->query_vars[$wpvar] = $this->extra_query_vars[$wpvar];
@@ -400,6 +407,10 @@ class WP {
 				$this->query_vars[$t->query_var] = str_replace( ' ', '+', $this->query_vars[$t->query_var] );
 
 		// Don't allow non-publicly queryable taxonomies to be queried from the front end.
+		/*** 
+		现在还不是进来的每个变量都可以参与查询, 还要去掉一些
+		如publicly_queryable = false的变量 
+		*/
 		if ( ! is_admin() ) {
 			foreach ( get_taxonomies( array( 'publicly_queryable' => false ), 'objects' ) as $taxonomy => $t ) {
 				/*
@@ -426,6 +437,7 @@ class WP {
 		// Resolve conflicts between posts with numeric slugs and date archive queries.
 		$this->query_vars = wp_resolve_numeric_slug_conflicts( $this->query_vars );
 
+                /***  作用??? */
 		foreach ( (array) $this->private_query_vars as $var) {
 			if ( isset($this->extra_query_vars[$var]) )
 				$this->query_vars[$var] = $this->extra_query_vars[$var];
@@ -441,7 +453,7 @@ class WP {
 		 *
 		 * @param array $query_vars The array of requested query variables.
 		 */
-		 /*** 让别人有机会调整一下url中的参数 */
+		 /*** 让别人有机会调整一下从url中收集到的参数, 或者重新进行匹配 */
 		$this->query_vars = apply_filters( 'request', $this->query_vars );
 
 		/**
@@ -613,6 +625,7 @@ class WP {
 			 * @param string $query_string The query string to modify.
 			 */
 			$this->query_string = apply_filters( 'query_string', $this->query_string );
+			/*** 老的插件使用后，这里重新将串变成数组, 后面的代码都使用数组了 */
 			parse_str($this->query_string, $this->query_vars);
 		}
 	}
@@ -682,9 +695,10 @@ class WP {
 		/* $wp_the_query何时new的? 在wp-settting.php中setup_theme之前 */
 		global $wp_the_query;
 
-                // 将数组query_vars变成字符串query_string?
-		// $this->query_vars中数组是在parse_request()中准备好的
-		// 将$this->query_vars中的参数implode()后,生成字符串存在$this->query_string		
+              /*** 已经有了数组query_vars(在parse_request()中准备好的)，还需要变成字符串query_string?  因为有些老的插件还在使用query_string
+		没什么用，只是为了保持兼容
+		将$this->query_vars中的参数implode()后,生成字符串存在$this->query_string		
+		*/
 		$this->build_query_string();
 
 		/* 
@@ -810,8 +824,13 @@ class WP {
 		$this->init();
 		
 		/*** 
-		剖析url, 将query串中的参数取出放到$this->query_vars中, 
+		剖析url, 将query串中的参数取出放到$wp->query_vars中, 
 		这里面有3次机会通过hook改变url参数: 'query_vars', 'request', 'parse_request'
+
+		url中的参数要经过2道门
+		parse_request()是第一道, url中的参数进入WP::query_vars中,   WP类相当于Request类
+		parse_query()是第二道门, WP::query_vars中的参数进入WP_Query中参与db查询, 此步决定请求类型, is_home, is_single,...
+		get_posts() 执行查询
 		*/
 		$this->parse_request($query_args);
 

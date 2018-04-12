@@ -5,7 +5,17 @@
  * @package WordPress
  * @subpackage Administration
  */
-/** 固定链接设置页面 */
+/** 
+固定链接设置页面 
+后台管理界面可以设置3种美化url结构(permalink struct)
+1. post
+2. category
+3. tag
+
+category只是设了一个统一的美化结构如/category/cat1, /category/cat2, 
+有时category这几个字有点多余, 比如我希望直接是http://mysite.com/cat1, 就能有/category/cat1的效果, 怎么办?
+Custom Permalinks 插件可以做这个事
+*/
 /** WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
 

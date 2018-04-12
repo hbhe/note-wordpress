@@ -776,6 +776,10 @@ function is_main_query() {
  *
  * @return bool
  */
+ /*** 
+ 大loop用, 它使用的是全局变量$wp_query
+ 模板中可能还会有很多custom 的小loop, 那种就new一个WP_Query
+ */
 function have_posts() {
 	global $wp_query;
 	return $wp_query->have_posts();
@@ -887,7 +891,9 @@ class WP_Query {
 	 * @access public
 	 * @var array
 	 */
-	 /* 传入的与url中的, default的参数merge后的参数 */
+	 /* 传入的与url中的, default的参数merge后的参数 
+        $query与$query_vars的区别?
+	 */
 	public $query_vars = array();
 
 	/**
@@ -1619,13 +1625,13 @@ class WP_Query {
 	offset: 分页用的
 	posts_per_page:分页用的
 
-
 	 parse_request()与parse_query()区别? 
         parse_request()是对url进行parse, 主要是main()调用,其它地方一般不用
-	 parse_query()是对数组加工的, 供它人调用?
+	 parse_query()是一个公共函数, 可供其它函数调用
 	
 	 */
 	public function parse_query( $query =  '' ) {
+	    /*** 如果有参数($query一般是数组), 就取里面, 否则就取parse_request()之后形成的$wp->query_vars */
 		if ( ! empty( $query ) ) {
 			$this->init();
 			$this->query = $this->query_vars = wp_parse_args( $query );
@@ -2559,18 +2565,18 @@ class WP_Query {
 	 */
 	 
 	 /*
-	 最大的一个函数?
+	 可能是wp中最大的一个函数,将数组参数组合成SQL语句后执行
 	 先parse_query(), 再根据剖析到的参数和is_home等标志, 取db中的内容
 	 posts不仅仅指贴子, 还包括page, menu, 等其它post type的数据
-
 	 返回一组WP_Post对象
-
 	 默认取按取最近n(它是在后台设置的)个贴子
 	 */
 	public function get_posts() {
 		global $wpdb;
 
-		/* 根据url中的参数先设一次is_home, is_page,... 标志*/
+		/* 根据WP::query_vars(来源于url中的参数)先设一次is_home, is_page,... 标志
+		等从db中取出数据后，还要对标志调整一次
+		*/
 		$this->parse_query();
 
 
@@ -2587,9 +2593,11 @@ class WP_Query {
 		 *
 		 * @param WP_Query &$this The WP_Query instance (passed by reference).
 		 */
+		 /*** 这里有机会预先设置一些查询参数 */
 		do_action_ref_array( 'pre_get_posts', array( &$this ) );
 
 		// Shorthand.
+		/*** $q是用来查$q['post__in'] */
 		$q = &$this->query_vars;
 
 		// Fill again in case pre_get_posts unset some vars.
@@ -3708,6 +3716,7 @@ class WP_Query {
 			 */
 			$this->request = apply_filters( 'posts_request_ids', $this->request, $this );
 
+                       /*** 先得到post的id */
 			$ids = $wpdb->get_col( $this->request );
 
 			if ( $ids ) {
@@ -3724,6 +3733,7 @@ class WP_Query {
 		}
 
 		// Convert to WP_Post objects
+		/*** 逐个根据id读取post */
 		if ( $this->posts )
 			$this->posts = array_map( 'get_post', $this->posts );
 
@@ -3765,6 +3775,7 @@ class WP_Query {
 		}
 
 		// Check post status to determine if post should be displayed.
+		/*** 得到结果后还要对标志进行一些调整 */
 		if ( !empty($this->posts) && ($this->is_single || $this->is_page) ) {
 			$status = get_post_status($this->posts[0]);
 			if ( 'attachment' === $this->posts[0]->post_type && 0 === (int) $this->posts[0]->post_parent ) {
@@ -3813,6 +3824,7 @@ class WP_Query {
 		}
 
 		// Put sticky posts at the top of the posts array
+		/** 将置顶post插到前面, 如果有的话*/
 		$sticky_posts = get_option('sticky_posts');
 		if ( $this->is_home && $page <= 1 && is_array($sticky_posts) && !empty($sticky_posts) && !$q['ignore_sticky_posts'] ) {
 			$num_posts = count($this->posts);
@@ -4404,6 +4416,7 @@ class WP_Query {
 	 * @param mixed $category Optional. Category ID, name, slug, or array of Category IDs, names, and slugs.
 	 * @return bool
 	 */
+	 /*** is_category()与is_tax()区别? */
 	public function is_category( $category = '' ) {
 		if ( !$this->is_category )
 			return false;

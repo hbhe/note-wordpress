@@ -18,7 +18,10 @@
  /* 
 wp_posts表中可以装任何东西, 默认的有post, page, nav_menu_item(菜单项), attachment(图片), revision(版本记录), 需要有个标志字段post_type区别它们
 比如取出了一堆posts, 如果不分类的话,  很难进行管理, 所谓分类,可理解成集合
-
+比如系统中有房子、电影这2种对像，是用post_type还是用taxonomy来区分?
+首先房子和电影的内容完全不同，这得用post_type来区别
+其次房子下面可以进行taxonomy区别: 户型(term值有大、小)、朝向(东、南等)...
+电影下面以可以进行taxonomy区别: 片子类型(其值term有动作、伦理), 收费类型(免费、收费)...
 
 post_type与taxonomy的区别?
 比如一个系统有产品, 订单, 用户这几种对象, 如果都想保存在一wp_posts表中, 就得有个字段来区别这些记录, 此字段就是post_type
@@ -80,8 +83,7 @@ function create_initial_post_types() {
 		1. 直接在后台操作custom_filed,比如想增加价格字段, 就输入'price', '100'元, 但如果每个贴子都要输入'price', 太繁琐, 这个方法比较原始
 		2. 通过 编程, 在post输入框中增加metabox, 你只需输入价格100,  注意字段前最好加个'_'(如get_post_meta( $post->ID, '_my_price_key', true )), 表示此字段在custom_filed栏目中隐藏
 		(隐藏后用户就没有办法直接从custom栏目中改变,只能通过metabox改变)
-		*/
-		/*** 
+
 		可供输入的项 
 		'editor': 表示可输入content
 		*/
@@ -1058,7 +1060,7 @@ function get_post_types( $args = array(), $output = 'names', $operator = 'and' )
  */
  
  /* 
- 放到全局变量中$wp_post_types[ $post_type ] = $args;  
+放到全局变量中$wp_post_types[ $post_type ] = $args;  
 supports : 所支持feature
 capability_type: 单复数
 capabilities: 一组权限名(一般为空就行了, 正常的读写删权限名会默认产生的)
@@ -1070,6 +1072,10 @@ exclude_from_search: search时是否过滤掉此类型的文章
 
 通过register_post_type()定义一种分类后, 在后台就相应地增加了对此分类的增删改操作
 增加哪些字段, label是什么,哪些meta数据,  这些细节都在register_post_type()中定义的
+
+register_post_type()注册后在左侧菜单中出一个菜单项，如商品、Add
+register_taxonomy()注册后在左侧子菜单中出现一个子菜单项(管理分类)，如商品下的颜色
+
 */
 function register_post_type( $post_type, $args = array() ) {
 	global $wp_post_types, $wp_rewrite, $wp;
@@ -1183,6 +1189,10 @@ function register_post_type( $post_type, $args = array() ) {
 	if ( is_array( $args->capability_type ) )
 		$args->capability_type = $args->capability_type[0];
 
+        /*** $args->supports定义了在后台编辑页面中,哪些编辑框可显示出来? 
+        这个加入自己的feature好象没什么用? 
+        比如我要完全定义一个自己的输入页面, 就可以把supports设为false?
+        */
 	if ( ! empty( $args->supports ) ) {
 		/*** 去注册此post_type支持的feature */
 		add_post_type_support( $post_type, $args->supports );

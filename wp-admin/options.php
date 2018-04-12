@@ -19,9 +19,7 @@ wordpress中众多的option参数,为了便于管理是要进行分组(group或s
 
 此文件默认显示所有option参数(不友好的原始的字符串形式,而不是下拉列表那种友好形式), 你可编辑后提交, 提交处理程序也是本文件,
 提交form中有隐藏字段option_page表明是哪个页面, 隐藏字段action标志表明是POST提交
-*/
 
-/*
 统一处理设置的程序
 1. 可以http://127.0.0.1/note-wordpress/wp-admin/options.php这样直接编辑全体设置项,但不是所有的字段都可被编辑,哪些字段可被
 2. 也可处理form提交上来的参数数据, 包括(options-reading.php等中form提交, 自定义插件参数页面提交)

@@ -251,7 +251,11 @@ if ( 'attachment' == $post_type ) {
 		add_meta_box( 'attachment-id3', __( 'Metadata' ), 'attachment_id3_data_meta_box', null, 'normal', 'core' );
 	}
 } else {
-	/* 除post_type类型为'attachment' 之外的所有其它post, 都要有'发布'输入框*/
+	/* 除post_type类型为'attachment' 之外的所有其它post, 都要有'发布'输入框
+	如果想改变下发布metabox,如将发布改为'保存'，可以在模板代码中
+	 先remove_meta_box('submitdiv', $item, 'core'); // $item represents post_type
+        再add_meta_box('submitdiv', sprintf( __('Save/Update %s'), $value ), ... )
+	*/
 	add_meta_box( 'submitdiv', __( 'Publish' ), 'post_submit_meta_box', null, 'side', 'core', $publish_callback_args );
 }
 
@@ -261,6 +265,7 @@ if ( current_theme_supports( 'post-formats' ) && post_type_supports( $post_type,
 	add_meta_box( 'formatdiv', _x( 'Format', 'post format' ), 'post_format_meta_box', null, 'side', 'core' );
 
 // all taxonomies
+/** 对应的分类显示在右边 , add_meta_box()并不是真正显示，只是收集数据*/
 foreach ( get_object_taxonomies( $post ) as $tax_name ) {
 	$taxonomy = get_taxonomy( $tax_name );
 	if ( ! $taxonomy->show_ui || false === $taxonomy->meta_box_cb )
@@ -725,6 +730,7 @@ else {
 add_meta_box()只是准备数据, do_meta_boxes() 才是输出meta-box
 真正在右侧显示输出之前注册的的一些meta boxes输入框 
 
+先显示side(即右侧的), 再normal, advanced?
 */
 do_meta_boxes($post_type, 'side', $post);
 

@@ -29,6 +29,8 @@ create_initial_post_types()
 create_initial_taxonomies()
 
 系统支持哪几种taxonomy是放在内存中的,不是在db中
+同样wp_posts表中有一个字段是post_type, 它的值可以是post, page,... 
+但对于post,page的行为定义是通过register_post_type()完成的
  */
 function create_initial_taxonomies() {
 	global $wp_rewrite;
@@ -48,8 +50,8 @@ function create_initial_taxonomies() {
 		/**  这里定义了category等的rewrite规则,  很重要! */
 		$rewrite = array(
 			'category' => array(
-				'hierarchical' => true,
-				/** 默认美化链接是/category/cat1/cat11/..., 
+				'hierarchical' => true, 
+				/** 默认美化链接是/category/cat1/cat2/..., 如果'hierarchical' = false的话，只取最后的/category/cat2 ?
 				但是可以通过后台管理界面设置category_base的值, 将美化链接改成/hello/cat1/cat11/... */
 				'slug' => get_option('category_base') ? get_option('category_base') : 'category',
 				'with_front' => ! get_option('category_base') || $wp_rewrite->using_index_permalinks(),
@@ -377,11 +379,24 @@ function is_taxonomy_hierarchical($taxonomy) {
  * @return WP_Error|void WP_Error, if errors.
  */
  /*
- taxonomy与post_type本身是多对多关系, 但是一般情况下最好是一个taxonomy对应一个post_type,如果让它对应多个post_type,很容易迷惑
+register_taxonomy() 相当于是定义一个集合, 集合的属性放在内存中, 但集合的名字放在wp_term中, 集合中的一条条数据是放在wp_posts中的
+
+taxonomy与post_type本身是多对多关系, 但是一般情况下最好是一个taxonomy对应一个post_type,如果让它对应多个post_type,很容易迷惑
 此函数表明一个taxonomy对应哪几个post_type 
 放在$wp_taxonomies全局数组中, 即$wp_taxonomies[ $taxonomy ] = (object) $args;
 
 register_taxonomy() 与register_taxonomy_for_object_type()区别?
+
+比如后台post编辑页中, 我不想要富文本内容编辑框, 也不想要分类输入框
+可以
+在register_post_type()时去掉supports中的editor
+在register_taxonomy()时'public' => false, 
+
+register_post_type()注册后在左侧菜单中出一个菜单项，如商品、Add
+register_taxonomy()注册后在左侧子菜单中出现一个子菜单项(管理分类)，如商品下的颜色
+
+注册时，如果参数中带了rewrite之类参数, 就产生permalink注入到WP_Rewrite全局
+对象中的extra_permastructs成员变量中, WP生成rewrite rules时会从里面取出数据进行加工
  */
 function register_taxonomy( $taxonomy, $object_type, $args = array() ) {
 	global $wp_taxonomies, $wp;
@@ -4604,8 +4619,8 @@ function get_term_link( $term, $taxonomy = '' ) {
 	$taxonomy = $term->taxonomy;
 
         /** 取出固定链接串, 
-        因为如果是pretty url模式, 产生url时要检查对应的rewrite ?
-        不对, 产生美化url时并未利用rewrite,而是利用的permalink(即固定链接结构串)
+        可以看出, 产生美化url时并未直接利用rewrite rule,而是利用的permalink(即固定链接结构串)，简单替换相应的模板变量就OK，
+        在反解美化url时，是要用到rewrite rule的
         */
 	$termlink = $wp_rewrite->get_extra_permastruct($taxonomy);
 
@@ -4669,6 +4684,7 @@ function get_term_link( $term, $taxonomy = '' ) {
 		 * @param string $termlink Category link URL.
 		 * @param int    $term_id  Term ID.
 		 */
+		 /*** 给第三方定制category美化链接一个机会 */ 
 		$termlink = apply_filters( 'category_link', $termlink, $term->term_id );
 	}
 

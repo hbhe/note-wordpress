@@ -11,7 +11,7 @@
  */
 
 /*
-Ö÷ÒªµÄ³õÊ¼¹ı³Ì¶¼ÔÚÕâ¸öÎÄ¼şÄÚ, Ç°ºóÌ¨¶¼ÒªÖ´ĞĞËü
+ä¸»è¦çš„åˆå§‹è¿‡ç¨‹éƒ½åœ¨è¿™ä¸ªæ–‡ä»¶å†…, å‰åå°éƒ½è¦æ‰§è¡Œå®ƒ
 */
 
 /**
@@ -53,7 +53,7 @@ wp_check_php_mysql_versions();
 @ini_set( 'magic_quotes_sybase',  0 );
 
 // WordPress calculates offsets from UTC.
-/* ±ípostsÖĞÓĞ2¸ö×Ö¶Îpost_date, post_data_gmt·Ö±ğ´æ·Å±¾µØÊ±¼äºÍgmtÊ±¼ä */
+/* è¡¨postsä¸­æœ‰2ä¸ªå­—æ®µpost_date, post_data_gmtåˆ†åˆ«å­˜æ”¾æœ¬åœ°æ—¶é—´å’Œgmtæ—¶é—´ */
 date_default_timezone_set( 'UTC' );
 
 // Turn register_globals off.
@@ -66,7 +66,7 @@ wp_fix_server_vars();
 wp_favicon_request();
 
 // Check if we're in maintenance mode.
-/*  ¼ì²éÊÇ·ñÊÇÎ¬»¤×´Ì¬*/
+/*  æ£€æŸ¥æ˜¯å¦æ˜¯ç»´æŠ¤çŠ¶æ€*/
 wp_maintenance();
 
 // Start loading timer.
@@ -77,12 +77,12 @@ wp_debug_mode();
 
 // For an advanced caching plugin to use. Uses a static drop-in because you would only want one.
 /* 
-WP_CACHEÒÑÊ§È¥ÁË×ÖÃæÉÏµÄÒâË¼, ¶øÊÇ±íÊ¾ÊÇ·ñÊ¹ÓÃadvanced-cache.php
-µ±Ê¹ÓÃÕß¶¨ÒåWP_CACHE ÎªtrueÊ±, Í¬Ê±ÔÚwp-contentÄ¿Â¼ÏÂ¾ÍÓ¦µ±Ìá¹©Ò»¸öadvanced-cache.phpÎÄ¼ş
-ÕâÊÇ×îÔçÓÃ»§¿ÉÒÔ¸ÉÔ¤ÏµÍ³µÄµØ·½?
+WP_CACHEå·²å¤±å»äº†å­—é¢ä¸Šçš„æ„æ€, è€Œæ˜¯è¡¨ç¤ºæ˜¯å¦ä½¿ç”¨advanced-cache.php
+å½“ä½¿ç”¨è€…å®šä¹‰WP_CACHE ä¸ºtrueæ—¶, åŒæ—¶åœ¨wp-contentç›®å½•ä¸‹å°±åº”å½“æä¾›ä¸€ä¸ªadvanced-cache.phpæ–‡ä»¶
+è¿™æ˜¯æœ€æ—©ç”¨æˆ·å¯ä»¥å¹²é¢„ç³»ç»Ÿçš„åœ°æ–¹?
 */
 if ( WP_CACHE )
-	/** WP_DEBUGÊ±±¨´í·ñÔò²»±¨´í¼ÌĞøÖ´ĞĞ, includeÊ±ÎÄ¼ş²»´æÔÚÊ±¿ÉÒÔ¼ÌĞø, ¶ørequireÔò»áÖÂÃü´íÍË³ö */
+	/** WP_DEBUGæ—¶æŠ¥é”™å¦åˆ™ä¸æŠ¥é”™ç»§ç»­æ‰§è¡Œ, includeæ—¶æ–‡ä»¶ä¸å­˜åœ¨æ—¶å¯ä»¥ç»§ç»­, è€Œrequireåˆ™ä¼šè‡´å‘½é”™é€€å‡º */
 	WP_DEBUG ? include( WP_CONTENT_DIR . '/advanced-cache.php' ) : @include( WP_CONTENT_DIR . '/advanced-cache.php' );
 
 // Define WP_LANG_DIR if not set.
@@ -94,18 +94,18 @@ require( ABSPATH . WPINC . '/functions.php' );
 require( ABSPATH . WPINC . '/class-wp.php' );
 require( ABSPATH . WPINC . '/class-wp-error.php' );
 
-/*** ÒıÓÃhook»úÖÆ, ´Ó´Ë¾Í¿ÉÒÔÊ¹ÓÃadd_action,... */
+/*** å¼•ç”¨hookæœºåˆ¶, ä»æ­¤å°±å¯ä»¥ä½¿ç”¨add_action,... */
 require( ABSPATH . WPINC . '/plugin.php' );
 
 
-// ÎÒ·ÅÔÚÕâÀïµÄ²âÊÔ´úÂëBEGIN 
-// ´òÓ¡ËùÓĞÊı¾İ¿â²Ù×÷
+// æˆ‘æ”¾åœ¨è¿™é‡Œçš„æµ‹è¯•ä»£ç BEGIN 
+// æ‰“å°æ‰€æœ‰æ•°æ®åº“æ“ä½œ
 add_action('shutdown', function($arg) {
 	global $wpdb;
 	//error_log(print_r( $wpdb->queries, true ) ); 
 });	
 
-// µ½µ×µ±Ç°ÇëÇó×îºóÊ¹ÓÃµÄÊÇÄÄ¸öÄ£°åÎÄ¼ş
+// åˆ°åº•å½“å‰è¯·æ±‚æœ€åä½¿ç”¨çš„æ˜¯å“ªä¸ªæ¨¡æ¿æ–‡ä»¶
 add_filter( 'template_include', function($template) {
 	error_log( 'my template=' . $template );
 	return $template;
@@ -123,7 +123,7 @@ add_action('update_option', function($option, $old_value, $value) {
 require( ABSPATH . WPINC . '/pomo/mo.php' );
 
 // Include the wpdb class and, if present, a db.php database drop-in.
-// ³õÊ¼»¯$wpdb = new wpdb(...);
+// åˆå§‹åŒ–$wpdb = new wpdb(...);
 require_wp_db();
 
 // Set the database table prefix and the format specifiers for database table columns.
@@ -132,12 +132,12 @@ wp_set_wpdb_vars();
 
 // Start the WordPress object cache, or an external object cache if the drop-in is present.
 /* 
-¼ÓÔØwordpress×ÔÒÑÊµÏÖµÄcacheÎÄ¼ş; »òÕßwp-content/object-cache.phpÕâ¸öÍâ²¿cacheÎÄ¼ş,Èç¹û´æÔÚµÄ»° 
+åŠ è½½wordpressè‡ªå·²å®ç°çš„cacheæ–‡ä»¶; æˆ–è€…wp-content/object-cache.phpè¿™ä¸ªå¤–éƒ¨cacheæ–‡ä»¶,å¦‚æœå­˜åœ¨çš„è¯ 
 */
 wp_start_object_cache();
 
 // Attach the default filters.
-/*** ¼ÓÔØdefaultµÄfilter, µ½ÕâÀï²ÅÊ×´ÎÊ¹ÓÃÁËadd_action */
+/*** åŠ è½½defaultçš„filter, åˆ°è¿™é‡Œæ‰é¦–æ¬¡ä½¿ç”¨äº†add_action */
 require( ABSPATH . WPINC . '/default-filters.php' );
 
 // Initialize multisite if enabled.
@@ -148,7 +148,7 @@ if ( is_multisite() ) {
 	define( 'MULTISITE', false );
 }
 
-register_shutdown_function( 'shutdown_action_hook' ); /*** ³ÌĞòÍË³öÊ±(°üÀ¨exit,die)Ö´ĞĞ¹ÒÔÚ'shutdown'ÉÏµÄº¯Êı */
+register_shutdown_function( 'shutdown_action_hook' ); /*** ç¨‹åºé€€å‡ºæ—¶(åŒ…æ‹¬exit,die)æ‰§è¡ŒæŒ‚åœ¨'shutdown'ä¸Šçš„å‡½æ•° */
 
 // Stop most of WordPress from being loaded if we just want the basics.
 if ( SHORTINIT )
@@ -161,7 +161,7 @@ require_once( ABSPATH . WPINC . '/l10n.php' );
 wp_not_installed();
 
 // Load most of WordPress.
-// Ã»¸ãÊ²Ã´autoload»úÖÆ£¬È«include...
+// æ²¡æä»€ä¹ˆautoloadæœºåˆ¶ï¼Œå…¨include...
 require( ABSPATH . WPINC . '/class-wp-walker.php' );
 require( ABSPATH . WPINC . '/class-wp-ajax-response.php' );
 require( ABSPATH . WPINC . '/formatting.php' );
@@ -214,8 +214,8 @@ require( ABSPATH . WPINC . '/class-wp-term.php' );
 require( ABSPATH . WPINC . '/class-wp-tax-query.php' );
 
 /* 
-´ò¿ªÇ°ºóÌ¨Ò³ÃæÊ±, ¶¼Òª¼ì²é¸üĞÂplugin? 
-´ò¿ªÇ°Ì¨Ò³ÃæÊ±, ²»ĞèÒª×öupdate°É?
+æ‰“å¼€å‰åå°é¡µé¢æ—¶, éƒ½è¦æ£€æŸ¥æ›´æ–°plugin? 
+æ‰“å¼€å‰å°é¡µé¢æ—¶, ä¸éœ€è¦åšupdateå§?
 */
 require( ABSPATH . WPINC . '/update.php' );
 
@@ -253,15 +253,15 @@ if ( is_multisite() ) {
 
 // Define constants that rely on the API to obtain the default value.
 // Define must-use plugin directory constants, which may be overridden in the sunrise.php drop-in.
-/*** ¶¨Òå²å¼ş³£Á¿, ÏÂÃæ×¼±¸ÒÀ´Î¼ÓÔØ: ±ØÓÃplugin, È«Íøplugin, µ¥Õ¾plugin */
+/*** å®šä¹‰æ’ä»¶å¸¸é‡, ä¸‹é¢å‡†å¤‡ä¾æ¬¡åŠ è½½: å¿…ç”¨plugin, å…¨ç½‘plugin, å•ç«™plugin */
 wp_plugin_directory_constants();
 
 $GLOBALS['wp_plugin_paths'] = array();
 
 // Load must-use plugins.
  /***  
- ·ÅÔÚwp-content/mu-plugins Ä¿Â¼ÏÂµÄ²å¼ş, ³ÆÎª±ØÓÃ²å¼ş, Ò²¿ÉÒÔÈÏÎªÊÇ²»ÄÜ±»disableµÄ²å¼ş?
- ¶ødropins ²å¼ş¿ÉÒÔÈÏÎªÊÇÓĞ¹Ì¶¨ÎÄ¼şÃûµÄ±ØÓÃ²å¼ş?
+ æ”¾åœ¨wp-content/mu-plugins ç›®å½•ä¸‹çš„æ’ä»¶, ç§°ä¸ºå¿…ç”¨æ’ä»¶, ä¹Ÿå¯ä»¥è®¤ä¸ºæ˜¯ä¸èƒ½è¢«disableçš„æ’ä»¶?
+ è€Œdropins æ’ä»¶å¯ä»¥è®¤ä¸ºæ˜¯æœ‰å›ºå®šæ–‡ä»¶åçš„å¿…ç”¨æ’ä»¶?
  */
 foreach ( wp_get_mu_plugins() as $mu_plugin ) {
 	include_once( $mu_plugin );
@@ -270,7 +270,7 @@ unset( $mu_plugin );
 
 // Load network activated plugins.
 if ( is_multisite() ) {
-	/*** ¼ÓÔØÊÊÓÃÓÚÈ«Íø·¶Î§ÄÚµÄÒÑ¼¤»îµÄ²å¼ş */
+	/*** åŠ è½½é€‚ç”¨äºå…¨ç½‘èŒƒå›´å†…çš„å·²æ¿€æ´»çš„æ’ä»¶ */
 	foreach ( wp_get_active_network_plugins() as $network_plugin ) {
 		wp_register_plugin_realpath( $network_plugin );
 		include_once( $network_plugin );
@@ -299,10 +299,10 @@ require( ABSPATH . WPINC . '/vars.php' );
 
 // Make taxonomies and posts available to plugins and themes.
 // @plugin authors: warning: these get registered again on the init hook.
-/*** ÏÈ×¢²ácategory,post_tag, ±íÃ÷ÕâĞ©taxnomyÊÊÓ¦ÓÚÊ²Ã´post_type, ËäÈ»´ËÊ±post_typeÉĞÎ´¶¨Òå? */
+/*** å…ˆæ³¨å†Œcategory,post_tag, è¡¨æ˜è¿™äº›taxnomyé€‚åº”äºä»€ä¹ˆpost_type, è™½ç„¶æ­¤æ—¶post_typeå°šæœªå®šä¹‰? */
 create_initial_taxonomies();
 
-/*** ×¢²áÏµÍ³ÄÚ½¨µÄ¼¸ÖÖpost type */
+/*** æ³¨å†Œç³»ç»Ÿå†…å»ºçš„å‡ ç§post type */
 create_initial_post_types();
 
 // Register the default theme directory root
@@ -311,13 +311,13 @@ register_theme_directory( get_theme_root() );
 
 // Load active plugins.
 /*
-¼ÓÔØÊÊÓÃÓÚ±¾Õ¾µÄ¼¤»îµÄ²å¼ş, ÕâÀïÊÇ½øÈë²å¼şµÄÎ¨Ò»Èë¿Úµã?
-$pluginÖµĞÎÈçD:\htdocs\note-wordpress/wp-content/plugins/hello.php »òD:\htdocs\note-wordpress/wp-content/plugins/akismet/akismet.php
-Ç°ºóÌ¨¶¼»áÔËĞĞµ½ÕâÀï
-Ò»¸ö²å¼şÒ»°ã·ÖÎªÇ°Ì¨Õ¹Ê¾£¬ºóÌ¨Õ¹Ê¾, ÕâÀïÖ»ÓĞÒ»¸öÈë¿Ú, ÔõÃ´·ÖÇ°ºóÌ¨ÄØ? ´ğ°¸ÊÇÔÚ½Å±¾ÀïÃæ×Ô¼ºÈ¥¶¨Òåfor frontend»òÕßfor background µÄhookÈ¥
+åŠ è½½é€‚ç”¨äºæœ¬ç«™çš„æ¿€æ´»çš„æ’ä»¶, è¿™é‡Œæ˜¯è¿›å…¥æ’ä»¶çš„å”¯ä¸€å…¥å£ç‚¹?
+$pluginå€¼å½¢å¦‚D:\htdocs\note-wordpress/wp-content/plugins/hello.php æˆ–D:\htdocs\note-wordpress/wp-content/plugins/akismet/akismet.php
+å‰åå°éƒ½ä¼šè¿è¡Œåˆ°è¿™é‡Œ
+ä¸€ä¸ªæ’ä»¶ä¸€èˆ¬åˆ†ä¸ºå‰å°å±•ç¤ºï¼Œåå°å±•ç¤º, è¿™é‡Œåªæœ‰ä¸€ä¸ªå…¥å£, æ€ä¹ˆåˆ†å‰åå°å‘¢? ç­”æ¡ˆæ˜¯åœ¨è„šæœ¬é‡Œé¢è‡ªå·±å»å®šä¹‰for frontendæˆ–è€…for background çš„hookå»
 
-ÔÚ²å¼şµÄÖ±½ÓÖ´ĞĞ´úÂë(·Ç»Øµ÷º¯ÊıÖĞµÄ´úÂë)ÖĞ, ÉĞ²»ÄÜÊ¹ÓÃµ±Ç°²å¼şµÄ·­Òë´ÊÌõ, Òò ÎªÒ»°ã
-²å¼şµÄ·­ÒëÎÄ¼şÊÇÔÚºóÃæ´¥·¢'plugins_loaded' Ê±²Å¼ÓÔØ?
+åœ¨æ’ä»¶çš„ç›´æ¥æ‰§è¡Œä»£ç (éå›è°ƒå‡½æ•°ä¸­çš„ä»£ç )ä¸­, å°šä¸èƒ½ä½¿ç”¨å½“å‰æ’ä»¶çš„ç¿»è¯‘è¯æ¡, å›  ä¸ºä¸€èˆ¬
+æ’ä»¶çš„ç¿»è¯‘æ–‡ä»¶æ˜¯åœ¨åé¢è§¦å‘'plugins_loaded' æ—¶æ‰åŠ è½½?
 */
 foreach ( wp_get_active_and_valid_plugins() as $plugin ) {
 	wp_register_plugin_realpath( $plugin );
@@ -328,7 +328,7 @@ unset( $plugin );
 //show_admin_bar(false);
 
 // Load pluggable functions.
-/*** pluggable.php·ÅÔÚ²å¼şÖ®ºó¼ÓÔØ, ÒâÎ¶×ÅÔÚ²å¼şÖĞ¿ÉÒÔÏÈ¶¨ÒåÒ»Ğ©pluggable.phpÖĞµÄº¯Êı,ÒÔ¸Ä±äworpressµÄĞĞÎª */
+/*** pluggable.phpæ”¾åœ¨æ’ä»¶ä¹‹ååŠ è½½, æ„å‘³ç€åœ¨æ’ä»¶ä¸­å¯ä»¥å…ˆå®šä¹‰ä¸€äº›pluggable.phpä¸­çš„å‡½æ•°,ä»¥æ”¹å˜worpressçš„è¡Œä¸º */
 require( ABSPATH . WPINC . '/pluggable.php' );
 require( ABSPATH . WPINC . '/pluggable-deprecated.php' );
 
@@ -337,7 +337,7 @@ wp_set_internal_encoding();
 
 // Run wp_cache_postload() if object cache is enabled and the function exists.
 if ( WP_CACHE && function_exists( 'wp_cache_postload' ) )
-	/* ´ÓcacheÖĞÈ¡Êı¾İÊä³ö?  wp-cache-phase2.php */
+	/* ä»cacheä¸­å–æ•°æ®è¾“å‡º?  wp-cache-phase2.php */
 	wp_cache_postload();
 
 /**
@@ -350,7 +350,7 @@ if ( WP_CACHE && function_exists( 'wp_cache_postload' ) )
 do_action( 'plugins_loaded' );
 
 // Define constants which affect functionality if not already defined.
-// ÓĞ¶à¸ö¶¨Òå³£Á¿µÄº¯ÊıÈçwp_functionality_constants(), wp_plugin_directory_constants(), wp_initial_constants() ..., ÎªÊ²Ã´²»°ÑÕâĞ©³£Á¿¶¨ÒåºÏ²¢ÔÚÒ»Æğ·ÅÔÚÒ»¸öº¯ÊıÄÚ?
+// æœ‰å¤šä¸ªå®šä¹‰å¸¸é‡çš„å‡½æ•°å¦‚wp_functionality_constants(), wp_plugin_directory_constants(), wp_initial_constants() ..., ä¸ºä»€ä¹ˆä¸æŠŠè¿™äº›å¸¸é‡å®šä¹‰åˆå¹¶åœ¨ä¸€èµ·æ”¾åœ¨ä¸€ä¸ªå‡½æ•°å†…?
 wp_functionality_constants();
 
 // Add magic quotes and set up $_REQUEST ( $_GET + $_POST )
@@ -364,7 +364,10 @@ wp_magic_quotes();
 do_action( 'sanitize_comment_cookies' );
 
 /*
-¿ªÊ¼³õÊ¼»¯WPÏµÁĞ¶ÔÏóÈçwp, wp_the_query, wp_roles
+å¼€å§‹åˆå§‹åŒ–WPç³»åˆ—å¯¹è±¡å¦‚WP::wp, WP_Query::wp_the_query, WP_Roles::wp_roles, WP_Rewrite::wp_rewrite
+WP ä»£è¡¨è¯·æ±‚
+WP_Query ä»£è¡¨db query
+WP_Rewriteä»£è¡¨urlä¸­å‚æ•°è§£ææ—¶ç”¨åˆ°çš„permalink, rewriteè§„åˆ™...
 */
 
 /**
@@ -373,9 +376,9 @@ do_action( 'sanitize_comment_cookies' );
  * @since 2.0.0
  */
  /**
-$GLOBALS['wp_the_query']Óë$GLOBALS['wp_query']Çø±ğ?
-Ò»°ãÓÃ$wp_query, $wp_the_queryÓÃÓÚ±¸·İÓë»Ö¸´?
-ÒÔºó»¹¿ÉÒÔ$q = new WP_Query(); µ«²»»áÔÙÓĞ$v = new WP();ÁË?
+$GLOBALS['wp_the_query']ä¸$GLOBALS['wp_query']åŒºåˆ«?
+ä¸€èˆ¬ç”¨$wp_query, $wp_the_queryç”¨äºå¤‡ä»½ä¸æ¢å¤?
+ä»¥åè¿˜å¯ä»¥$q = new WP_Query(); ä½†ä¸ä¼šå†æœ‰$v = new WP();äº†?
  */
 $GLOBALS['wp_the_query'] = new WP_Query();
 
@@ -399,7 +402,7 @@ $GLOBALS['wp_rewrite'] = new WP_Rewrite();
  * @global WP $wp
  * @since 2.0.0
  */
- /** ³õÊ¼»¯wp¶ÔÏó*/
+ /** åˆå§‹åŒ–wpå¯¹è±¡*/
 $GLOBALS['wp'] = new WP();
 
 /**
@@ -423,23 +426,23 @@ $GLOBALS['wp_roles'] = new WP_Roles();
  */
  
 /*** 
-ÏÈ²å¼ş, ºóÖ÷Ìâ, 
-ÕâÀï¿ªÊ¼×öÖ÷Ìâ(»ò³ÆÄ£°å)¼ÓÔØÇ°µÄ¶¯×÷
+å…ˆæ’ä»¶, åä¸»é¢˜, 
+è¿™é‡Œå¼€å§‹åšä¸»é¢˜(æˆ–ç§°æ¨¡æ¿)åŠ è½½å‰çš„åŠ¨ä½œ
 */
 do_action( 'setup_theme' );
 
 // Define the template related constants.
-// Ö¸¶¨Ä£°åÂ·¾¶
+// æŒ‡å®šæ¨¡æ¿è·¯å¾„
 wp_templating_constants(  );
 
 // Load the default text localization domain.
-// ¼ÓÔØÄ¬ÈÏÄÚºË´Êµä(·­ÒëÎÄ¼ş), wp-content\languages\zh_CN.mo, ÆäËüÖ÷Ìâ´Êµä, ²å¼ş´Êµä²»ÔÚÕâÀïload
+// åŠ è½½é»˜è®¤å†…æ ¸è¯å…¸(ç¿»è¯‘æ–‡ä»¶), wp-content\languages\zh_CN.mo, å…¶å®ƒä¸»é¢˜è¯å…¸, æ’ä»¶è¯å…¸ä¸åœ¨è¿™é‡Œload
 load_default_textdomain();
 
-// $localeĞÎÈç'zh_CN'
+// $localeå½¢å¦‚'zh_CN'
 $locale = get_locale();
 $locale_file = WP_LANG_DIR . "/$locale.php";
-/* ¼ÓÔØwp-content\languages\zh_CN.php½Å±¾, ×÷ÓÃ? */
+/* åŠ è½½wp-content\languages\zh_CN.phpè„šæœ¬, ä½œç”¨? */
 if ( ( 0 === validate_file( $locale ) ) && is_readable( $locale_file ) )
 	require( $locale_file );
 unset( $locale_file );
@@ -457,22 +460,22 @@ $GLOBALS['wp_locale'] = new WP_Locale();
 // Load the functions for the active theme, for both parent and child theme if applicable.
 if ( ! wp_installing() || 'wp-activate.php' === $pagenow ) {
 	/*** 
-	TEMPLATEPATH !== STYLESHEETPATHÊ±,±íÃ÷ÊÇ×ÓÖ÷Ìâ,
-	ÏÈ¼ÓÔØ×ÓÖ÷ÌâÄÚµÄfunctions.php(function.phpÏàµ±ÓÚÕâ¸öÖ÷Ìâ×Ô¼ºµÄº¯Êı¿â, Ò²Ö´ĞĞÒ»Ğ©×¢²áÖ®ÀàµÄ¶¯×÷)
+	TEMPLATEPATH !== STYLESHEETPATHæ—¶,è¡¨æ˜æ˜¯å­ä¸»é¢˜,
+	å…ˆåŠ è½½å­ä¸»é¢˜å†…çš„functions.php(function.phpç›¸å½“äºè¿™ä¸ªä¸»é¢˜è‡ªå·±çš„å‡½æ•°åº“, ä¹Ÿæ‰§è¡Œä¸€äº›æ³¨å†Œä¹‹ç±»çš„åŠ¨ä½œ)
 	*/
 	
 	/***
-	themeµÄÄ£°åÎÄ¼şÊÇ×îºóÖ´ĞĞµÄ, ÎªÁË¸Ä±äÄ£°åÖĞµÄ±äÁ¿, ¾ÍĞèÒªÔÚincludeÄ£°åÖ®Ç°ÓĞ¸öµØ·½ÄÜ¼ÓÈëthemeµÄhook, 
-	Õâ¸öµØ·½¾ÍÊÇfunctions.php
+	themeçš„æ¨¡æ¿æ–‡ä»¶æ˜¯æœ€åæ‰§è¡Œçš„, ä¸ºäº†æ”¹å˜æ¨¡æ¿ä¸­çš„å˜é‡, å°±éœ€è¦åœ¨includeæ¨¡æ¿ä¹‹å‰æœ‰ä¸ªåœ°æ–¹èƒ½åŠ å…¥themeçš„hook, 
+	è¿™ä¸ªåœ°æ–¹å°±æ˜¯functions.php
 	*/
 	if ( TEMPLATEPATH !== STYLESHEETPATH && file_exists( STYLESHEETPATH . '/functions.php' ) )
 		include( STYLESHEETPATH . '/functions.php' );
 
 	/*** 
-	ÔÙ¼ÓÔØ¸¸Ö÷ÌâµÄfunctions.php, ¿É¼ûÖ»Ö§³Ö¸¸×Ó¹ØÏµ, ²»Ö§³ÖËï×ÓÖ÷Ìâ,
-	Èç¹ûÄãÓĞ Ëï×ÓÖ÷ÌâµÄÏë·¨, wordpressÈÏÎªÄãµÄË¼Â·¾ÍÓĞÎÊÌâ, ¶àÖØ¼Ì³Ğ»áµ¼ÖÂ¸´ÔÓÒÀÀµ, ĞÔÄÜslow down?
+	å†åŠ è½½çˆ¶ä¸»é¢˜çš„functions.php, å¯è§åªæ”¯æŒçˆ¶å­å…³ç³», ä¸æ”¯æŒå­™å­ä¸»é¢˜,
+	å¦‚æœä½ æœ‰ å­™å­ä¸»é¢˜çš„æƒ³æ³•, wordpressè®¤ä¸ºä½ çš„æ€è·¯å°±æœ‰é—®é¢˜, å¤šé‡ç»§æ‰¿ä¼šå¯¼è‡´å¤æ‚ä¾èµ–, æ€§èƒ½slow down?
 
-	ÔÚ¼ÓÔØÄ£°åÎÄ¼şÊ±, ÏÈÔÚ×ÓÖ÷ÌâÏÂÕÒ, ÕÒµ½¾ÍËãÁË, ÕÒ²»µ½¾Íµ½¸¸Ö÷ÌâÄ¿Â¼ÏÂÕÒ. ÕâÓë´¦Àífunctions.phpÊÇÓĞÇø±ğµÄ
+	åœ¨åŠ è½½æ¨¡æ¿æ–‡ä»¶æ—¶, å…ˆåœ¨å­ä¸»é¢˜ä¸‹æ‰¾, æ‰¾åˆ°å°±ç®—äº†, æ‰¾ä¸åˆ°å°±åˆ°çˆ¶ä¸»é¢˜ç›®å½•ä¸‹æ‰¾. è¿™ä¸å¤„ç†functions.phpæ˜¯æœ‰åŒºåˆ«çš„
 	*/		
 	if ( file_exists( TEMPLATEPATH . '/functions.php' ) )
 		include( TEMPLATEPATH . '/functions.php' );
@@ -484,7 +487,7 @@ if ( ! wp_installing() || 'wp-activate.php' === $pagenow ) {
  * @since 3.0.0
  */
 do_action( 'after_setup_theme' );
-//////////// Ä£°å¼ÓÔØÇ°µÄ¶¯×÷Íê±Ï, ÕæÕı¼ÓÔØÄ£°åµÄ´úÂë»¹ÔÚºóÃæ,ÔÚtemplate-loader.phpÖĞ
+//////////// æ¨¡æ¿åŠ è½½å‰çš„åŠ¨ä½œå®Œæ¯•, çœŸæ­£åŠ è½½æ¨¡æ¿çš„ä»£ç è¿˜åœ¨åé¢,åœ¨template-loader.phpä¸­
 
 
 // Set up current user.

@@ -1831,7 +1831,12 @@ function user_can_access_admin_page() {
  注册该页面中要输入的参数字段,
  $option_group: 页面(参数很多时要分成group或section, 页面理解成group或section也可以)
  $option_name: 参数字段,要保存在表wp_options中的key(option_name)
- */
+  
+    比如    register_setting( 'prowp-settings-group', 'prowp_options', 'prowp_sanitize_options' );
+    预先定义这个prowp-settings-group['prowp_options']这个变量, options.php中在处理form时就会放行
+    不能说提交的form中有什么就存什么, 要过滤一下的, 只有定义过的变量才能接受的
+    */
+ 
 function register_setting( $option_group, $option_name, $sanitize_callback = '' ) {
 	global $new_whitelist_options;
 

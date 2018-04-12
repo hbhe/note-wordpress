@@ -14,6 +14,11 @@
  *
  * @param int|WP_Post $post Optional. Post ID or post object. Default is the global `$post`.
  */
+/*** 生成各种链接的函数, 但生成分类链接的函数get_category_link()不在此文件中，在category_template.php中 */ 
+
+ /*** 
+返回当前post的链接, 点此链接可看此post的详情页
+ */
 function the_permalink( $post = 0 ) {
 	/**
 	 * Filter the display of the permalink for the current post.
@@ -116,9 +121,9 @@ function get_the_permalink( $post = 0, $leavename = false ) {
  */
  /***
 url美化要解决2个能力
-1. 将变量塞到rewrite rule中或者permalink中, 以生成/a/b/这种美化链接中
-2. 将/a/b/这种美化过后的url进行解析, 获取变量
- */
+1. 将permalink中的模板变更如%postname% 替换成实际的变量,  以生成/a/b/这种美化链接
+2. 利用rewrite rules(当然部分rules还是来源于permalink)将/a/b/这种美化过后的url进行解析, 获取变量
+*/
 function get_permalink( $post = 0, $leavename = false ) {
 	$rewritecode = array(
 		'%year%',
@@ -257,6 +262,7 @@ function get_permalink( $post = 0, $leavename = false ) {
  * @param bool $sample    Optional, defaults to false. Is it a sample permalink.
  * @return string|WP_Error The post permalink.
  */
+ /**  返回某个post的链接 */
 function get_post_permalink( $id = 0, $leavename = false, $sample = false ) {
 	global $wp_rewrite;
 
@@ -522,6 +528,7 @@ function get_month_link($year, $month) {
  * @param bool|int $day   False for current day. Integer of day.
  * @return string The permalink for the specified day, month, and year archive.
  */
+ /*** 点此链接, 显示此日期内的所有post */
 function get_day_link($year, $month, $day) {
 	global $wp_rewrite;
 	if ( !$year )
