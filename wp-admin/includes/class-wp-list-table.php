@@ -73,6 +73,7 @@ class TT_Example_List_Table extends WP_List_Table {
         }
     }
 
+    // 显示title这一列的值
     function column_title($item){        
         //Build row actions
         $actions = array(
@@ -241,9 +242,12 @@ public static function record_count() {
   return $wpdb->get_var( $sql );
 }
 
-	什么是views? 比如Posts列表上面显示的几个All, Published, Trash链接
+什么是views? 列表上面显示的几个链接, 如All, Published, Trash链接
 
-	如何在post 列表中加自定义字段, 加批动作,...?	
+如何在post 列表中加自定义字段, 加批动作,...?	
+
+ views(), search_box(), display()都是输出一些内容, dispay包括批操作、筛选、分页、表头、表体
+	
  */
 class WP_List_Table {
 
@@ -645,8 +649,8 @@ class WP_List_Table {
 	 * @access public
 	 */
 	 /*** 
-	 输出的是什么? 
-	 views(), search_box(), display()都是输出一些内容(search框并不是dispay()中的一部分)
+	 输出的是什么? 几个链接: 全部（36） | 已发布（35） | 置顶（1） | 草稿（1） 	 
+	 views(), search_box(), display()都是输出一些内容, dispay包括批操作、筛选、分页、表头、表体
 	 */
 	public function views() {
 		$views = $this->get_views();
@@ -717,6 +721,11 @@ class WP_List_Table {
 			 *
 			 * @param array $actions An array of the available bulk actions.
 			 */
+			 
+                    /** 此处可被利用, 订单列表页的上的操作下拉框 
+    		        add_filter( 'bulk_actions-edit-shop_order', array( $this, 'shop_order_bulk_actions' ) );
+    		        screen->id是在哪里定义的
+                    */			 
 			$this->_actions = apply_filters( "bulk_actions-{$this->screen->id}", $this->_actions );
 			$this->_actions = array_intersect_assoc( $this->_actions, $no_new_actions );
 			$two = '';
@@ -1145,6 +1154,7 @@ class WP_List_Table {
 	 *
 	 * @return array
 	 */
+	 /** 如何定制表头，看get_column_headers() */
 	public function get_columns() {
 		die( 'function WP_List_Table::get_columns() must be over-ridden in a sub-class.' );
 	}
@@ -1273,10 +1283,9 @@ class WP_List_Table {
         $sortable = $this->get_sortable_columns();
         $this->_column_headers = array($columns, $hidden, $sortable);	 // 用户将没有机会增加字段和隐藏字段
         
-        $this->_column_headers = $this->get_column_info();		// 而这样用,用户还是有机会的
-
-        
+        $this->_column_headers = $this->get_column_info();		// 而这样用,用户还是有机会的        
 	 */
+	 /** 从screen中取表头,而screen中的表头又来源于实际对象的get_columns() */
 	protected function get_column_info() {
 		// $_column_headers is already set / cached
 		if ( isset( $this->_column_headers ) && is_array( $this->_column_headers ) ) {
@@ -1434,7 +1443,7 @@ class WP_List_Table {
 	public function display() {
 		$singular = $this->_args['singular'];
 
-	 /*** 在table顶部, 显示批操作, 分页, 自定义内容 */
+	 /*** 在table顶部, 显示批操作, 分页, 筛选版块*/
 		$this->display_tablenav( 'top' );
 
 		$this->screen->render_screen_reader_content( 'heading_list' );
@@ -1483,7 +1492,7 @@ class WP_List_Table {
 	 * @access protected
 	 * @param string $which
 	 */
-	 /*** 显示批操作, 分页, 自定义内容 */
+	 /*** 显示批操作下拉框, 分页, 顶部筛选版块(自定义内容) */
 	protected function display_tablenav( $which ) {
 		if ( 'top' === $which ) {
 			wp_nonce_field( 'bulk-' . $this->_args['plural'] );
@@ -1497,7 +1506,7 @@ class WP_List_Table {
 		</div>
 		<?php endif;
 		
-		/*** 显示自定义内容 */
+		/*** 显示顶部筛选版块(自定义内容) */
 		$this->extra_tablenav( $which );
 		
 		$this->pagination( $which );
@@ -1599,7 +1608,7 @@ class WP_List_Table {
 
 			$attributes = "class='$classes' $data";
 
-			if ( 'cb' === $column_name ) {
+			if ( 'cb' === $column_name ) { /** 列表是cb, 显示一个checkbox */
 				echo '<th scope="row" class="check-column">';
 				echo $this->column_cb( $item );
 				echo '</th>';
@@ -1611,7 +1620,7 @@ class WP_List_Table {
 					$data,
 					$primary
 				);
-			} elseif ( method_exists( $this, 'column_' . $column_name ) ) {
+			} elseif ( method_exists( $this, 'column_' . $column_name ) ) { /*** 比如column是title, 显示值时看column_title()函数是否存在 */
 				echo "<td $attributes>";
 				echo call_user_func( array( $this, 'column_' . $column_name ), $item );
 				echo $this->handle_row_actions( $item, $column_name, $primary );

@@ -433,7 +433,7 @@ function register_taxonomy( $taxonomy, $object_type, $args = array() ) {
 		'show_tagcloud'         => null,
 		'show_in_quick_edit'	=> null,
 		'show_admin_column'     => false,
-		'meta_box_cb'           => null,
+		'meta_box_cb'           => null, /** 编辑post时, 显示在右侧的输入框 */
 		'capabilities'          => array(),
 		'rewrite'               => true,
 		'query_var'             => $taxonomy,
@@ -540,7 +540,7 @@ function register_taxonomy( $taxonomy, $object_type, $args = array() ) {
 	// If not set, use the default meta box
 	if ( null === $args['meta_box_cb'] ) {
 		if ( $args['hierarchical'] )
-			$args['meta_box_cb'] = 'post_categories_meta_box';
+			$args['meta_box_cb'] = 'post_categories_meta_box';  /** 默认编辑时加载 post_categories_meta_box()这个板块*/
 		else
 			$args['meta_box_cb'] = 'post_tags_meta_box';
 	}

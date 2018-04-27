@@ -20,11 +20,14 @@
  * }
  */
  /*
-此文件定义了一些预定义的meta box输入widget?
+后台编辑 post时，里面所有的输入板块都是以metabox存在, 系统提供了一些预定义的板块,
+像提交版块、分类输入版块、tag输入版块
+
+此文件定义了一些预定义的metabox输入widget?
  */
  
  /* 
- 显示'发布metabox
+ 提交版块，即显示'发布metabox
  */
 function post_submit_meta_box( $post, $args = array() ) {
 	global $action;
@@ -291,6 +294,7 @@ if ( !in_array( $post->post_status, array('publish', 'future', 'private') ) || 0
  *
  * @param object $post
  */
+ /*** 编辑媒体时, 右侧图片提交版块 */
 function attachment_submit_meta_box( $post ) {
 ?>
 <div class="submitbox" id="submitpost">
@@ -418,7 +422,7 @@ function post_format_meta_box( $post, $box ) {
  *     }
  * }
  */
- /* 标签输入 */
+ /* 编辑对象时, 显示在右侧的标签分类输入版块 */
 function post_tags_meta_box( $post, $box ) {
 	$defaults = array( 'taxonomy' => 'post_tag' );
 	if ( ! isset( $box['args'] ) || ! is_array( $box['args'] ) ) {
@@ -480,7 +484,7 @@ function post_tags_meta_box( $post, $box ) {
  *     }
  * }
  */
- /* 显示贴子所属分类 输入框(勾选) */
+ /* 编辑对象时, 显示在右侧的分类 输入框(勾选)版块 */
 function post_categories_meta_box( $post, $box ) {
 	$defaults = array( 'taxonomy' => 'category' );
 	if ( ! isset( $box['args'] ) || ! is_array( $box['args'] ) ) {
@@ -494,13 +498,13 @@ function post_categories_meta_box( $post, $box ) {
 	?>
 	<div id="taxonomy-<?php echo $tax_name; ?>" class="categorydiv">
 		<ul id="<?php echo $tax_name; ?>-tabs" class="category-tabs">
-			<li class="tabs"><a href="#<?php echo $tax_name; ?>-all"><?php echo $taxonomy->labels->all_items; ?></a></li>
+			<li class="tabs"><a href="#<?php echo $tax_name; ?>-all"><?php echo $taxonomy->labels->all_items; /***2个tab, 所有分类目录, 最常用的 */ ?></a></li>
 			<li class="hide-if-no-js"><a href="#<?php echo $tax_name; ?>-pop"><?php _e( 'Most Used' ); ?></a></li>
 		</ul>
 
 		<div id="<?php echo $tax_name; ?>-pop" class="tabs-panel" style="display: none;">
 			<ul id="<?php echo $tax_name; ?>checklist-pop" class="categorychecklist form-no-clear" >
-				<?php $popular_ids = wp_popular_terms_checklist( $tax_name ); ?>
+				<?php $popular_ids = wp_popular_terms_checklist( $tax_name ); /** 最常用的,前面有check的 */?>
 			</ul>
 		</div>
 
@@ -510,7 +514,7 @@ function post_categories_meta_box( $post, $box ) {
 			echo "<input type='hidden' name='{$name}[]' value='0' />"; // Allows for an empty term set to be sent. 0 is an invalid Term ID and will be ignored by empty() checks.
 			?>
 			<ul id="<?php echo $tax_name; ?>checklist" data-wp-lists="list:<?php echo $tax_name; ?>" class="categorychecklist form-no-clear">
-				<?php wp_terms_checklist( $post->ID, array( 'taxonomy' => $tax_name, 'popular_cats' => $popular_ids ) ); ?>
+				<?php wp_terms_checklist( $post->ID, array( 'taxonomy' => $tax_name, 'popular_cats' => $popular_ids ) ); /** 所有分类目录,前面有check的  */ ?>
 			</ul>
 		</div>
 	<?php if ( current_user_can( $taxonomy->cap->edit_terms ) ) : ?>

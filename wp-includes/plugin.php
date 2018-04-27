@@ -19,8 +19,8 @@
  * @since 1.5.0
  */
 /*
-Ö§³Ö²å¼şÏµÍ³µÄhook»úÖÆ
-¾­³£ÔÚfitlerÖĞÓÃµ½µÄ¼¸¸ö¿ìËÙ·µ»Øº¯Êı
+æ”¯æŒæ’ä»¶ç³»ç»Ÿçš„hookæœºåˆ¶
+ç»å¸¸åœ¨fitlerä¸­ç”¨åˆ°çš„å‡ ä¸ªå¿«é€Ÿè¿”å›å‡½æ•°
 function __return_true() {}
 function __return_false() {}
 function __return_zero() {}
@@ -28,7 +28,7 @@ function __return_empty_array() {}
 function __return_null() {}
 function __return_empty_string() {}
 
-ÓĞÈçÏÂÁ¬»·×´µÄhook,
+æœ‰å¦‚ä¸‹è¿ç¯çŠ¶çš„hook,
 add_action( 'init', 'foo1');
 add_action( 'foo1', 'foo2');
 add_action( 'foo2', 'foo3');
@@ -46,7 +46,7 @@ function foo3($arg) {
 	echo __METHOD__;
 	do_action('foo3');
 }
-½«»áÒÀ´ÎÏÔÊ¾foo1 foo2 foo3
+å°†ä¼šä¾æ¬¡æ˜¾ç¤ºfoo1 foo2 foo3
 */
 // Initialize the filter globals.
 global $wp_filter, $wp_actions, $merged_filters, $wp_current_filter;
@@ -130,11 +130,11 @@ if ( ! isset( $wp_current_filter ) )
  * @return true
  */
  /*
-ÔÚ$tagµãÂñÏÂ½«À´ÒªÖ´ĞĞµÄº¯Êı
- ÂñµãÊ±,³ıÁËÌá¹©º¯ÊıÃû$function_to_addÍâ, »¹ÒªÌá¹©º¯ÊıµÄ²ÎÊı¸öÊı$accepted_args
- $priorityĞ¡µÄÏÈÖ´ĞĞ
+åœ¨$tagç‚¹åŸ‹ä¸‹å°†æ¥è¦æ‰§è¡Œçš„å‡½æ•°
+ åŸ‹ç‚¹æ—¶,é™¤äº†æä¾›å‡½æ•°å$function_to_addå¤–, è¿˜è¦æä¾›å‡½æ•°çš„å‚æ•°ä¸ªæ•°$accepted_args
+ $priorityå°çš„å…ˆæ‰§è¡Œ
 
- add_filter(), add_action()¶¼ÊÇ¹²ÓÃÒ»¸öÈ«¾Ö±äÁ¿$wp_filter, ËùÒÔfilterºÍactionµÄtag²»ÄÜÏàÍ¬
+ add_filter(), add_action()éƒ½æ˜¯å…±ç”¨ä¸€ä¸ªå…¨å±€å˜é‡$wp_filter, æ‰€ä»¥filterå’Œactionçš„tagä¸èƒ½ç›¸åŒ
  */
 function add_filter( $tag, $function_to_add, $priority = 10, $accepted_args = 1 ) {
 	global $wp_filter, $merged_filters;
@@ -233,11 +233,11 @@ function has_filter($tag, $function_to_check = false) {
  * @return mixed The filtered value after all hooked functions are applied to it.
  */
  /*
-ÒÀ´ÎÖ´ĞĞ¹ÒÔÚ$tagÕâ¸öÃªµãÉÏµÄËùÓĞº¯Êı, 
-Ç°Ò»¸öº¯ÊıµÄ·µ»Ø½á¹û×÷ÎªÏÂÒ»¸öº¯ÊıµÄ´«Èë²ÎÊı
+ä¾æ¬¡æ‰§è¡ŒæŒ‚åœ¨$tagè¿™ä¸ªé”šç‚¹ä¸Šçš„æ‰€æœ‰å‡½æ•°, 
+å‰ä¸€ä¸ªå‡½æ•°çš„è¿”å›ç»“æœä½œä¸ºä¸‹ä¸€ä¸ªå‡½æ•°çš„ä¼ å…¥å‚æ•°
 
-±¾À´¿ÉÒÔÖ±½Ó$a = 840; µ«$a = apply_filters( 'twentysixteen_content_width', 840 );
-¸øÁËÍâÃæÒ»¸öĞŞÕıµÄ»ú»á, Èç¹ûÓĞ¹ÒÔÚ'twentysixteen_content_width'ÉÏµÄº¯Êı, È¡º¯Êı·µ»ØÖµ, ·ñÔò¾ÍÈ¡840
+æœ¬æ¥å¯ä»¥ç›´æ¥$a = 840; ä½†$a = apply_filters( 'twentysixteen_content_width', 840 );
+ç»™äº†å¤–é¢ä¸€ä¸ªä¿®æ­£çš„æœºä¼š, å¦‚æœæœ‰æŒ‚åœ¨'twentysixteen_content_width'ä¸Šçš„å‡½æ•°, å–å‡½æ•°è¿”å›å€¼, å¦åˆ™å°±å–840
  */
 function apply_filters( $tag, $value ) {
 	global $wp_filter, $merged_filters, $wp_current_filter;
@@ -262,7 +262,7 @@ function apply_filters( $tag, $value ) {
 
 	// Sort.
 	if ( !isset( $merged_filters[ $tag ] ) ) {
-		/* °´priorityÓÉĞ¡µ½´óÅÅĞò, Ğ¡µÄÏÈÖ´ĞĞ */
+		/* æŒ‰priorityç”±å°åˆ°å¤§æ’åº, å°çš„å…ˆæ‰§è¡Œ */
 		ksort($wp_filter[$tag]);
 		$merged_filters[ $tag ] = true;
 	}
@@ -362,7 +362,7 @@ function apply_filters_ref_array($tag, $args) {
  * @param int      $priority           Optional. The priority of the function. Default 10.
  * @return bool    Whether the function existed before it was removed.
  */
- /*** ¼ÙÈçadd_filter()Ê±priorityÊÇ9999, remove_filter()±ØĞëÖ¸¶¨²ÎÊı9999, ²ÅÄÜremoveµô */
+ /*** å‡å¦‚add_filter()æ—¶priorityæ˜¯9999, remove_filter()å¿…é¡»æŒ‡å®šå‚æ•°9999, æ‰èƒ½removeæ‰ */
 function remove_filter( $tag, $function_to_remove, $priority = 10 ) {
 	$function_to_remove = _wp_filter_build_unique_id( $tag, $function_to_remove, $priority );
 
@@ -531,7 +531,7 @@ function do_action($tag, $arg = '') {
 		$wp_actions[$tag] = 1;
 	else
 		/* 
-		Í³¼Æ¹¦ÄÜ, fireÒ»´Î¼Ó1 
+		ç»Ÿè®¡åŠŸèƒ½, fireä¸€æ¬¡åŠ 1 
 		add_action( 'shutdown', function(){
 		    print_r( $GLOBALS['wp_actions'] ); 
 		});		

@@ -13,14 +13,17 @@
  * @since 3.3.0
  */
  /*
- 这个类作用?
- 每一个后台用户都可以对每一个页面做个性化的参数设置, 如一页多少条记录, 这些设置保存在
- 数据库的wp_users_meta表中
+这个类作用?
+它其实就是当前页面, 那为什么不直接用文件名来表示, 要搞一个screen?
+在wp中,一个文件名可能代表不同类型的编辑页面, 
+比如edit.php文件, 在生成screen id时, 要根据post_type类型生成不同的id, 来代表不同的编辑页面, edit-post, edit-page, edit-{$post->post_type}
+
+每个screen有自己的帮助说明, 这个是固定的, 与user id无关;
+每个用户对每个screen还可以有不同的设置, 如字段, 页每条... (这种参数即user_id + screen_id 的值存在user meta中)
  
- 当前页面的个性化设置? 设置保存在哪里? 
-,保存动作在set_screen_options()中
-
-
+每一个后台用户都可以对每一个页面(screen_id?)做个性化的参数设置, 如一页多少条记录, 这些设置通过set_screen_options()保存在
+数据库的wp_users_meta表中
+ 
 如何为当前用户的当前页面设置Screen参数, 用法如下:
 $hook = add_menu_page( $pg_title, $menu_title, $cap, $slug, $function ); 
 add_action( "load-$hook", 'cmi_add_option' );
@@ -52,6 +55,23 @@ if ( empty( $per_page ) || $per_page < 1 )
 
 如果知道key, 直接从usermeta中取也是可以的
 $per_page = get_user_option( 'array_sample_per_page' );
+
+常见页面所对应的screen->id
+Comments 	'edit-comments'
+MS Sites	'sites-network'
+MS Themes	'themes-network' – individual blogs use 'themes'
+MS Users 	'users-network' – individual blogs use 'users'
+Plugins 	'plugins'*
+Posts	'edit-post' // post列表页screen id
+Pages	'edit-page'
+Custom Post types		edit-{$post->post_type}
+Categories	'edit-category'  // category列表页screen-id
+Tags		'edit-post_tag'
+Terms	edit-{$this->screen->taxonomy}
+Themes	'themes'*
+Media	'upload'
+Users	'users'*
+
 */
  
 final class WP_Screen {
@@ -260,6 +280,11 @@ final class WP_Screen {
 	 /***
 	 实例化一个WP_Screen对象, 有点像常见的get_instance()
 	 设置从哪里读取出来的, 从db中? 
+	 重点是根据参数生成screen id, 表明当前的页面
+
+         $post_type
+         'edit-' . $post_type
+	  'edit-' . $taxonomy
 	 */
 	public static function get( $hook_name = '' ) {
 		if ( $hook_name instanceof WP_Screen ) {
@@ -284,7 +309,7 @@ final class WP_Screen {
 				$id = substr( $id, 0, -4 );
 
 			if ( 'post-new' == $id || 'link-add' == $id || 'media-new' == $id || 'user-new' == $id ) {
-				$id = substr( $id, 0, -4 );
+				$id = substr( $id, 0, -4 ); // 去掉-new
 				$action = 'add';
 			}
 		}
@@ -362,12 +387,13 @@ final class WP_Screen {
 			case 'post' :
 				if ( null === $post_type )
 					$post_type = 'post';
+				// 编辑post时的页面id就取post_type	
 				$id = $post_type;
 				break;
 			case 'edit' :
 				if ( null === $post_type )
 					$post_type = 'post';
-				$id .= '-' . $post_type;
+				$id .= '-' . $post_type; // 列表页就取edit-$post_type
 				break;
 			case 'edit-tags' :
 			case 'term' :
@@ -380,7 +406,7 @@ final class WP_Screen {
 						$post_type = $_REQUEST['post_type'];
 				}
 
-				$id = 'edit-' . $taxonomy;
+				$id = 'edit-' . $taxonomy; // 分类列表页
 				break;
 		}
 
@@ -394,8 +420,11 @@ final class WP_Screen {
 
 		/***
 		整个函数中没看到用户id,
-		$id好象与是后台用户A还是用户B无关, 只与访问的页面有关? 
-		也就是说WP_Screen只是与页面有关, 或者说, 后台用户A对某个页面设置了参数, 用户B进来也适用?
+		$id好象与是后台用户A还是用户B无关, 只与访问的页面有关?  是的
+		也就是说WP_Screen只是与页面有关, 或者说, 后台用户A对某个页面设置了参数, 用户B进来也适用? 不适用, 
+		用户做的设置会通过user_id + WP_Screen 将值设置到db中
+
+              这个只是定义页面(screen)id，当然不会有用户id              
 		*/
 		if ( isset( self::$_registry[ $id ] ) ) {
 			$screen = self::$_registry[ $id ];

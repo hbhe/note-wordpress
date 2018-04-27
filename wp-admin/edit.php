@@ -7,12 +7,28 @@
  */
 
 /***
-新增或编辑post时, 默认是不出现摘要输入框的, 在screen option中勾选一下就出来了 
+edit.php 列表页(及对本页的处理), 后面带post_type参数表示对不同类型对象的列表页，(edit.php?post_type=page, edit.php?post_type=product, edit.php?post_type=order, ...), 不同类型怎么显示不同字段?
+在screen option中勾选一下可以选择要显示的字段、每页条数
+post-new.php 新增, 后面可带post_type参数,表示对不同类型的新增, post-new.php?post_type=page, post-new.php?post_type=product, post-new.php?post_type=order
+post.php 修改页
+
+edit-tags.php?taxonomy=xxx 分类列表页
+
+upload.php是图片(媒体)列表
+media-new.php 新增图片(媒体)页
+post.php修改页
+
+
+screen option, screen help
+标题, 新建
+list_table->views(), list_table->search()
+list_table->bulk_actions(), list_table->extra_tablenav()过滤, list_table->pagination()
 */
 
 /** WordPress Administration Bootstrap */
 require_once( dirname( __FILE__ ) . '/admin.php' );
 
+/** 先取post_type参数，看要列表的是什么post_type类型的 */
 if ( ! $typenow )
 	wp_die( __( 'Invalid post type' ) );
 
@@ -21,6 +37,7 @@ if ( ! in_array( $typenow, get_post_types( array( 'show_ui' => true ) ) ) ) {
 }
 
 if ( 'attachment' === $typenow ) {
+        /** 如果是edit.php?post_type=attachment ,直接跳到媒体图片列表页upload.php */
 	if ( wp_redirect( admin_url( 'upload.php' ) ) ) {
 		exit;
 	}
@@ -46,6 +63,9 @@ if ( ! current_user_can( $post_type_object->cap->edit_posts ) ) {
 	);
 }
 
+/*** new一个WP_Posts_List_Table列表, 
+page, post, 自定义的product, shop_order都使用这个list table, 通过勾子可以自定义表头的 
+*/
 $wp_list_table = _get_list_table('WP_Posts_List_Table');
 $pagenum = $wp_list_table->get_pagenum();
 
@@ -59,19 +79,20 @@ foreach ( array( 'p', 'attachment_id', 'page_id' ) as $_redirect ) {
 unset( $_redirect );
 
 if ( 'post' != $post_type ) {
+        /** 除post文章之外其它post_type, 包括page, order, product, ...等, 只需要edit.php?post_type 带参数 */
 	$parent_file = "edit.php?post_type=$post_type";
 	$submenu_file = "edit.php?post_type=$post_type";
-	// 新增页面
 	$post_new_file = "post-new.php?post_type=$post_type";
 } else {
+        /*** 不带参数,认为是post_type=post */
 	$parent_file = 'edit.php';
 	$submenu_file = 'edit.php';
-	// 新增贴子
 	$post_new_file = 'post-new.php';
 }
 
 $doaction = $wp_list_table->current_action();
 
+/** 处理列表页中的操作 */
 if ( $doaction ) {
 	check_admin_referer('bulk-posts');
 
@@ -186,7 +207,7 @@ wp_enqueue_script('heartbeat');
 
 $title = $post_type_object->labels->name;
 
-/* 帮助 */
+/* 帮助，post, page 之外的帮助在哪里? */
 if ( 'post' == $post_type ) {
 	get_current_screen()->add_help_tab( array(
 	'id'		=> 'overview',
@@ -312,6 +333,7 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 ?>
 <div class="wrap">
 <h1><?php
+/*** post_type名, 新建链接 */
 echo esc_html( $post_type_object->labels->name );
 if ( current_user_can( $post_type_object->cap->create_posts ) )
 	echo ' <a href="' . esc_url( admin_url( $post_new_file ) ) . '" class="page-title-action">' . esc_html( $post_type_object->labels->add_new ) . '</a>';
@@ -344,7 +366,7 @@ unset( $messages );
 $_SERVER['REQUEST_URI'] = remove_query_arg( array( 'locked', 'skipped', 'updated', 'deleted', 'trashed', 'untrashed' ), $_SERVER['REQUEST_URI'] );
 ?>
 
-<?php $wp_list_table->views(); ?>
+<?php $wp_list_table->views(); /*** 全部（36） | 已发布（35） | 置顶（1） | 草稿（1） */  ?>
 
 <form id="posts-filter" method="get">
 
@@ -356,13 +378,13 @@ $_SERVER['REQUEST_URI'] = remove_query_arg( array( 'locked', 'skipped', 'updated
 <input type="hidden" name="show_sticky" value="1" />
 <?php } ?>
 
-<?php $wp_list_table->display(); /***显示批操作, 分页, 表头, 表体... */  ?>
+<?php $wp_list_table->display(); /***显示批操作, 筛选版块, 分页, 表头, 表体... */  ?>
 
 </form>
 
 <?php
 if ( $wp_list_table->has_items() )
-	$wp_list_table->inline_edit();
+	$wp_list_table->inline_edit(); /** 快速编辑? */
 ?>
 
 <div id="ajax-response"></div>

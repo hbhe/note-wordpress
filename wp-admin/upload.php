@@ -11,7 +11,7 @@
 这几个文件分别起什么作用?
 upload.php 媒体列表
 media.php
-media-new.php
+media-new.php 上传
 media-upload.php
 
 */

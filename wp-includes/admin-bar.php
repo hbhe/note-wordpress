@@ -7,8 +7,11 @@
  * @since 3.1.0
  */
  /*
-管理后台上方工具条是一个WP_Admin_Bar对象,
+管理后台上方顶部工具条是一个WP_Admin_Bar对象,
 里面装了很多菜单(或称node)，及子菜单, 见add_menus()
+
+通过add_action( 'admin_bar_menu', array( $this, 'my_admin_bar_menus' ), 31 );可在顶部加点东西?
+
  */
  
 /**
@@ -107,6 +110,9 @@ function wp_admin_bar_render() {
  * @since 3.3.0
  *
  * @param WP_Admin_Bar $wp_admin_bar
+ */
+ /**
+顶部wp logo及下拉菜单
  */
 function wp_admin_bar_wp_menu( $wp_admin_bar ) {
 	$wp_admin_bar->add_menu( array(

@@ -9,12 +9,17 @@
  */
 
 /*
+1. 显示post修改页面
+2. 处理post修改页面、post-new新增页面的提交上来的form 数据
+
 编辑贴子(贴子的内容包括常规数据和meta数据), 
 显示form与form处理都在此文件内
 
+列表页edit.php?post_type=page   (或post_type=shop_order),  图片列表页是upload.php, 新增图片是media-new.php
 新增贴子是post-new.php
 编辑贴子是post.php?post=238&action=edit
-2者都会include edit-form-advanced.php
+处理form是post.php?post=238&action=editpost
+新增和编辑页都会include edit-form-advanced.php, 2者提交时都会交给post.php处理(action=editpost)
 */
 
 /** WordPress Administration Bootstrap */
@@ -23,6 +28,7 @@ require_once( dirname( __FILE__ ) . '/admin.php' );
 $parent_file = 'edit.php';
 $submenu_file = 'edit.php';
 
+//取$action = $_POST['action'];
 wp_reset_vars( array( 'action' ) );
 
 if ( isset( $_GET['post'] ) )
@@ -106,7 +112,9 @@ case 'post':
 	exit();
 
 case 'edit':
-	/* 编辑 */
+	/* edit 与editpost的区别? 
+	edit是负责显示修改页面html, editpost时表示是POST页面，要处理数据
+	*/
 	$editing = true;
 
 	if ( empty( $post_id ) ) {
@@ -181,7 +189,7 @@ case 'edit':
 		enqueue_comment_hotkeys_js();
 	}
 
-	/* 输出编辑贴子的form  */
+	/* 显示输出编辑贴子的form  , 处理时是case 'editpost': */
 	include( ABSPATH . 'wp-admin/edit-form-advanced.php' );
 
 	break;
@@ -203,6 +211,7 @@ case 'editpost':
 	/* 处理post提交 , 保存贴子中的常规数据和meta数据*/
 	check_admin_referer('update-post_' . $post_id);
 
+        /** 处理数据，edit_post()中会触发do_action( 'save_post',...), 利用这个可以保存metabox中输入的数据  */
 	$post_id = edit_post();
 
 	// Session cookie flag that the post was saved
@@ -215,6 +224,7 @@ case 'editpost':
 	exit();
 
 case 'trash':
+        /** 扔到垃圾箱 */
 	check_admin_referer('trash-post_' . $post_id);
 
 	if ( ! $post )
@@ -256,6 +266,7 @@ case 'untrash':
 	exit();
 
 case 'delete':
+        /*** 删除 */
 	check_admin_referer('delete-post_' . $post_id);
 
 	if ( ! $post )

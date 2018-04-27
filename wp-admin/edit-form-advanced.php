@@ -6,7 +6,23 @@
  * @subpackage Administration
  */
 /***
-编辑贴子时的输入界面
+新增(post-new.php)或编辑(post.php)时都要调用的输入界面
+
+此页面由很多版块组成, 大多数版块由metabox组成, 如
+
+if ( post_type_supports($post_type, 'title') ) { // 如果support title
+    <input type="text" name="post_title" size="30" value="<?php echo esc_attr( $post->post_title );    
+}
+
+if ( post_type_supports($post_type, 'editor') ) { // 如需显示post内容
+    ...
+}
+
+if ( post_type_supports($post_type, 'excerpt') ) { // 如excerpt控制开关为true
+	add_meta_box('postexcerpt', __('Excerpt'), 'post_excerpt_meta_box', null, 'normal', 'core');  
+}
+
+所有的版块都可以通过remove_meta_box()强行拿掉
 */
 // don't load directly
 if ( !defined('ABSPATH') )
@@ -200,6 +216,7 @@ if ( 'auto-draft' == $post->post_status ) {
 	$autosave = wp_get_post_autosave( $post_ID );
 }
 
+/** 提交form时, 字段action=editpost, 表单提交到post.php */
 $form_action = 'editpost';
 $nonce_action = 'update-post_' . $post_ID;
 $form_extra .= "<input type='hidden' id='post_ID' name='post_ID' value='" . esc_attr($post_ID) . "' />";
@@ -221,10 +238,10 @@ if ( $autosave && mysql2date( 'U', $autosave->post_modified_gmt, false ) > mysql
 $post_type_object = get_post_type_object($post_type);
 
 // All meta boxes should be defined and added before the first do_meta_boxes() call (or potentially during the do_meta_boxes action).
-/*** meta-boxes.php文件提供了一些生成输入框(metabox)的一些函数 */
+/*** meta-boxes.php文件有一些系统内置的输入版块(metabox) */
 require_once( ABSPATH . 'wp-admin/includes/meta-boxes.php' );
 
-/* 以下根据post_type的类型, 开始使用前面提供的函数 */
+/* 以下根据post_type的类型, 开始使用前面提供的函数, 挂各种版块 */
 
 $publish_callback_args = null;
 
@@ -236,14 +253,18 @@ if ( post_type_supports($post_type, 'revisions') && 'auto-draft' != $post->post_
 	if ( count( $revisions ) > 1 ) {
 		reset( $revisions ); // Reset pointer for key()
 		$publish_callback_args = array( 'revisions_count' => count( $revisions ), 'revision_id' => key( $revisions ) );
-		/*** 调用post_revisions_meta_box()生成,normal表示在中间正常位置, side表示侧栏, advanced表示什么位置? */
+		/*** 调用post_revisions_meta_box()生成,normal表示在中间正常位置, side表示侧栏, advanced表示什么位置? 
+              注意, 输入界面几乎全部是以metabox版块的形式拼成的! 
+		*/
 		add_meta_box('revisionsdiv', __('Revisions'), 'post_revisions_meta_box', null, 'normal', 'core');
 	}
 }
 
+// 编辑媒体时
 if ( 'attachment' == $post_type ) {
 	wp_enqueue_script( 'image-edit' );
 	wp_enqueue_style( 'imgareaselect' );
+	// 右侧图片的提交版块
 	add_meta_box( 'submitdiv', __('Save'), 'attachment_submit_meta_box', null, 'side', 'core' );
 	add_action( 'edit_form_after_title', 'edit_form_image_editor' );
 
@@ -251,7 +272,8 @@ if ( 'attachment' == $post_type ) {
 		add_meta_box( 'attachment-id3', __( 'Metadata' ), 'attachment_id3_data_meta_box', null, 'normal', 'core' );
 	}
 } else {
-	/* 除post_type类型为'attachment' 之外的所有其它post, 都要有'发布'输入框
+        /** 正常的发布(保存)版块 , 这个不受support控制, 但是还是可以通过remove_meta_box() remove掉的
+	除post_type类型为'attachment' 之外的所有其它post, 都要有'发布'输入框
 	如果想改变下发布metabox,如将发布改为'保存'，可以在模板代码中
 	 先remove_meta_box('submitdiv', $item, 'core'); // $item represents post_type
         再add_meta_box('submitdiv', sprintf( __('Save/Update %s'), $value ), ... )
@@ -277,7 +299,9 @@ foreach ( get_object_taxonomies( $post ) as $tax_name ) {
 		$tax_meta_box_id = 'tagsdiv-' . $tax_name;
 	else
 		$tax_meta_box_id = $tax_name . 'div';
-
+        /*** 此post有多少个taxonomy显示多少个输入版块,  meta_box_cb()显示输入界面, 
+        它是在register_taxonomy()时指定的 , 默认category的metabox是post_categories_meta_box(), tag的是post_tags_meta_box        
+        */
 	add_meta_box( $tax_meta_box_id, $label, $taxonomy->meta_box_cb, null, 'side', 'core', array( 'taxonomy' => $tax_name ) );
 }
 
@@ -296,6 +320,7 @@ if ( post_type_supports($post_type, 'excerpt') )
 if ( post_type_supports($post_type, 'trackbacks') )
 	add_meta_box('trackbacksdiv', __('Send Trackbacks'), 'post_trackback_meta_box', null, 'normal', 'core');
 
+/*** 自定义版块 */
 if ( post_type_supports($post_type, 'custom-fields') )
 	add_meta_box('postcustom', __('Custom Fields'), 'post_custom_meta_box', null, 'normal', 'core');
 
@@ -312,6 +337,7 @@ do_action( 'dbx_post_advanced', $post );
 // Allow the Discussion meta box to show up if the post type supports comments,
 // or if comments or pings are open.
 if ( comments_open( $post ) || pings_open( $post ) || post_type_supports( $post_type, 'comments' ) ) {
+        /** 讨论版块, 即设置此post是否允许评论 */
 	add_meta_box( 'commentstatusdiv', __( 'Discussion' ), 'post_comment_status_meta_box', null, 'normal', 'core' );
 }
 
@@ -324,6 +350,7 @@ $stati[] = 'private';
 if ( in_array( get_post_status( $post ), $stati ) ) {
 	// If the post type support comments, or the post has comments, allow the
 	// Comments meta box.
+	/** 评论列表版块 */
 	if ( comments_open( $post ) || pings_open( $post ) || $post->comment_count > 0 || post_type_supports( $post_type, 'comments' ) ) {
 		add_meta_box( 'commentsdiv', __( 'Comments' ), 'post_comment_meta_box', null, 'normal', 'core' );
 	}
@@ -333,7 +360,7 @@ if ( in_array( get_post_status( $post ), $stati ) ) {
 if ( ! ( 'pending' == get_post_status( $post ) && ! current_user_can( $post_type_object->cap->publish_posts ) ) )
 	add_meta_box('slugdiv', __('Slug'), 'post_slug_meta_box', null, 'normal', 'core');
 
-/*** add_meta_box 登记产生作者输入框的函数 */
+/*** 作者版块, add_meta_box 登记产生作者输入框的函数 */
 if ( post_type_supports($post_type, 'author') ) {
 	if ( is_super_admin() || current_user_can( $post_type_object->cap->edit_others_posts ) )
 		add_meta_box('authordiv', __('Author'), 'post_author_meta_box', null, 'normal', 'core');
@@ -347,7 +374,12 @@ if ( post_type_supports($post_type, 'author') ) {
  * @param string  $post_type Post type.
  * @param WP_Post $post      Post object.
  */
- /*** 让用户也有机会加自已的输入表单(metabox) */
+ /*** 
+ 让用户也有机会加自已的输入表单(metabox) 
+// 在编辑订单时, 加个订单数据metabox
+add_meta_box( 'woocommerce-order-data', sprintf( __( '%s Data', 'woocommerce' ), 'shop_order' ), 'WC_Meta_Box_Order_Data::output', $type, 'normal', 'high' );
+ 
+ */
 do_action( 'add_meta_boxes', $post_type, $post );
 
 /**
@@ -377,7 +409,9 @@ normal, advanced, side 什么意思
 分别表示metabox在页面的什么位置
 */
 
-/*** 这个hook什么用? 给别人一个机会，调整normal位置的metabox ? */
+/*** 这个hook什么用?  给别人一个机会，调整normal位置的metabox ? 
+现在就显示metabox html?
+*/
 do_action( 'do_meta_boxes', $post_type, 'normal', $post );
 
 /** This action is documented in wp-admin/edit-form-advanced.php */
@@ -511,7 +545,7 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 
 <div class="wrap">
 <h1><?php
-echo esc_html( $title ); /* 显示'编辑文章' */
+echo esc_html( $title ); /* 显示'编辑文章'这几个字 */
 if ( isset( $post_new_file ) && current_user_can( $post_type_object->cap->create_posts ) )
 	echo ' <a href="' . esc_url( admin_url( $post_new_file ) ) . '" class="page-title-action">' . esc_html( $post_type_object->labels->add_new ) . '</a>'; /* 显示'写文章' 链接*/
 ?></h1>
@@ -527,7 +561,7 @@ if ( isset( $post_new_file ) && current_user_can( $post_type_object->cap->create
 	</p>
 </div>
 <form name="post" action="post.php" method="post" id="post"<?php
-/* 处理form中输入title, content, metadata的是post.php */ 
+/* 处理form中输入title, content, metadata的是post.php,  整个页面只有一个form  */ 
 /**
  * Fires inside the post editor form tag.
  *
@@ -576,7 +610,7 @@ do_action( 'edit_form_top', $post ); ?>
 <div id="post-body" class="metabox-holder columns-<?php echo 1 == get_current_screen()->get_columns() ? '1' : '2'; ?>">
 <div id="post-body-content">
 
-<?php if ( post_type_supports($post_type, 'title') ) { ?>
+<?php if ( post_type_supports($post_type, 'title') ) { /*** 如果支持编辑'标题', 这个不是metabox */  ?>
 <div id="titlediv">
 <div id="titlewrap">
 	<?php
@@ -591,7 +625,7 @@ do_action( 'edit_form_top', $post ); ?>
 	$title_placeholder = apply_filters( 'enter_title_here', __( 'Enter title here' ), $post );
 	?>
 	<label class="screen-reader-text" id="title-prompt-text" for="title"><?php echo $title_placeholder; ?></label>
-	<input type="text" name="post_title" size="30" value="<?php echo esc_attr( $post->post_title ); /* 贴子标题 */ ?>" id="title" spellcheck="true" autocomplete="off" />
+	<input type="text" name="post_title" size="30" value="<?php echo esc_attr( $post->post_title ); /* post的标题 */ ?>" id="title" spellcheck="true" autocomplete="off" />
 </div>
 <?php
 /**
@@ -789,6 +823,7 @@ do_action( 'dbx_post_sidebar', $post );
 </div>
 
 <?php
+/* form结束, 整个页面只有一个form */
 if ( post_type_supports( $post_type, 'comments' ) )
 	wp_comment_reply();
 ?>

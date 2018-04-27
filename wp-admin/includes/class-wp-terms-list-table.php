@@ -571,6 +571,7 @@ class WP_Terms_List_Table extends WP_List_Table {
 		 * @param string $column_name Name of the column.
 		 * @param int    $term_id     Term ID.
 		 */
+		 /** 获取自定义字段的值 */
 		return apply_filters( "manage_{$this->screen->taxonomy}_custom_column", '', $column_name, $tag->term_id );
 	}
 

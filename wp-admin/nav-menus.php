@@ -9,7 +9,8 @@
  * @subpackage Administration
  */
 /*
-菜单
+菜单拖放页
+如果往菜单拖放页中加入自己的拖放模块? 见http://www.johnmorrisonline.com/how-to-add-a-fully-functional-custom-meta-box-to-wordpress-navigation-menus/
 */
 
 /** Load WordPress Administration Bootstrap */
@@ -501,6 +502,7 @@ switch ( $action ) {
 }
 
 // Get all nav menus.
+ /** 从db中得到菜单集合名, 即那些taxnomy=nav_menu的term*/
 $nav_menus = wp_get_nav_menus();
 $menu_count = count( $nav_menus );
 
@@ -614,13 +616,17 @@ function wp_nav_menu_max_depth( $classes ) {
 
 add_filter('admin_body_class', 'wp_nav_menu_max_depth');
 
+/***
+哪些东西可以被拉到右边的集合中? 像post_type, taxnomy, 这些都可以, 把这些东西做成metabox, 放在左侧手风琴中
+根据注册的post_type, taxnomy生成metabox, 后面do_accordion_sections()时会显示这些metabox
+*/
 wp_nav_menu_setup();
 wp_initial_nav_menu_meta_boxes();
 
 if ( ! current_theme_supports( 'menus' ) && ! $num_locations )
 	$messages[] = '<div id="message" class="updated"><p>' . sprintf( __( 'Your theme does not natively support menus, but you can use them in sidebars by adding a &#8220;Custom Menu&#8221; widget on the <a href="%s">Widgets</a> screen.' ), admin_url( 'widgets.php' ) ) . '</p></div>';
 
-if ( ! $locations_screen ) : // Main tab
+if ( ! $locations_screen ) : // Main tab  编辑菜单
 	$overview  = '<p>' . __( 'This screen is used for managing your custom navigation menus.' ) . '</p>';
 	$overview .= '<p>' . sprintf( __( 'Menus can be displayed in locations defined by your theme, even used in sidebars by adding a &#8220;Custom Menu&#8221; widget on the <a href="%1$s">Widgets</a> screen. If your theme does not support the custom menus feature (the default themes, %2$s and %3$s, do), you can learn about adding this support by following the Documentation link to the side.' ), admin_url( 'widgets.php' ), 'Twenty Fifteen', 'Twenty Fourteen' ) . '</p>';
 	$overview .= '<p>' . __( 'From this screen you can:' ) . '</p>';
@@ -656,7 +662,7 @@ if ( ! $locations_screen ) : // Main tab
 		'title'   => __( 'Editing Menus' ),
 		'content' => $editing_menus
 	) );
-else : // Locations Tab.
+else : // Locations Tab.   管理位置
 	$locations_overview  = '<p>' . __( 'This screen is used for globally assigning menus to locations defined by your theme.' ) . '</p>';
 	$locations_overview .= '<ul><li>' . __( 'To assign menus to one or more theme locations, <strong>select a menu from each location&#8217;s drop down.</strong> When you&#8217;re finished, <strong>click Save Changes</strong>' ) . '</li>';
 	$locations_overview .= '<li>' . __( 'To edit a menu currently assigned to a theme location, <strong>click the adjacent &#8217;Edit&#8217; link</strong>' ) . '</li>';
@@ -681,6 +687,7 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 <div class="wrap">
 	<h1><?php echo esc_html( __( 'Menus' ) ); ?>
 		<?php
+		/*** 在定制器中管理 */
 		if ( current_user_can( 'customize' ) ) :
 			$focus = $locations_screen ? array( 'section' => 'menu_locations' ) : array( 'panel' => 'nav_menus' );
 			printf(
@@ -700,6 +707,7 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 			<a href="<?php echo esc_url( add_query_arg( array( 'action' => 'locations' ), admin_url( 'nav-menus.php' ) ) ); ?>" class="nav-tab<?php if ( $locations_screen ) echo ' nav-tab-active'; ?>"><?php esc_html_e( 'Manage Locations' ); ?></a>
 		<?php
 			endif;
+			/*** 显示tabs: 编辑菜单、管理位置 */
 		?>
 	</h2>
 	<?php
@@ -708,6 +716,7 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 	endforeach;
 	?>
 	<?php
+	/*** 如果是管理位置页面 */
 	if ( $locations_screen ) :
 		if ( 1 == $num_locations ) {
 			echo '<p>' . __( 'Your theme supports one menu. Select which menu you would like to use.' ) . '</p>';
@@ -720,8 +729,8 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 			<table class="widefat fixed" id="menu-locations-table">
 				<thead>
 				<tr>
-					<th scope="col" class="manage-column column-locations"><?php _e( 'Theme Location' ); ?></th>
-					<th scope="col" class="manage-column column-menus"><?php _e( 'Assigned Menu' ); ?></th>
+					<th scope="col" class="manage-column column-locations"><?php _e( 'Theme Location' ); /** 主题位置 */ ?></th>
+					<th scope="col" class="manage-column column-menus"><?php _e( 'Assigned Menu' ); /** 已指派的菜单*/ ?></th>
 				</tr>
 				</thead>
 				<tbody class="menu-locations">
@@ -769,7 +778,7 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 	 * @since 3.6.0
 	 */
 	do_action( 'after_menu_locations_table' ); ?>
-	<?php else : ?>
+	<?php else : 	/*** 否则编辑菜单页面 */ ?>
 	<div class="manage-menus">
  		<?php if ( $menu_count < 2 ) : ?>
 		<span class="add-edit-menu-action">
@@ -777,13 +786,13 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 		</span><!-- /add-edit-menu-action -->
 		<?php else : ?>
 			<form method="get" action="<?php echo admin_url( 'nav-menus.php' ); ?>">
-			<input type="hidden" name="action" value="edit" />
-			<label for="select-menu-to-edit" class="selected-menu"><?php _e( 'Select a menu to edit:' ); ?></label>
+		        <input type="hidden" name="action" value="edit" />
+			<label for="select-menu-to-edit" class="selected-menu"><?php _e( 'Select a menu to edit:' ); /*** 选择要编辑的菜单或者创建新菜单  */?></label>
 			<select name="menu" id="select-menu-to-edit">
 				<?php if ( $add_new_screen ) : ?>
 					<option value="0" selected="selected"><?php _e( '&mdash; Select &mdash;' ); ?></option>
 				<?php endif; ?>
-				<?php foreach ( (array) $nav_menus as $_nav_menu ) : ?>
+				<?php foreach ( (array) $nav_menus as $_nav_menu ) : /*** 下拉菜单集合名 */?>
 					<option value="<?php echo esc_attr( $_nav_menu->term_id ); ?>" <?php selected( $_nav_menu->term_id, $nav_menu_selected_id ); ?>>
 						<?php
 						echo esc_html( $_nav_menu->truncated_name ) ;
@@ -817,7 +826,7 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 					</option>
 				<?php endforeach; ?>
 			</select>
-			<span class="submit-btn"><input type="submit" class="button-secondary" value="<?php esc_attr_e( 'Select' ); ?>"></span>
+			<span class="submit-btn"><input type="submit" class="button-secondary" value="<?php esc_attr_e( 'Select' ); /*** 选择一个菜单集 */ ?>"></span>
 			<span class="add-new-menu-action">
 				<?php printf( __( 'or <a href="%s">create a new menu</a>.' ), esc_url( add_query_arg( array( 'action' => 'edit', 'menu' => 0 ), admin_url( 'nav-menus.php' ) ) ) ); ?>
 			</span><!-- /add-new-menu-action -->
@@ -833,7 +842,7 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 			<input type="hidden" name="menu" id="nav-menu-meta-object-id" value="<?php echo esc_attr( $nav_menu_selected_id ); ?>" />
 			<input type="hidden" name="action" value="add-menu-item" />
 			<?php wp_nonce_field( 'add-menu_item', 'menu-settings-column-nonce' ); ?>
-			<?php do_accordion_sections( 'nav-menus', 'side', null ); ?>
+			<?php do_accordion_sections( 'nav-menus', 'side', null ); /*** 左侧手风琴, 可以被用来拉到右边菜单集合中 */?>
 		</form>
 
 	</div><!-- /#menu-settings-column -->

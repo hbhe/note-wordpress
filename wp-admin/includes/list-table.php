@@ -20,6 +20,7 @@
  * @return object|bool Object on success, false if the class does not exist.
  */
 function _get_list_table( $class, $args = array() ) {
+        /** 系统内置了很多列表类 */
 	$core_classes = array(
 		//Site Admin
 		'WP_Posts_List_Table' => 'posts',

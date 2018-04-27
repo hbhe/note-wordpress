@@ -14,7 +14,7 @@ if ( defined('WP_USE_THEMES') && WP_USE_THEMES )
 	 *
 	 * @since 1.5.0
 	 */
-	 /***  ÔÚ²â¶¨Ä£°åÖ®Ç°, ¿ÉÒÔ×öµãÊÂ, ±ÈÈçÖ±½ÓÌø×ß(wp_redirect) */
+	 /***  åœ¨æµ‹å®šæ¨¡æ¿ä¹‹å‰, å¯ä»¥åšç‚¹äº‹, æ¯”å¦‚ç›´æ¥è·³èµ°(wp_redirect) */
 	do_action( 'template_redirect' );
 
 /**
@@ -27,7 +27,7 @@ if ( defined('WP_USE_THEMES') && WP_USE_THEMES )
  *
  * @param bool $exit Whether to exit without generating any content for 'HEAD' requests. Default true.
  */
- /* Èç¹ûÊÇHTTP HEADÇëÇó,¾Í²»·¢ÄÚÈİÁË */
+ /* å¦‚æœæ˜¯HTTP HEADè¯·æ±‚,å°±ä¸å‘å†…å®¹äº† */
 if ( 'HEAD' === $_SERVER['REQUEST_METHOD'] && apply_filters( 'exit_on_http_head', true ) )
 	exit();
 
@@ -42,15 +42,15 @@ if ( is_robots() ) :
 	return;
 elseif ( is_feed() ) :
 	/* 
-	http://127.0.0.1/note-wordpress/index.php?feed=rss2 ±íÊ¾¶©ÔÄ¸ÃÍøÕ¾µÄÌù×Ó,
-	http://127.0.0.1/note-wordpress/?feed=comments-rss2 ±íÊ¾¶©ÔÄ¸ÃÍøÕ¾µÄÆÀÂÛ
+	http://127.0.0.1/note-wordpress/index.php?feed=rss2 è¡¨ç¤ºè®¢é˜…è¯¥ç½‘ç«™çš„è´´å­,
+	http://127.0.0.1/note-wordpress/?feed=comments-rss2 è¡¨ç¤ºè®¢é˜…è¯¥ç½‘ç«™çš„è¯„è®º
 	
-	Ê¹ÓÃrss¼¼Êõ, Äã¿ÉÒÔ²»ÓÃ½øÈëÄ³ÍøÕ¾, ¾ÍµÃµ½ËüµÄ×îĞÂÎÄÕÂÁĞ±í
-	±ÈÈçÓÃfirefox(»òÆärssÔÄ¶Á¹¤¾ß)·ÃÎÊ´ËÁ´½Ó, ¾Í»áµÃµ½Ò»¸öxmlÏìÓ¦, firefox»á´ò¿ªÒ»¸öÒ³Ãæ, °ÑËü¼ÓÈëÊéÇ©,
-	ÒÔºóÔÚ·ÃÎÊ´ËÊéÇ©Ê±, »á×Ô¶¯µÃµ½Ò»¸ö¹Ø×¢ÍøÕ¾µÄ×îĞÂÎÄÕÂÁĞ±í,µã»÷ÁĞ±íÉÏµÄ
-	Á´½Ó¾Í»á½øÈë±»¹Ø×¢µÄÍøÕ¾ÁË.
+	ä½¿ç”¨rssæŠ€æœ¯, ä½ å¯ä»¥ä¸ç”¨è¿›å…¥æŸç½‘ç«™, å°±å¾—åˆ°å®ƒçš„æœ€æ–°æ–‡ç« åˆ—è¡¨
+	æ¯”å¦‚ç”¨firefox(æˆ–å…¶rssé˜…è¯»å·¥å…·)è®¿é—®æ­¤é“¾æ¥, å°±ä¼šå¾—åˆ°ä¸€ä¸ªxmlå“åº”, firefoxä¼šæ‰“å¼€ä¸€ä¸ªé¡µé¢, æŠŠå®ƒåŠ å…¥ä¹¦ç­¾,
+	ä»¥ååœ¨è®¿é—®æ­¤ä¹¦ç­¾æ—¶, ä¼šè‡ªåŠ¨å¾—åˆ°ä¸€ä¸ªå…³æ³¨ç½‘ç«™çš„æœ€æ–°æ–‡ç« åˆ—è¡¨,ç‚¹å‡»åˆ—è¡¨ä¸Šçš„
+	é“¾æ¥å°±ä¼šè¿›å…¥è¢«å…³æ³¨çš„ç½‘ç«™äº†.
 			
-	·µ¼ÓÌù×Ó»òÆÀÂÛµÄxmlÏìÓ¦,°üÀ¨×÷ÕßºÍ¸üĞÂÊ±¼ä 
+	è¿”åŠ è´´å­æˆ–è¯„è®ºçš„xmlå“åº”,åŒ…æ‹¬ä½œè€…å’Œæ›´æ–°æ—¶é—´ 
 	*/
 	do_feed();
 	return;
@@ -60,34 +60,34 @@ elseif ( is_trackback() ) :
 endif;
 
  /*
- ¸ù¾İÇëÇóÖ´ĞĞÏàÓ¦µÄphpÄ£°åÎÄ¼ş, Èç
- ËÑË÷-> search.php
+ æ ¹æ®è¯·æ±‚æ‰§è¡Œç›¸åº”çš„phpæ¨¡æ¿æ–‡ä»¶, å¦‚
+ æœç´¢-> search.php
  error -> 404.php
- ÎÄÕÂ¹éµµ-> archive.php
-index.phpÊÇÕÒ²»µ½ÏàÓ¦µÄÄ£°åÎÄ¼şÖ®ºó, ²»µÃÒÑ×îºóµÄÑ¡Ôñ, ²¢²»ÊÇ´ú±íÊ×Ò³, home.php²ÅÊÇÊ×Ò³Ä£°åÎÄ¼ş
-front-page.phpÓëhome.phpµÄÇø±ğ?
+ æ–‡ç« å½’æ¡£-> archive.php
+index.phpæ˜¯æ‰¾ä¸åˆ°ç›¸åº”çš„æ¨¡æ¿æ–‡ä»¶ä¹‹å, ä¸å¾—å·²æœ€åçš„é€‰æ‹©, å¹¶ä¸æ˜¯ä»£è¡¨é¦–é¡µ, home.phpæ‰æ˜¯é¦–é¡µæ¨¡æ¿æ–‡ä»¶
+front-page.phpä¸home.phpçš„åŒºåˆ«?
  */
 if ( defined('WP_USE_THEMES') && WP_USE_THEMES ) :
 	$template = false;
 	if     ( is_embed()          && $template = get_embed_template()          ) :
 	elseif ( is_404()            && $template = get_404_template()            ) :
 	elseif ( is_search()         && $template = get_search_template()         ) :
-	elseif ( is_front_page()     && $template = get_front_page_template()     ) :		/*** È¡front-page.php */
+	elseif ( is_front_page()     && $template = get_front_page_template()     ) :		/*** å–front-page.php */
 	/*
-	Ç°ÃæÖ´ĞĞparse_query()Ê±¸ù¾İÇëÇóÊ±$_GETÖĞµÄËù´ø²ÎÊı, ÅĞ¶ÏÕâ¸öÇëÇóÊÇhomeÒ³»¹ÊÇ±ğµÄÒ³Ãæ
-	Èç¹ûÊÇÊ×Ò³, µ½ÏàÓ¦themeÄ¿Â¼ÏÂÈ¡home.php(»òindex.php)Õâ¸öviewÄ£°åÎÄ¼ş,µÃµ½ÎÄ¼şÃû
-	Èç¹û$_GETÖĞÓĞ'cat' , is_category()ÎªÕæ, È¡themeÄ¿Â¼ÏÂµÄcategory.phpÕâ¸öviewÎÄ¼ş
+	å‰é¢æ‰§è¡Œparse_query()æ—¶æ ¹æ®è¯·æ±‚æ—¶$_GETä¸­çš„æ‰€å¸¦å‚æ•°, åˆ¤æ–­è¿™ä¸ªè¯·æ±‚æ˜¯homeé¡µè¿˜æ˜¯åˆ«çš„é¡µé¢
+	å¦‚æœæ˜¯é¦–é¡µ, åˆ°ç›¸åº”themeç›®å½•ä¸‹å–home.php(æˆ–index.php)è¿™ä¸ªviewæ¨¡æ¿æ–‡ä»¶,å¾—åˆ°æ–‡ä»¶å
+	å¦‚æœ$_GETä¸­æœ‰'cat' , is_category()ä¸ºçœŸ, å–themeç›®å½•ä¸‹çš„category.phpè¿™ä¸ªviewæ–‡ä»¶
 	*/
-	elseif ( is_home()           && $template = get_home_template()           ) :   /*** È¡home.php */
+	elseif ( is_home()           && $template = get_home_template()           ) :   /*** å–home.php */
 	elseif ( is_post_type_archive() && $template = get_post_type_archive_template() ) :
 	elseif ( is_tax()            && $template = get_taxonomy_template()       ) :
 	elseif ( is_attachment()     && $template = get_attachment_template()     ) :
 		remove_filter('the_content', 'prepend_attachment');
 
 	/***
-	±ÈÈçÏë²»Í¬categoryµÄÎÄÕÂ¶¼ÓĞ×Ô¼º²»Í¬µÄÏÔÊ¾Ä£°åÎÄ¼ş,  ÒòÎªÒ»¸öpost¿ÉÒÔ¶ÔÓ¦¶à¸öcategory,ËùÒÔÓĞÓÅÏÈ¼¶µÄÎÊÌâ
+	æ¯”å¦‚æƒ³ä¸åŒcategoryçš„æ–‡ç« éƒ½æœ‰è‡ªå·±ä¸åŒçš„æ˜¾ç¤ºæ¨¡æ¿æ–‡ä»¶,  å› ä¸ºä¸€ä¸ªpostå¯ä»¥å¯¹åº”å¤šä¸ªcategory,æ‰€ä»¥æœ‰ä¼˜å…ˆçº§çš„é—®é¢˜
 
-	·½·¨1:Ö±½ÓÔÚÄ£°åÎÄ¼şÖĞĞ´,Èç
+	æ–¹æ³•1:ç›´æ¥åœ¨æ¨¡æ¿æ–‡ä»¶ä¸­å†™,å¦‚
 	if (in_category('portfolio')) {
 		include(TEMPLATEPATH.'/single_portfolio.php');
 	} elseif (in_category('news')) {
@@ -97,7 +97,7 @@ if ( defined('WP_USE_THEMES') && WP_USE_THEMES ) :
 	}
 
 
-	·½·¨2: Í¨¹ı¹´×Ó
+	æ–¹æ³•2: é€šè¿‡å‹¾å­
 	add_filter('single_template', 'single_template_terms');
 	function single_template_terms($template) {
 		foreach( (array) wp_get_object_terms(get_the_ID(), get_taxonomies(array('public' => true, '_builtin' => false))) as $term ) {
@@ -107,7 +107,7 @@ if ( defined('WP_USE_THEMES') && WP_USE_THEMES ) :
 		return $template;
 	}
 
-	»òÕß¼òµ¥¸ù¾İ'category'
+	æˆ–è€…ç®€å•æ ¹æ®'category'
 	function single_template_terms($template) {
 		foreach( (array) get_the_category() as $cat ) {		
 			if ( file_exists(TEMPLATEPATH . "/single-{$cat->slug}.php") )
@@ -116,10 +116,10 @@ if ( defined('WP_USE_THEMES') && WP_USE_THEMES ) :
 		return $template;
 	}
 	*/		
-	elseif ( is_single()         && $template = get_single_template()         /* ÏÔÊ¾Ä³¸öÌù×Ó */ ) :
+	elseif ( is_single()         && $template = get_single_template()         /* æ˜¾ç¤ºæŸä¸ªè´´å­ */ ) :
 
 	
-	elseif ( is_page()           && $template = get_page_template()           /* ÏÔÊ¾Ä³¸öpage */) :
+	elseif ( is_page()           && $template = get_page_template()           /* æ˜¾ç¤ºæŸä¸ªpage */) :
 	elseif ( is_singular()       && $template = get_singular_template()       ) :
 	elseif ( is_category()       && $template = get_category_template()       ) :
 	elseif ( is_tag()            && $template = get_tag_template()            ) :
@@ -128,11 +128,11 @@ if ( defined('WP_USE_THEMES') && WP_USE_THEMES ) :
 	elseif ( is_archive()        && $template = get_archive_template()        ) :
 	elseif ( is_paged()          && $template = get_paged_template()          ) :
 	else :
-		$template = get_index_template();	/* ÆäËüÇé¿öÏÔÊ¾indexÒ³ , ÒªÊÇÓĞ¸öis_xx()»òÕßÖÃ¸ö±êÖ¾¾ÍºÃÁË*/
+		$template = get_index_template();	/* å…¶å®ƒæƒ…å†µæ˜¾ç¤ºindexé¡µ , è¦æ˜¯æœ‰ä¸ªis_xx()æˆ–è€…ç½®ä¸ªæ ‡å¿—å°±å¥½äº†*/
 	endif;
 	
 	/*
-	ÖÁ´Ë, ÒÑÌô³öÁËÒ»¸öÄ£°åÎÄ¼ş, ±ÈÈç:
+	è‡³æ­¤, å·²æŒ‘å‡ºäº†ä¸€ä¸ªæ¨¡æ¿æ–‡ä»¶, æ¯”å¦‚:
 	$template = D:\htdocs\note-wordpress/wp-content/themes/twentysixteen/index.php
 	$template = D:\htdocs\note-wordpress/wp-content/themes/twentysixteen/single.php	
 	$template = D:\htdocs\note-wordpress/wp-content/themes/twentysixteen/page.php
@@ -146,11 +146,11 @@ if ( defined('WP_USE_THEMES') && WP_USE_THEMES ) :
 	 *
 	 * @param string $template The path of the template to include.
 	 */
-	 /*** ÔÙ¸ø±ğÈËÒ»¸ö»ú»áÈ¥¸Ä±äÄ£°åÎÄ¼şÃû */
+	 /*** å†ç»™åˆ«äººä¸€ä¸ªæœºä¼šå»æ”¹å˜æ¨¡æ¿æ–‡ä»¶å */
 	if ( $template = apply_filters( 'template_include', $template ) ) {
 		/*
-		Ö´ĞĞ¹ÒÔÚ'template_include'µÄËùÓĞ¹³×Óº¯Êı,Ã¿¸ö¹³×Óº¯ÊıµÄÊä³öÊÇÏÂ¸ö¹³×Óº¯ÊıµÄÊäÈë?
-		ÓĞÊ±Ïë¸Ä±ädefaultÄ£°å,ÓÃ·¨ÈçÏÂ
+		æ‰§è¡ŒæŒ‚åœ¨'template_include'çš„æ‰€æœ‰é’©å­å‡½æ•°,æ¯ä¸ªé’©å­å‡½æ•°çš„è¾“å‡ºæ˜¯ä¸‹ä¸ªé’©å­å‡½æ•°çš„è¾“å…¥?
+		æœ‰æ—¶æƒ³æ”¹å˜defaultæ¨¡æ¿,ç”¨æ³•å¦‚ä¸‹
 		add_filter( 'template_include', 'portfolio_page_template', 99 );
 		function portfolio_page_template( $template ) {
 			if ( is_page( 'portfolio' )  ) {
@@ -166,9 +166,9 @@ if ( defined('WP_USE_THEMES') && WP_USE_THEMES ) :
 		}				
 		*/
 		include( $template );
-	} elseif ( current_user_can( 'switch_themes' ) ) {		/* ·ñÔò$templateÎ´ÕÒµ½, »»¸öÖ÷ÌâÊÔÊÔ?  ÔÚÄÄÀïincludeÄ£°åÄÚ? */
+	} elseif ( current_user_can( 'switch_themes' ) ) {		/* å¦åˆ™$templateæœªæ‰¾åˆ°, æ¢ä¸ªä¸»é¢˜è¯•è¯•?  åœ¨å“ªé‡Œincludeæ¨¡æ¿å†…? */
 		/*
-		Èç¹ûÓĞ'switch_themes' È¨ÏŞ...
+		å¦‚æœæœ‰'switch_themes' æƒé™...
 		*/
 		$theme = wp_get_theme();
 		if ( $theme->errors() ) {
@@ -177,4 +177,4 @@ if ( defined('WP_USE_THEMES') && WP_USE_THEMES ) :
 	}
 	return;
 endif;
-/* Èç¹ûWP_USE_THEMES=falseÔò²»ÏÔÊ¾*/
+/* å¦‚æœWP_USE_THEMES=falseåˆ™ä¸æ˜¾ç¤º*/

@@ -10,10 +10,12 @@
 本文件可被别的后台管理文件(如wordpress系统的edit.php, index.php,...)include, 也可以被browser直接访问(通常是从menu中hook进来的)做一些事
 
 1. http://mysite.com/wp-admin/index.php  (或edit.php,...), 
-在index.php中可以include本文件, 主要是:准备menu 数据, 实例化screen
+在index.php中可以include本文件, 主要是:准备menu 数据, 实例化screen, 路过而已
 
 2. http://mysite.com/wp-admin/?page=myplugin
-也可以直接访问本文件, 见menu-header.php中<a href='admin.php?page={$submenu_items[0][2]}
+也可以直接访问本文件, 见menu-header.php中<a href='admin.php?page={$submenu_items[0][2]}, 这里就是终点不是路过
+
+为什么访问后台的菜单函数或者是edit.php之类的文件都要从这里过?
 */
 
 /**
@@ -113,7 +115,13 @@ set_screen_options();
 $date_format = __( 'F j, Y' );
 $time_format = __( 'g:i a' );
 
-//?
+/***
+加载使用common$suffix.js, 这里只是登记
+$scripts->add( 'common', "/wp-admin/js/common$suffix.js", array('jquery', 'hoverIntent', 'utils'), false, 1 );
+
+js什么时候输出到html中?
+在模板文件中遇到wp_head() tag时会触发输出一系列东西,其中就包括js脚本
+*/
 wp_enqueue_script( 'common' );
 
 
@@ -153,6 +161,7 @@ if ( isset($_GET['page']) ) {
 	$plugin_page = plugin_basename($plugin_page);
 }
 
+/*** $typenow, $taxnow作用? */
 if ( isset( $_REQUEST['post_type'] ) && post_type_exists( $_REQUEST['post_type'] ) )
 	$typenow = $_REQUEST['post_type'];
 else
@@ -281,6 +290,8 @@ if ( isset($plugin_page) ) {
 		如设置屏幕option,
 		$hook = add_menu_page( $pg_title, $menu_title, $cap, $slug, $function );
 		add_action( "load-$hook", 'add_some_screen_option' );
+
+		执行菜单中的函数之前
 		*/
 		do_action( 'load-' . $page_hook );
 		
@@ -293,9 +304,11 @@ if ( isset($plugin_page) ) {
 		 * @ignore
 		 * @since 1.5.0
 		 */
+		 
 		 /* 
-		 执行menu中所定义的function, 这里$page_hook like 'toplevel_page_prowp_main_menu_slug' 
-		 展示插件设置页
+                开始执行菜单中的函数		 
+		 1. 执行menu中所定义的function, 这里$page_hook like 'toplevel_page_prowp_main_menu_slug' 
+		 2. 展示插件设置页
 		 */
 		do_action( $page_hook );	
 		
@@ -397,7 +410,10 @@ if ( isset($plugin_page) ) {
 
 	exit();
 } else {
-	/* 正常点后台管理菜单(非插件设置页)都会进到这里 */
+	/* 
+	正常点后台管理中的菜单如edit.php(非插件设置页)都会进到这里 
+        即执行edit.php时会路过此admin.php
+	*/
 	/**
 	 * Fires before a particular screen is loaded.
 	 *
@@ -432,6 +448,7 @@ if ( isset($plugin_page) ) {
 	} elseif( 'term.php' === $pagenow ) {
 		do_action( 'load-edit-tags.php' );
 	}
+        /*** 回到edit.php, post-new.php等继续执行, 这里只是路过*/ 
 }
 
 /***

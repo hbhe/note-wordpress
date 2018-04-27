@@ -47,10 +47,10 @@ function get_column_headers( $screen ) {
 		MS Themes	'themes-network' – individual blogs use 'themes'
 		MS Users 	'users-network' – individual blogs use 'users'
 		Plugins 	'plugins'*
-		Posts	'edit-post'
+		Posts	'edit-post' // post列表页screen id
 		Pages	'edit-page'
-		Custom Post types		dit-{$post->post_type}
-		Categories	'edit-category'
+		Custom Post types		edit-{$post->post_type}
+		Categories	'edit-category'  // category列表页screen-id
 		Tags		'edit-post_tag'
 		Terms	edit-{$this->screen->taxonomy}
 		Themes	'themes'*

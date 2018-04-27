@@ -42,6 +42,9 @@ require( ABSPATH . WPINC . '/functions.wp-styles.php' );
  *
  * @param WP_Scripts $scripts WP_Scripts object.
  */
+ /*** 
+为了方便,预定义一些js handle, 以后要用时直接wp_enqueue_script('handle'); 
+ */
 function wp_default_scripts( &$scripts ) {
 	include( ABSPATH . WPINC . '/version.php' ); // include an unmodified $wp_version
 
@@ -64,6 +67,9 @@ function wp_default_scripts( &$scripts ) {
 	$suffix = SCRIPT_DEBUG ? '' : '.min';
 	$dev_suffix = $develop_src ? '' : '.min';
 
+        /***
+        $scripts->add()与wp_register_script()是一回事
+        */
 	$scripts->add( 'utils', "/wp-includes/js/utils$suffix.js" );
 	did_action( 'init' ) && $scripts->localize( 'utils', 'userSettings', array(
 		'url' => (string) SITECOOKIEPATH,
@@ -192,9 +198,6 @@ function wp_default_scripts( &$scripts ) {
 	/*** 预定义了一堆jquery组件, 以后可以直接用, 用法? 	
         wp_register_script('my_amazing_script', plugins_url('amazing_script.js', __FILE__), array('jquery'),'1.1', true);  // 因为前面预定义了jquery, 所以可以直接定义一个依赖于jquery的amazing_script.js
         wp_enqueue_script('my_amazing_script');
-        wp_register_script('xxx', plugins_url('xxx.js', __FILE__), array('my_amazing_script'), '1.1', true); 
-        wp_enqueue_script('xxx');
-        wp_enqueue_script( 'custom_js', plugins_url( 'js/custom.js', __FILE__ ), array('jquery-core'), $my_js_ver ); // 不注册, 直接定义一个基于预定义的jquery-core, 
 	*/
 	$scripts->add( 'jquery-effects-blind', "/wp-includes/js/jquery/ui/effect-blind$dev_suffix.js", array('jquery-effects-core'), '1.11.4', 1 );
 	$scripts->add( 'jquery-effects-bounce', "/wp-includes/js/jquery/ui/effect-bounce$dev_suffix.js", array('jquery-effects-core'), '1.11.4', 1 );

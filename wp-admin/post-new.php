@@ -8,6 +8,12 @@
 
 /***
 新增或编辑post时, 默认是不出现摘要输入框的, 在screen option中勾选一下就出来了 
+
+post.php, post-new.php, edit.php这几个文件的区别?
+post.php 修改页
+post-new.php 新增, 后面带参数表示对不同类型的新增, post-new.php?post_type=page, post-new.php?post_type=product, post-new.php?post_type=order
+edit.php 列表页, 后面带post_type参数表示对不同类型对象的列表页，(edit.php?post_type=page, edit.php?post_type=product, edit.php?post_type=order, ...), 不同类型怎么显示不同字段?
+
 */
 
 /** Load WordPress Administration Bootstrap */
@@ -20,6 +26,7 @@ require_once( dirname( __FILE__ ) . '/admin.php' );
  */
 global $post_type, $post_type_object, $post;
 
+/** 先取post_type参数，看要新增的是什么类型的 */
 if ( ! isset( $_GET['post_type'] ) ) {
 	$post_type = 'post';
 } elseif ( in_array( $_GET['post_type'], get_post_types( array('show_ui' => true ) ) ) ) {
@@ -84,7 +91,12 @@ if ( is_multisite() ) {
 }
 
 // Show post form.
+/** new一个新的post对象, true表示要在db中有记录 */
+/** 参数true, 每次打开新增页面时，哪怕一个字都没输入，也会插入一条draft记录? 
+所谓新增，就是先插入一条记录，再编辑它, 以下edit-form-advanced.php是新增和编辑共有的部分
+*/
 $post = get_default_post_to_edit( $post_type, true );
 $post_ID = $post->ID;
+
 include( ABSPATH . 'wp-admin/edit-form-advanced.php' );
 include( ABSPATH . 'wp-admin/admin-footer.php' );

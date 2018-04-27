@@ -74,6 +74,7 @@ function wp_category_checklist( $post_id = 0, $descendants_and_self = 0, $select
  *                                        of echoing it. Default true.
  * }
  */
+ /** 带check框的全部分类 */
 function wp_terms_checklist( $post_id = 0, $args = array() ) {
  	$defaults = array(
 		'descendants_and_self' => 0,
@@ -188,6 +189,7 @@ function wp_terms_checklist( $post_id = 0, $args = array() ) {
  * @param bool $echo Optionally output the list as well. Defaults to true.
  * @return array List of popular term IDs.
  */
+ /** 列出最常用的分类term, 带check框*/
 function wp_popular_terms_checklist( $taxonomy, $default = 0, $number = 10, $echo = true ) {
 	$post = get_post();
 
@@ -907,6 +909,8 @@ add_meta_box()是准备以后要输出的meta数据
 do_meta_boxes()才是输出meta框的html片断 
 
 $screen表示在哪个(或哪类)页面才显示, 如'post','page'这种post_type, 
+为什么是screen, 而不是post_type?  如果使用时不指定$screen这个参数，
+比如我只想为编辑post时加个metabox, 就用$screen = 'post'参数
 $context表示在页面的什么版块显示, normal表示在中间正常位置, side表示右侧栏, advanced表示什么位置?  
 $priority表示显示顺序
  */

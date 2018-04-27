@@ -201,6 +201,7 @@ if ( 'update' == $action ) {
 		check_admin_referer( $option_page . '-options' );
 	}
 
+        /*** 检查页面$option_page是否登记过(模板中用settings_fields()登记的) */
 	if ( !isset( $whitelist_options[ $option_page ] ) )
 		wp_die( __( '<strong>ERROR</strong>: options page not found.' ) );
 

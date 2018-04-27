@@ -53,7 +53,7 @@ function create_initial_post_types() {
 		),
 		'public'  => true,
 		'_builtin' => true, /* internal use only. don't use this when registering your own post type. */
-		'_edit_link' => 'post.php?post=%d', /* internal use only. don't use this when registering your own post type. */
+		'_edit_link' => 'post.php?post=%d', /* internal use only. don't use this when registering your own post type. */   // 生成一个post的编辑链接时要用到
 		'capability_type' => 'post',
 		'map_meta_cap' => true,
 		'menu_position' => 5,	/*** 定义$menu[5] = ... */
@@ -85,8 +85,9 @@ function create_initial_post_types() {
 		(隐藏后用户就没有办法直接从custom栏目中改变,只能通过metabox改变)
 
 		可供输入的项 
-		'editor': 表示可输入content
+		'editor': 表示可编辑post的内容(content)
 		*/
+		/*** 对编辑页面的控制开关 */
 		'supports' => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'trackbacks', 'custom-fields', 'comments', 'revisions', 'post-formats' ), /*** 除了page-attributes */
 	) );
 
@@ -734,6 +735,10 @@ function get_page_statuses() {
  * }
  * @return object
  */
+
+ /*** 有什么用? 
+比如订单有7种状态, 那注册之后, post不是也看到这7种状态了? 怎么让不同的post_type看到不同的status?
+ */
 function register_post_status( $post_status, $args = array() ) {
 	global $wp_post_statuses;
 
@@ -986,17 +991,24 @@ function get_post_types( $args = array(), $output = 'names', $operator = 'and' )
  *                                             If not set, the default is inherited from $public.
  *     @type bool        $show_ui              Whether to generate and allow a UI for managing this post type in the
  *                                             admin. Default is value of $public.
- *     @type bool        $show_in_menu         Where to show the post type in the admin menu. To work, $show_ui
+ 
+ // 把它放在哪个菜单下面, 利用它可以把几个post_type的菜单单独拎出来放在一起
+ *     @type bool        $show_in_menu         Where to show the post type in the admin menu. To work, $show_ui    
  *                                             must be true. If true, the post type is shown in its own top level
  *                                             menu. If false, no menu is shown. If a string of an existing top
  *                                             level menu (eg. 'tools.php' or 'edit.php?post_type=page'), the post
  *                                             type will be placed as a sub-menu of that.
  *                                             Default is value of $show_ui.
+
+// 是否出现在菜单拖放界面 
  *     @type bool        $show_in_nav_menus    Makes this post type available for selection in navigation menus.
  *                                             Default is value $public.
+ 
  *     @type bool        $show_in_admin_bar    Makes this post type available via the admin bar. Default is value
  *                                             of $show_in_menu.
- *     @type int         $menu_position        The position in the menu order the post type should appear. To work,
+
+ // 在菜单中的排序
+ *     @type int         $menu_position        The position in the menu order the post type should appear. To work,    
  *                                             $show_in_menu must be true. Default null (at the bottom).
  *     @type string      $menu_icon            The url to the icon to be used for this menu. Pass a base64-encoded
  *                                             SVG using a data URI, which will be colored to match the color scheme
@@ -1076,6 +1088,8 @@ exclude_from_search: search时是否过滤掉此类型的文章
 register_post_type()注册后在左侧菜单中出一个菜单项，如商品、Add
 register_taxonomy()注册后在左侧子菜单中出现一个子菜单项(管理分类)，如商品下的颜色
 
+注册之后，菜单项是怎么增加的? 展示menu时会从post_types中取出数据，生成一些菜单项
+一般注册post_type之后，会在后面界面显示一组菜单, 列表页+新增页; 但比如当show_in_menu='abc'时,它只显示一个列表页,加在abc父菜单下, 见_add_post_type_submenus()
 */
 function register_post_type( $post_type, $args = array() ) {
 	global $wp_post_types, $wp_rewrite, $wp;
@@ -1110,7 +1124,7 @@ function register_post_type( $post_type, $args = array() ) {
 		'publicly_queryable'   => null,
 		'show_ui'              => null,
 		'show_in_menu'         => null,
-		'show_in_nav_menus'    => null,
+		'show_in_nav_menus'    => null,  /** 是否出现在菜单拖放界面 */
 		'show_in_admin_bar'    => null,
 		'menu_position'        => null,
 		'menu_icon'            => null,
@@ -1118,8 +1132,8 @@ function register_post_type( $post_type, $args = array() ) {
 		/*** 除了标准的(默认的) 一组读写删等权限外, 如果你想提供额外的权限控制, 就将权限名放在capabilities内 */
 		'capabilities'         => array(),
 		'map_meta_cap'         => null,
-		'supports'             => array(),
-		'register_meta_box_cb' => null,
+		'supports'             => array(), /*** 对编辑页面中板块的控制开关 */
+		'register_meta_box_cb' => null, /** 如果有值, 在编辑post时,会加一个自定义版块; 如果$taxonomy->meta_box_cb有值, 会开一个分类版块  */
 		'taxonomies'           => array(),
 		'has_archive'          => false,
 		'rewrite'              => true,
@@ -1194,10 +1208,10 @@ function register_post_type( $post_type, $args = array() ) {
         比如我要完全定义一个自己的输入页面, 就可以把supports设为false?
         */
 	if ( ! empty( $args->supports ) ) {
-		/*** 去注册此post_type支持的feature */
+		/*** 去注册此post_type支持的feature, 即编辑post页面的控制开关 */
 		add_post_type_support( $post_type, $args->supports );
 		unset( $args->supports );
-	} elseif ( false !== $args->supports ) {
+	} elseif ( false !== $args->supports ) { // 为null默认就是title, editor, 指定false就是什么都不要?
 		// Add default features
 		/*** 如果注册post_type时未指定supports, 默认打开title,content输入框，当然发布框总是有的 */
 		add_post_type_support( $post_type, array( 'title', 'editor' ) );

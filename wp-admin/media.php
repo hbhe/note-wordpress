@@ -18,6 +18,7 @@ wp_reset_vars(array('action'));
 
 switch ( $action ) {
 case 'editattachment' :
+        /** ¥¶¿Ì */
 	$attachment_id = (int) $_POST['attachment_id'];
 	check_admin_referer('media-form');
 
@@ -44,6 +45,7 @@ case 'editattachment' :
 
 	// No break.
 case 'edit' :
+        /** œ‘ æ */
 	$title = __('Edit Media');
 
 	if ( empty($errors) )

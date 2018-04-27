@@ -15,6 +15,16 @@
  *
  * @see WP_List_Table
  */
+ /***
+WP_List_Table定义在class-wp-list-table.php中
+像post, page, 其它自定义类型如product, shop_order都是使用的这个类
+
+可以重新定义自己的表头, 如
+add_filter( 'manage_product_posts_columns', array( $this, 'product_columns' ) );
+add_filter( 'manage_shop_coupon_posts_columns', array( $this, 'shop_coupon_columns' ) );
+add_filter( 'manage_shop_order_posts_columns', array( $this, 'shop_order_columns' ) );		 
+
+*/
 class WP_Posts_List_Table extends WP_List_Table {
 
 	/**
@@ -265,6 +275,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 	 * @global array $avail_post_stati
 	 * @return array
 	 */
+	 /** 表格上面的几个链接: 如全部（36） | 已发布（35） | 置顶（1） | 草稿（1）  */
 	protected function get_views() {
 		global $locked_post_status, $avail_post_stati;
 
@@ -392,6 +403,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 	 *
 	 * @return array
 	 */
+	 /** 操作下拉框: 编辑, 移至回收站 */
 	protected function get_bulk_actions() {
 		$actions = array();
 		$post_type_obj = get_post_type_object( $this->screen->post_type );
@@ -419,15 +431,19 @@ class WP_Posts_List_Table extends WP_List_Table {
 	 * @global int $cat
 	 * @param string $which
 	 */
+	 /**  顶部筛选过滤版块 , 比如商品列表怎么加上自己的过滤框? */
 	protected function extra_tablenav( $which ) {
 		global $cat;
 ?>
 		<div class="alignleft actions">
 <?php
+              // 底部不需要筛选框  
 		if ( 'top' === $which && !is_singular() ) {
 
+                    /** 全部日期下拉框 */
 			$this->months_dropdown( $this->screen->post_type );
 
+                    /***  全部分类目录下拉框*/
 			if ( is_object_in_taxonomy( $this->screen->post_type, 'category' ) ) {
 				$dropdown_options = array(
 					'show_option_all' => get_taxonomy( 'category' )->labels->all_items,
@@ -453,8 +469,12 @@ class WP_Posts_List_Table extends WP_List_Table {
 			 *
 			 * @param string $post_type The post type slug.
 			 */
+			/** 给别人机会, 加上自定义的过滤框 
+                     add_action( 'restrict_manage_posts', array( $this, 'restrict_manage_posts' ) );			 	 
+			*/
 			do_action( 'restrict_manage_posts', $this->screen->post_type );
 
+                    /*** 筛选按钮 */
 			submit_button( __( 'Filter' ), 'button', 'filter_action', false, array( 'id' => 'post-query-submit' ) );
 		}
 
@@ -577,6 +597,12 @@ class WP_Posts_List_Table extends WP_List_Table {
 		 * @since 3.0.0
 		 *
 		 * @param array $post_columns An array of column names.
+		 */
+		 /*** 
+		 可以在这里重新定义自己的表头, 如
+		add_filter( 'manage_product_posts_columns', array( $this, 'product_columns' ) );
+		add_filter( 'manage_shop_coupon_posts_columns', array( $this, 'shop_coupon_columns' ) );
+		add_filter( 'manage_shop_order_posts_columns', array( $this, 'shop_order_columns' ) );		 
 		 */
 		return apply_filters( "manage_{$post_type}_posts_columns", $posts_columns );
 	}
@@ -1031,6 +1057,8 @@ class WP_Posts_List_Table extends WP_List_Table {
 	 * @param WP_Post $post        The current WP_Post object.
 	 * @param string  $column_name The current column name.
 	 */
+	 
+	 /*** 里面有个勾子，可以显示自定义自段的值 */
 	public function column_default( $post, $column_name ) {
 		if ( 'categories' === $column_name ) {
 			$taxonomy = 'category';
@@ -1096,7 +1124,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 			 * @param string $column_name The name of the column to display.
 			 * @param int    $post_id     The current post ID.
 			 */
-			 /*** 有机会显示自定义字段的值 */
+			 /*** 给别人机会显示自定义字段的值 */
 			do_action( 'manage_posts_custom_column', $column_name, $post->ID );
 		}
 
@@ -1110,6 +1138,12 @@ class WP_Posts_List_Table extends WP_List_Table {
 		 * @param string $column_name The name of the column to display.
 		 * @param int    $post_id     The current post ID.
 		 */
+	        /*** 给别人机会显示自定义字段的值 ,如
+	        展示商品各字段的值
+		add_action( 'manage_product_posts_custom_column', array( $this, 'render_product_columns' ), 2 );	  
+		订单各字段的值
+		add_action( 'manage_shop_order_posts_custom_column', array( $this, 'render_shop_order_columns' ), 2 );		
+	        */
 		do_action( "manage_{$post->post_type}_posts_custom_column", $column_name, $post->ID );
 	}
 
@@ -1292,6 +1326,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 	 *
 	 * @global string $mode
 	 */
+	 /*** 点"快速编辑"时，展开此表单 */
 	public function inline_edit() {
 		global $mode;
 

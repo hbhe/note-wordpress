@@ -496,6 +496,7 @@ add_action( 'template_redirect', 'redirect_canonical' );
 add_action( 'template_redirect', 'wp_redirect_admin_locations', 1000 );
 
 // Shortcodes
+/*** 显示内容时, 要展开里面的shortcode tag */
 add_filter( 'the_content', 'do_shortcode', 11 ); // AFTER wpautop()
 
 // Media

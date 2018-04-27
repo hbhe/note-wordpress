@@ -1146,7 +1146,7 @@ function trackback_rdf( $deprecated = '' ) {
  * @param int|WP_Post $post_id Post ID or WP_Post object. Default current post.
  * @return bool True if the comments are open.
  */
- /* ´ËÌùÊÇ·ñÔÊÐíÆÀÂÛ */
+ /* æ­¤è´´æ˜¯å¦å…è®¸è¯„è®º */
 function comments_open( $post_id = null ) {
 
 	$_post = get_post($post_id);
@@ -1248,7 +1248,7 @@ function wp_comment_form_unfiltered_html_nonce() {
  * @param bool   $separate_comments Optional. Whether to separate the comments by comment type.
  *                                  Default false.
  */
- /* ´ÓdbÖÐÈ¡³öÆÀÂÛ, È»ºó¼ÓÔØÄ£°åÄ¿Â¼ÏÂµÄÆÀÂÛviewÎÄ¼þ,Èçcomments.php */
+ /* ä»Ždbä¸­å–å‡ºè¯„è®º, ç„¶åŽåŠ è½½æ¨¡æ¿ç›®å½•ä¸‹çš„è¯„è®ºviewæ–‡ä»¶,å¦‚comments.php */
 function comments_template( $file = '/comments.php', $separate_comments = false ) {
 	global $wp_query, $withcomments, $post, $wpdb, $id, $comment, $user_login, $user_ID, $user_identity, $overridden_cpage;
 
@@ -1335,7 +1335,7 @@ function comments_template( $file = '/comments.php', $separate_comments = false 
 				$top_level_args['include_unapproved'] = $comment_args['include_unapproved'];
 			}
 
-			/* ´ÓdbÖÐÈ¡³öÆÀÂÛ */
+			/* ä»Ždbä¸­å–å‡ºè¯„è®º */
 			$top_level_count = $top_level_query->query( $top_level_args );
 
 			$comment_args['offset'] = ( ceil( $top_level_count / $per_page ) - 1 ) * $per_page;
@@ -1427,8 +1427,8 @@ function comments_template( $file = '/comments.php', $separate_comments = false 
 	 * @param string $theme_template The path to the theme template file.
 	 */
 	 /* 
-	 $includeÐÎÈçD:\htdocs\note-wordpress/wp-content/themes/twentysixteen/comments.php
-	 $fileÐÎÈç:/comments.php
+	 $includeå½¢å¦‚D:\htdocs\note-wordpress/wp-content/themes/twentysixteen/comments.php
+	 $fileå½¢å¦‚:/comments.php
 	 */
 	$include = apply_filters( 'comments_template', $theme_template );
 	if ( file_exists( $include ) )
@@ -2115,7 +2115,7 @@ function wp_list_comments( $args = array(), $comments = null ) {
  * }
  * @param int|WP_Post $post_id Post ID or WP_Post object to generate the form for. Default current post.
  */
- /* ÏÔÊ¾ÆÀÂÛÊäÈë¿ò */
+ /* æ˜¾ç¤ºè¯„è®ºè¾“å…¥æ¡† */
 function comment_form( $args = array(), $post_id = null ) {
 	if ( null === $post_id )
 		$post_id = get_the_ID();
@@ -2236,7 +2236,7 @@ function comment_form( $args = array(), $post_id = null ) {
 				 */
 				do_action( 'comment_form_must_log_in_after' );
 			else : ?>
-				<form action="<?php echo site_url( '/wp-comments-post.php' ); /* ÆÀÂÛµÄ´¦Àí³ÌÐòÊÇwp-comments-post.php */ ?>" method="post" id="<?php echo esc_attr( $args['id_form'] ); ?>" class="<?php echo esc_attr( $args['class_form'] ); ?>"<?php echo $html5 ? ' novalidate' : ''; ?>>
+				<form action="<?php echo site_url( '/wp-comments-post.php' ); /* è¯„è®ºçš„å¤„ç†ç¨‹åºæ˜¯wp-comments-post.php */ ?>" method="post" id="<?php echo esc_attr( $args['id_form'] ); ?>" class="<?php echo esc_attr( $args['class_form'] ); ?>"<?php echo $html5 ? ' novalidate' : ''; ?>>
 					<?php
 					/**
 					 * Fires at the top of the comment form, inside the form tag.

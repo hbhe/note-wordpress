@@ -1096,6 +1096,7 @@ function uninstall_plugin($plugin) {
  
 后台增加一项独立菜单,重点是$function这个参数, 它显示html片断
 $menu_slug用来产生菜单的url, 比如admin.php?page=prowp_main_menu_slug ?
+所以你在后后经常看见如admin.php?page=wc-settings  这个wc-settings实际上对应于一个函数
 
 add_menu_page(), add_submenu_page()
 
@@ -1836,7 +1837,11 @@ function user_can_access_admin_page() {
     预先定义这个prowp-settings-group['prowp_options']这个变量, options.php中在处理form时就会放行
     不能说提交的form中有什么就存什么, 要过滤一下的, 只有定义过的变量才能接受的
     */
- 
+
+ /** 
+ 每个页面都要规定可接收用户输入的参数
+ $option_group哪个页面, $option_name该页面能接受的参数
+ */
 function register_setting( $option_group, $option_name, $sanitize_callback = '' ) {
 	global $new_whitelist_options;
 

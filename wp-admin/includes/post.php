@@ -593,6 +593,7 @@ function bulk_edit_posts( $post_data = null ) {
  * @param bool   $create_in_db Optional. Whether to insert the post into database. Default false.
  * @return WP_Post Post object containing all the default post data as attributes
  */
+ /*** new一个新的post对象 */
 function get_default_post_to_edit( $post_type = 'post', $create_in_db = false ) {
 	$post_title = '';
 	if ( !empty( $_REQUEST['post_title'] ) )
@@ -607,6 +608,7 @@ function get_default_post_to_edit( $post_type = 'post', $create_in_db = false ) 
 		$post_excerpt = esc_html( wp_unslash( $_REQUEST['excerpt'] ));
 
 	if ( $create_in_db ) {
+	        /** 每次打开新增页面时，哪怕一个字都没输入，也会插入一条draft记录? */
 		$post_id = wp_insert_post( array( 'post_title' => __( 'Auto Draft' ), 'post_type' => $post_type, 'post_status' => 'auto-draft' ) );
 		$post = get_post( $post_id );
 		if ( current_theme_supports( 'post-formats' ) && post_type_supports( $post->post_type, 'post-formats' ) && get_option( 'default_post_format' ) )

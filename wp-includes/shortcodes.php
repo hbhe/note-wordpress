@@ -39,6 +39,9 @@
  * @var array
  * @global array $shortcode_tags
  */
+ /***
+在post 使用[shortcode_tag /]就相当于得到一个函数的返回字符串, 当然函数与tag之前要有对应关系
+ */
 $shortcode_tags = array();
 
 /**
@@ -212,15 +215,20 @@ function do_shortcode( $content, $ignore_html = false ) {
 
 	// Find all registered tag names in $content.
 	preg_match_all( '@\[([^<>&/\[\]\x00-\x20=]++)@', $content, $matches );
+	/** 把content中有出现, 同时又在系统中登记过的tag找出来 */
 	$tagnames = array_intersect( array_keys( $shortcode_tags ), $matches[1] );
 
 	if ( empty( $tagnames ) ) {
 		return $content;
 	}
 
+        /** 作用? */
 	$content = do_shortcodes_in_html_tags( $content, $ignore_html, $tagnames );
 
+        /** 全部tags合起来,做成一个pattern */
 	$pattern = get_shortcode_regex( $tagnames );
+	
+	/** 搜索匹配之后调用do_shortcode_tag处理, do_shortcode_tag会根据tag名调用对应的函数*/
 	$content = preg_replace_callback( "/$pattern/", 'do_shortcode_tag', $content );
 
 	// Always restore square braces so we don't break things like <!--[if IE ]>
@@ -257,14 +265,15 @@ function get_shortcode_regex( $tagnames = null ) {
 	if ( empty( $tagnames ) ) {
 		$tagnames = array_keys( $shortcode_tags );
 	}
-	$tagregexp = join( '|', array_map('preg_quote', $tagnames) );
+	$tagregexp = join( '|', array_map('preg_quote', $tagnames) );  /** tag1|tag2|...*/
 
 	// WARNING! Do not change this regex without changing do_shortcode_tag() and strip_shortcode_tag()
 	// Also, see shortcode_unautop() and shortcode.js.
+	/*** shortcode式子的完整的正则表达, [tag attr1=a attr2=b] */
 	return
 		  '\\['                              // Opening bracket
 		. '(\\[?)'                           // 1: Optional second opening bracket for escaping shortcodes: [[tag]]
-		. "($tagregexp)"                     // 2: Shortcode name
+		. "($tagregexp)"                     // 2: Shortcode name  如(tag1|tag2|tag3|...)
 		. '(?![\\w-])'                       // Not followed by word character or hyphen
 		. '('                                // 3: Unroll the loop: Inside the opening shortcode tag
 		.     '[^\\]\\/]*'                   // Not a closing bracket or forward slash
@@ -326,6 +335,7 @@ function do_shortcode_tag( $m ) {
 		// enclosing tag - extra parameter
 		return $m[1] . call_user_func( $shortcode_tags[$tag], $attr, $m[5], $tag ) . $m[6];
 	} else {
+	        /*** 根据tag, 调用对应的函数, 可见对应函数签名应是tag_func($attr, $m5, $tag) */
 		// self-closing tag
 		return $m[1] . call_user_func( $shortcode_tags[$tag], $attr, null,  $tag ) . $m[6];
 	}

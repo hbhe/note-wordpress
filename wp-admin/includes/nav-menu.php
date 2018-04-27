@@ -125,8 +125,13 @@ function _wp_ajax_menu_quick_search( $request = array() ) {
  **/
 function wp_nav_menu_setup() {
 	// Register meta boxes
+	/*** 将'show_in_nav_menus'=true的post_type, 取出它下面的post, post的链接可以当一个菜单项 */
 	wp_nav_menu_post_type_meta_boxes();
+	
+	/** 加一个自定义链接的metabox */
 	add_meta_box( 'add-custom-links', __( 'Custom Links' ), 'wp_nav_menu_item_link_meta_box', 'nav-menus', 'side', 'default' );
+
+	/*** 将'show_in_nav_menus'=true的taxonomy也做成metabox */
 	wp_nav_menu_taxonomy_meta_boxes();
 
 	// Register advanced menu items (columns)
@@ -179,6 +184,9 @@ function wp_initial_nav_menu_meta_boxes() {
  * @since 3.0.0
  */
 function wp_nav_menu_post_type_meta_boxes() {
+        /** 
+        取出所有可出现在拖放界面的post_type , 把它们下面的post链接取出来，以后供拖放
+        */
 	$post_types = get_post_types( array( 'show_in_nav_menus' => true ), 'object' );
 
 	if ( ! $post_types )
@@ -295,6 +303,7 @@ function wp_nav_menu_item_link_meta_box() {
  * @param string $object Not used.
  * @param string $post_type The post type object.
  */
+ /** 取出此post_type下的一些post, post的链接用来被拖放 */
 function wp_nav_menu_item_post_type_meta_box( $object, $post_type ) {
 	global $_nav_menu_placeholder, $nav_menu_selected_id;
 
@@ -373,7 +382,7 @@ function wp_nav_menu_item_post_type_meta_box( $object, $post_type ) {
 	?>
 	<div id="posttype-<?php echo $post_type_name; ?>" class="posttypediv">
 		<ul id="posttype-<?php echo $post_type_name; ?>-tabs" class="posttype-tabs add-menu-item-tabs">
-			<li <?php echo ( 'most-recent' == $current_tab ? ' class="tabs"' : '' ); ?>>
+			<li <?php echo ( 'most-recent' == $current_tab ? ' class="tabs"' : '' ); /** tabs: 最近、查看所有、搜索 */ ?>>
 				<a class="nav-tab-link" data-type="tabs-panel-posttype-<?php echo esc_attr( $post_type_name ); ?>-most-recent" href="<?php if ( $nav_menu_selected_id ) echo esc_url(add_query_arg($post_type_name . '-tab', 'most-recent', remove_query_arg($removed_args))); ?>#tabs-panel-posttype-<?php echo $post_type_name; ?>-most-recent">
 					<?php _e( 'Most Recent' ); ?>
 				</a>
@@ -395,6 +404,7 @@ function wp_nav_menu_item_post_type_meta_box( $object, $post_type ) {
 		?>">
 			<ul id="<?php echo $post_type_name; ?>checklist-most-recent" class="categorychecklist form-no-clear">
 				<?php
+				/*** 取最近的 */
 				$recent_args = array_merge( $args, array( 'orderby' => 'post_date', 'order' => 'DESC', 'posts_per_page' => 15 ) );
 				$most_recent = $get_posts->query( $recent_args );
 				$args['walker'] = $walker;
@@ -574,6 +584,7 @@ function wp_nav_menu_item_post_type_meta_box( $object, $post_type ) {
  * @param string $taxonomy The taxonomy object.
  */
 function wp_nav_menu_item_taxonomy_meta_box( $object, $taxonomy ) {
+    /*** 取出此taxonomy下的所有term， term的链接可以被拖放 */
 	global $nav_menu_selected_id;
 	$taxonomy_name = $taxonomy['args']->name;
 

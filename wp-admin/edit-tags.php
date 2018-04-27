@@ -6,8 +6,21 @@
  * @subpackage Administration
  */
 /***
-分类列表, url中不指定post_type参数,就取post
+
+edit.php 列表页(及对本页的处理), 后面带post_type参数表示对不同类型对象的列表页，(edit.php?post_type=page, edit.php?post_type=product, edit.php?post_type=order, ...), 不同类型怎么显示不同字段?
+在screen option中勾选一下可以选择要显示的字段、每页条数
+post-new.php 新增, 后面可带post_type参数,表示对不同类型的新增, post-new.php?post_type=page, post-new.php?post_type=product, post-new.php?post_type=order
+post.php 修改页
+
+edit-tags.php?taxonomy=xxx 分类列表页，实际上是term新增表单+ term列表页?
+
+upload.php是图片(媒体)列表
+media-new.php 新增图片(媒体)页
+post.php修改页
+
+分类列表页, 如果url中不指定post_type参数,默认就是post, 
 http://127.0.0.1/note-wordpress/wp-admin/edit-tags.php?taxonomy=product_cat&post_type=product
+左侧是一个新增分类的form, 右侧一张已创建的分类的列表
 */
 
 /** WordPress Administration Bootstrap */
@@ -39,7 +52,7 @@ if ( ! current_user_can( $tax->cap->manage_terms ) ) {
  * @global string $post_type
  */
 global $post_type;
-
+/** term列表*/
 $wp_list_table = _get_list_table('WP_Terms_List_Table');
 $pagenum = $wp_list_table->get_pagenum();
 
@@ -68,6 +81,7 @@ $referer = wp_get_referer();
 
 switch ( $wp_list_table->current_action() ) {
 
+/**对左侧增加表单的处理*/
 case 'add-tag':
 
 	check_admin_referer( 'add-tag', '_wpnonce_add-tag' );
@@ -462,6 +476,7 @@ if ( current_user_can($tax->cap->edit_terms) ) {
  *
  * @since 3.7.0
  */
+ /***  add-tag form 表单*/
 do_action( "{$taxonomy}_term_new_form_tag" );
 ?>>
 <input type="hidden" name="action" value="add-tag" />
@@ -484,7 +499,7 @@ do_action( "{$taxonomy}_term_new_form_tag" );
 <?php endif; // global_terms_enabled() ?>
 <?php if ( is_taxonomy_hierarchical($taxonomy) ) : ?>
 <div class="form-field term-parent-wrap">
-	<label for="parent"><?php _ex( 'Parent', 'term parent' ); ?></label>
+	<label for="parent"><?php _ex( 'Parent', 'term parent' ); /** 父结点 */?></label>
 	<?php
 	$dropdown_args = array(
 		'hide_empty'       => 0,
@@ -527,7 +542,7 @@ do_action( "{$taxonomy}_term_new_form_tag" );
 </div>
 <?php endif; // is_taxonomy_hierarchical() ?>
 <div class="form-field term-description-wrap">
-	<label for="tag-description"><?php _e( 'Description' ); ?></label>
+	<label for="tag-description"><?php _e( 'Description' ); /**图像描述*/  ?></label>
 	<textarea name="description" id="tag-description" rows="5" cols="40"></textarea>
 	<p><?php _e('The description is not prominent by default; however, some themes may show it.'); ?></p>
 </div>
@@ -553,8 +568,10 @@ if ( ! is_taxonomy_hierarchical( $taxonomy ) ) {
  *
  * @param string $taxonomy The taxonomy slug.
  */
+ /** 如果想增加term时加个缩略图之类的, 可以加在这里*/
 do_action( "{$taxonomy}_add_form_fields", $taxonomy );
 
+/**  提交按钮, 如'添加新分类目录' */
 submit_button( $tax->labels->add_new_item );
 
 if ( 'category' == $taxonomy ) {
@@ -616,6 +633,7 @@ try{document.forms.addtag['tag-name'].focus();}catch(e){}
 <?php
 endif;
 
+/* 快速编辑*/
 $wp_list_table->inline_edit();
 
 include( ABSPATH . 'wp-admin/admin-footer.php' );
